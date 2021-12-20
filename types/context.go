@@ -25,6 +25,11 @@ func (c *Context) GetInt(param string) int {
 	return value
 }
 
+func (c *Context) GetBool(param string) bool {
+	value, _ := strconv.ParseBool(c.Get(param))
+	return value
+}
+
 func (c *Context) GetEntries() map[string]string {
 	return c.entries
 }
