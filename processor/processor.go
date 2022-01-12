@@ -19,3 +19,12 @@ func (p *Processor) Evaluate(ctx *types.Context, expression string) string {
 func (p *Processor) Boolean(value bool) string {
 	return strconv.FormatBool(value)
 }
+
+func (p *Processor) Contains(slice []interface{}, val interface{}) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}

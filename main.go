@@ -74,8 +74,8 @@ func main() {
 	ctx := types.NewContext()
 
 	ctx.Put("idade", "45")
-	ctx.Put("branch", "3477")
-	ctx.Put("account", "128689")
+	ctx.Put("branch", "03411")
+	ctx.Put("account", "00000170408")
 
 	_, err = eval(ctx, knowledgeBase)
 	if err != nil {
