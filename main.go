@@ -63,7 +63,7 @@ func main() {
 
 	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
 
-	fileRes := pkg.NewFileResource("../featws-compiler/examples/full/rules.grl")
+	fileRes := pkg.NewFileResource("../featws-transpiler/examples/full/rules.grl")
 	err := ruleBuilder.BuildRuleFromResource("TutorialRules", "0.0.1", fileRes)
 	if err != nil {
 		panic(err)
