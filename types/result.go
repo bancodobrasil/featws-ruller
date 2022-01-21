@@ -32,6 +32,11 @@ func (r *Result) GetInt(param string) int {
 	return value
 }
 
+func (r *Result) GetFloat(param string) float64 {
+	value, _ := strconv.ParseFloat(r.GetString(param))
+	return value
+}
+
 func (r *Result) GetBool(param string) bool {
 	value, _ := strconv.ParseBool(r.GetString(param))
 	return value
