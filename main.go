@@ -1,133 +1,65 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"io/ioutil"
 	"log"
-	"net/http"
-	"reflect"
-	"time"
+	"os"
 
-	"github.com/hyperjumptech/grule-rule-engine/ast"
-	"github.com/hyperjumptech/grule-rule-engine/builder"
-	"github.com/hyperjumptech/grule-rule-engine/engine"
-	"github.com/hyperjumptech/grule-rule-engine/pkg"
-
-	"github.com/bancodobrasil/featws-ruller/processor"
-	"github.com/bancodobrasil/featws-ruller/types"
-	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v3"
 )
 
-func HomeHandler(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "FeatWS Works!!!")
+type ResourceLoader struct {
+	Type    string            `yaml:"type"`
+	Url     string            `yaml:"url"`
+	Headers map[string]string `yaml:"headers"`
 }
 
-func EvalHandler(w http.ResponseWriter, req *http.Request) {
-	decoder := json.NewDecoder(req.Body)
-	var t map[string]interface{}
-	err := decoder.Decode(&t)
-	if err != nil {
-		panic(err)
-	}
-	log.Println(t)
-
-	knowledgeBase := knowledgeLibrary.GetKnowledgeBase("TutorialRules", "0.0.1")
-
-	ctx := types.NewContext()
-
-	keys := reflect.ValueOf(t).MapKeys()
-
-	for i := range keys {
-		k := keys[i]
-		ctx.Put(k.String(), t[k.String()])
-	}
-	result, err := eval(ctx, knowledgeBase)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-	fmt.Print("Features:\n\t", result.GetFeatures(), "\n\n")
-
-	w.WriteHeader(http.StatusOK)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(result.GetFeatures())
-	//fmt.Fprintf(w, "%v", result)
+type Config struct {
+	ResourceLoader ResourceLoader `yaml:"resource-loader"`
 }
 
-var knowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
+const DEFAULT_KNOWLEDGEBASE_NAME = "default"
+const DEFAULT_KNOWLEDGEBASE_VERSION = "latest"
+
+var config = Config{}
 
 // Hello returns a greeting for the named person.
 func main() {
 
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
+	arg := os.Args[1:]
 
-	fileRes := pkg.NewFileResource("../featws-transpiler/examples/full/rules.grl")
-	err := ruleBuilder.BuildRuleFromResource("TutorialRules", "0.0.1", fileRes)
+	bytes, err := ioutil.ReadFile(arg[0])
 	if err != nil {
+		log.Fatalf("error: %v", err)
 		panic(err)
 	}
 
-	knowledgeBase := knowledgeLibrary.NewKnowledgeBaseInstance("TutorialRules", "0.0.1")
-
-	ctx := types.NewContext()
-
-	ctx.Put("idade", "45")
-	ctx.Put("branch", "03411")
-	ctx.Put("account", "00000170408")
-
-	_, err = eval(ctx, knowledgeBase)
+	err = yaml.Unmarshal(bytes, &config)
 	if err != nil {
+		log.Fatalf("error: %v", err)
 		panic(err)
 	}
 
-	r := mux.NewRouter()
+	if len(arg) > 1 {
+		defaultGRL := arg[1]
+		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
 
-	r.HandleFunc("/", HomeHandler)
-	r.HandleFunc("/eval/", EvalHandler)
-
-	srv := &http.Server{
-		Handler: r,
-		Addr:    "0.0.0.0:8000",
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
+		err := loadLocalGRL(defaultGRL, DEFAULT_KNOWLEDGEBASE_NAME, DEFAULT_KNOWLEDGEBASE_VERSION)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		log.Println("Não foram carregadas regras default!")
 	}
+
+	srv := setupServer()
 
 	log.Fatal(srv.ListenAndServe())
-}
-
-func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
-	dataCtx := ast.NewDataContext()
-
-	processor := processor.NewProcessor()
-
-	result := types.NewResult()
-
-	err := dataCtx.Add("processor", processor)
-	if err != nil {
-		return result, err
-	}
-
-	err = dataCtx.Add("ctx", ctx)
-	if err != nil {
-		return result, err
-	}
-
-	err = dataCtx.Add("result", result)
-	if err != nil {
-		return result, err
-	}
-
-	eng := engine.NewGruleEngine()
-	err = eng.Execute(dataCtx, knowledgeBase)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-	fmt.Print("Features:\n\t", result.GetFeatures(), "\n\n")
-
-	return result, nil
 }
