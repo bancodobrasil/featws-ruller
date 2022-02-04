@@ -36,14 +36,14 @@ func (c *TypedMap) GetString(param string) string {
 	return fmt.Sprintf("%s", c.entries[param])
 }
 
-func (c *TypedMap) GetInt(param string) int {
+func (c *TypedMap) GetInt(param string) int64 {
 	value := c.Get(param)
 	strValue, ok := value.(string)
 	if ok {
 		intValue, _ := strconv.Atoi(strValue)
-		return intValue
+		return int64(intValue)
 	}
-	return value.(int)
+	return int64(value.(int64))
 }
 
 func (c *TypedMap) GetBool(param string) bool {
