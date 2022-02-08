@@ -35,13 +35,8 @@ jobs:
       run: |
           if [[ ${{ matrix.go_version }} = $LATEST_GO_VERSION ]]; then
             go get -u golang.org/x/lint/golint
-            GOLINT_OUTPUT="$(golint -set_exit_status $1 ./...)"
-
-            if [ $? -ne 0 ]; then
-              echo "${GOLINT_OUTPUT}"
-
-              exit 1
-            fi
+            golint -set_exit_status $1 ./...
+            exit $1
           fi
 
     - name: "Run gofmt"
