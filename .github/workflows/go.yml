@@ -7,6 +7,7 @@ on:
 
 env:
   LATEST_GO_VERSION: "1.17"
+  GO111MODULE: "on"
 
 jobs:
 
@@ -26,9 +27,7 @@ jobs:
         go-version: ${{ matrix.go_version }}
 
     - name: "Fetch dependencies"
-      run: |
-          go mod download
-          export GO111MODULE=on
+      run: go mod download
             
       # Only run gofmt, vet & lint against the latest Go version
     - name: "Run golint"
