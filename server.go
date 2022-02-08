@@ -71,7 +71,7 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 
 		err := loadRemoteGRL(knowledgeBaseName, version)
 		if err != nil {
-			log.Printf("Erro on load: %w", err)
+			log.Printf("Erro on load: %v", err)
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, "KnowledgeBase or version not founded!")
 			// w.WriteHeader(http.StatusServiceUnavailable)
