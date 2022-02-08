@@ -34,7 +34,7 @@ jobs:
     - name: "Run golint"
       run: |
           if [[ ${{ matrix.go_version }} = $LATEST_GO_VERSION ]]; then
-            go get -u golang.org/x/lint/golint
+            go install golang.org/x/lint/golint@latest
             golint -set_exit_status $1 ./...
             exit $1
           fi
