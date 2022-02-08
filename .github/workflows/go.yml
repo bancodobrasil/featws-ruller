@@ -31,24 +31,19 @@ jobs:
             
       # Only run gofmt, vet & lint against the latest Go version
     - name: "Run golint"
+      if: ${{ matrix.go_version == $LATEST_GO_VERSION && matrix.os == "ubuntu-latest"}}
       run: |
-          if [ ${{ matrix.go_version }} = $LATEST_GO_VERSION ] && [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            go install golang.org/x/lint/golint@latest
-            golint -set_exit_status $1 ./...
-            exit $1
-          fi
+          go install golang.org/x/lint/golint@latest
+          golint -set_exit_status $1 ./...
+          exit $1
 
     - name: "Run gofmt"
-      run: |
-          if [ ${{ matrix.go_version }} = $LATEST_GO_VERSION ] && [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            diff -u <(echo -n) <(gofmt -d -e .)
-          fi
+      if: ${{ matrix.go_version == $LATEST_GO_VERSION && matrix.os == "ubuntu-latest"}}
+      run: diff -u <(echo -n) <(gofmt -d -e .)
 
     - name: "Run go vet"
-      run: |
-          if [ ${{ matrix.go_version }} = $LATEST_GO_VERSION ] && [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            go vet -v ./...
-          fi
+      if: ${{ matrix.go_version == $LATEST_GO_VERSION && matrix.os == "ubuntu-latest"}}
+      run: go vet -v ./...
 
     - name: Build
       run: go build -v ./...
