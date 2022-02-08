@@ -8,14 +8,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ResourceLoader struct {
+type resourceLoader struct {
 	Type    string            `yaml:"type"`
-	Url     string            `yaml:"url"`
+	URL     string            `yaml:"url"`
 	Headers map[string]string `yaml:"headers"`
 }
 
+// Config its used to load config for resource loader
 type Config struct {
-	ResourceLoader ResourceLoader `yaml:"resource-loader"`
+	ResourceLoader resourceLoader `yaml:"resource-loader"`
 }
 
 func getEnv(key, fallback string) string {
@@ -25,8 +26,11 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-const DEFAULT_KNOWLEDGEBASE_NAME = "default"
-const DEFAULT_KNOWLEDGEBASE_VERSION = "latest"
+// DefaultKnowledgeBaseName its default name of Knowledge Base
+const DefaultKnowledgeBaseName = "default"
+
+// DefaultKnowledgeBaseVersion its default version of Knowledge Base
+const DefaultKnowledgeBaseVersion = "latest"
 
 var config = Config{}
 
@@ -51,7 +55,7 @@ func main() {
 		defaultGRL := arg[1]
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
 
-		err := loadLocalGRL(defaultGRL, DEFAULT_KNOWLEDGEBASE_NAME, DEFAULT_KNOWLEDGEBASE_VERSION)
+		err := loadLocalGRL(defaultGRL, DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 		if err != nil {
 			panic(err)
 		}

@@ -5,37 +5,45 @@ import (
 	"strconv"
 )
 
+// TypedMap its a map with method to gets entries with specific types
 type TypedMap struct {
 	entries map[string]interface{}
 }
 
+// NewTypedMap method create a new TypedMap
 func NewTypedMap() *TypedMap {
 	return &TypedMap{
 		entries: make(map[string]interface{}),
 	}
 }
 
+// Put method inserts a generic entry on map
 func (c *TypedMap) Put(param string, value interface{}) {
 	c.entries[param] = value
 }
 
+// Has method verify if a param exists in map
 func (c *TypedMap) Has(param string) bool {
 	_, exists := c.entries[param]
 	return exists
 }
 
+// Get method get a generic entry of map
 func (c *TypedMap) Get(param string) interface{} {
 	return c.entries[param]
 }
 
+// GetSlice method get a slice entry of map
 func (c *TypedMap) GetSlice(param string) []interface{} {
 	return c.Get(param).([]interface{})
 }
 
+// GetString method get a string entry of map
 func (c *TypedMap) GetString(param string) string {
 	return fmt.Sprintf("%s", c.entries[param])
 }
 
+// GetInt method get a int entry of map
 func (c *TypedMap) GetInt(param string) int64 {
 	value := c.Get(param)
 	strValue, ok := value.(string)
@@ -46,15 +54,18 @@ func (c *TypedMap) GetInt(param string) int64 {
 	return int64(value.(int64))
 }
 
+// GetBool method get a bool entry of map
 func (c *TypedMap) GetBool(param string) bool {
 	value, _ := strconv.ParseBool(c.GetString(param))
 	return value
 }
 
+// GetEntries method get all entries of map
 func (c *TypedMap) GetEntries() map[string]interface{} {
 	return c.entries
 }
 
+// AddItem method inserts a item into a slice of map
 func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 	if !c.Has(param) {
 		c.Put(param, []interface{}{})

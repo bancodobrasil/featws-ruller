@@ -24,7 +24,7 @@ func loadLocalGRL(grlPath string, knowledgeBaseName string, version string) erro
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
-type KnowledgeBaseInfo struct {
+type knowledgeBaseInfo struct {
 	KnowledgeBaseName string
 	Version           string
 }
@@ -36,11 +36,11 @@ func loadRemoteGRL(knowledgeBaseName string, version string) error {
 		headers.Set(header, value)
 	}
 
-	url := config.ResourceLoader.Url
+	url := config.ResourceLoader.URL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
 	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
 
-	info := KnowledgeBaseInfo{
+	info := knowledgeBaseInfo{
 		KnowledgeBaseName: knowledgeBaseName,
 		Version:           version,
 	}

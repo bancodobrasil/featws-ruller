@@ -21,7 +21,7 @@ func setupServer() *http.Server {
 	r.HandleFunc("/eval/{knowledgeBase}", evalHandler)
 	r.HandleFunc("/eval/{knowledgeBase}/", evalHandler)
 
-	knowledgeBase := knowledgeLibrary.GetKnowledgeBase(DEFAULT_KNOWLEDGEBASE_NAME, DEFAULT_KNOWLEDGEBASE_VERSION)
+	knowledgeBase := knowledgeLibrary.GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 
 	if knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
@@ -55,12 +55,12 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 
 	knowledgeBaseName, ok := vars["knowledgeBase"]
 	if !ok {
-		knowledgeBaseName = DEFAULT_KNOWLEDGEBASE_NAME
+		knowledgeBaseName = DefaultKnowledgeBaseName
 	}
 
 	version, ok := vars["version"]
 	if !ok {
-		version = DEFAULT_KNOWLEDGEBASE_VERSION
+		version = DefaultKnowledgeBaseVersion
 	}
 
 	log.Printf("Eval with %s %s\n", knowledgeBaseName, version)
