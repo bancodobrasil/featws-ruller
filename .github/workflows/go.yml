@@ -23,26 +23,26 @@ jobs:
         go-version: ${{ matrix.go_version }}
 
     - name: "Fetch dependencies"
-      run: >
+      run: |
           go mod download
           export GO111MODULE=on
             
       # Only run gofmt, vet & lint against the latest Go version
     - name: "Run golint"
-      run: >
+      run: |
           if [[ ${{ matrix.go_version }} = "latest" ]]; then
             go get -u golang.org/x/lint/golint
             golint ./...
           fi
-          
+
     - name: "Run gofmt"
-      run: >
+      run: |
           if [[ ${{ matrix.go_version }} = "latest" ]]; then
             diff -u <(echo -n) <(gofmt -d -e .)
           fi
 
     - name: "Run go vet"
-      run: >
+      run: |
           if [[ ${{ matrix.go_version }} = "latest" ]]; then
             go vet -v ./...
           fi
