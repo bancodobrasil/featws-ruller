@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine
+FROM golang:1.17-alpine AS BUILD
 
 WORKDIR /app
 
@@ -12,5 +12,11 @@ COPY . /app
 
 RUN go build -o ruller
 
-ENTRYPOINT [ "/app/ruller" ] 
+FROM alpine:3.15
+
+COPY --from=BUILD /app/ruller /bin/
+
+ENTRYPOINT [ "ruller" ] 
+
+
 
