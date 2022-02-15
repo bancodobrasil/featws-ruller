@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["./config.yaml"]
+            "args": ["./config.yaml", "../featws-compiler/__tests__/cases/0039 - nested_4_feature_with_condition/rules.grl"]
         }
     ]
 }
