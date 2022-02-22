@@ -6,11 +6,14 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gorilla/mux"
 )
+
+var loadMutex sync.Mutex
 
 func setupServer() *http.Server {
 	r := mux.NewRouter()
@@ -65,6 +68,8 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 
 	log.Printf("Eval with %s %s\n", knowledgeBaseName, version)
 
+	loadMutex.Lock()
+
 	knowledgeBase := knowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
 	if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
@@ -77,6 +82,7 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 			// w.WriteHeader(http.StatusServiceUnavailable)
 			// encoder := json.NewEncoder(w)
 			// encoder.Encode(err)
+			loadMutex.Unlock()
 			return
 		}
 
@@ -85,9 +91,12 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, "KnowledgeBase or version not founded!")
+			loadMutex.Unlock()
 			return
 		}
 	}
+
+	loadMutex.Unlock()
 
 	decoder := json.NewDecoder(req.Body)
 	var t map[string]interface{}
@@ -105,6 +114,7 @@ func evalHandler(w http.ResponseWriter, req *http.Request) {
 		k := keys[i]
 		ctx.Put(k.String(), t[k.String()])
 	}
+
 	result, err := eval(ctx, knowledgeBase)
 	if err != nil {
 		panic(err)

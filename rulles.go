@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
@@ -63,7 +64,11 @@ func loadRemoteGRL(knowledgeBaseName string, version string) error {
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
+var evalMutex sync.Mutex
+
 func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+	// FIXME Remove synchronization on eval
+	evalMutex.Lock()
 	dataCtx := ast.NewDataContext()
 
 	processor := processor.NewProcessor()
@@ -93,6 +98,8 @@ func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, 
 
 	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
 	log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
+
+	evalMutex.Unlock()
 
 	return result, nil
 }
