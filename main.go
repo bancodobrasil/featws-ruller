@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
 
@@ -62,8 +63,11 @@ func main() {
 	} else {
 		log.Println("Não foram carregadas regras default!")
 	}
+	router := gin.New()
 
-	srv := setupServer()
+	setupServer(router)
 
-	log.Fatal(srv.ListenAndServe())
+	port := getEnv("PORT", "8000")
+
+	router.Run(":" + port)
 }
