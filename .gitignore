@@ -3,3 +3,4 @@ featws-ruller
 *.grl
 config.yaml
 example.json
+*.exe
