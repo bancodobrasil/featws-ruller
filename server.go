@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"reflect"
 	"sync"
-	"time"
 
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
@@ -15,7 +14,7 @@ import (
 
 var loadMutex sync.Mutex
 
-func setupServer(router *gin.Engine) *http.Server {
+func setupServer(router *gin.Engine) {
 
 	router.GET("/", homeHandler())
 	router.POST("/eval/:knowledgeBase/:version", evalHandler())
@@ -32,19 +31,6 @@ func setupServer(router *gin.Engine) *http.Server {
 
 	}
 
-	port := getEnv("PORT", "8000")
-
-	srv := &http.Server{
-		Addr:    "0.0.0.0:" + port,
-		Handler: router,
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
-	log.Printf("Listen on http://0.0.0.0:%s", port)
-
-	return srv
 }
 
 func homeHandler() gin.HandlerFunc {

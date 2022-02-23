@@ -63,9 +63,11 @@ func main() {
 	} else {
 		log.Println("Não foram carregadas regras default!")
 	}
-	router := gin.Default()
+	router := gin.New()
 
-	srv := setupServer(router)
+	setupServer(router)
 
-	log.Fatal(srv.ListenAndServe())
+	port := getEnv("PORT", "8000")
+
+	router.Run(":" + port)
 }
