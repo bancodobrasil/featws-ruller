@@ -18,17 +18,17 @@ var loadMutex sync.Mutex
 func setupServer(router *gin.Engine) *http.Server {
 
 	router.GET("/", homeHandler())
-	router.GET("/eval/:knowledgeBase/:version", evalHandler())
-	router.GET("/eval/:knowledgeBase/:version/", evalHandler())
-	router.GET("/eval/:knowledgeBase", evalHandler())
-	router.GET("/eval/:knowledgeBase/", evalHandler())
+	router.POST("/eval/:knowledgeBase/:version", evalHandler())
+	router.POST("/eval/:knowledgeBase/:version/", evalHandler())
+	router.POST("/eval/:knowledgeBase", evalHandler())
+	router.POST("/eval/:knowledgeBase/", evalHandler())
 
 	knowledgeBase := knowledgeLibrary.GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 
 	if knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
-		router.GET("/eval/", evalHandler())
-		router.GET("/eval", evalHandler())
+		router.POST("/eval/", evalHandler())
+		router.POST("/eval", evalHandler())
 
 	}
 
@@ -124,9 +124,7 @@ func evalHandler() gin.HandlerFunc {
 		// log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
 		// log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
 
-		c.Status(http.StatusOK)
-		encoder := json.NewEncoder(c.Writer)
-		encoder.Encode(result.GetFeatures())
+		c.JSON(http.StatusOK, result.GetFeatures())
 		//fmt.Fprintf(w, "%v", result)
 	}
 
