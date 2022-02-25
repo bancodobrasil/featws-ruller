@@ -1,42 +1,59 @@
 package config
 
 import (
+	"os"
+	"strings"
+
 	"github.com/spf13/viper"
 )
-
-type resourceLoader struct {
-	Type    string            `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
-	URL     string            `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
-	Headers map[string]string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HEADERS"`
-}
 
 // O config ira armazenar todas as configurações da aplicação
 // Os valores serão lidos pelo pelo viper de um arquivo de configuração ou de variaveis de ambiente
 type Config struct {
-	ResourceLoader resourceLoader
-	Port           string `mapstructure:"FEATWS_RULLER_PORT"`
-	DefaultRules   string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
+	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
+	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
+	ResourceLoaderHeaders    map[string]string
+	ResourceLoaderHeadersStr string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HEADERS"`
+	Port                     string `mapstructure:"FEATWS_RULLER_PORT"`
+	DefaultRules             string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
 }
 
 // LoadConfig irá ler as configurações do arquivo ou varivaveis de ambiente
 //path string
-func LoadConfig() (config Config, err error) {
-	//viper.AddConfigPath(path)
+func LoadConfig(config *Config) (err error) {
+	viper.AddConfigPath("./")
+	viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
-	//viper.SetDefault("Type", "http")
+
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_TYPE", "http")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_URL", "")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", map[string]string{})
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
 	viper.SetDefault("FEATWS_RULLER_PORT", "8000")
 
-	/*err = viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	if err != nil {
-		return
-	}*/
-
-	cfg := Config{
-		ResourceLoader: resourceLoader{},
+		if err2, ok := err.(*os.PathError); !ok {
+			err = err2
+			return
+		}
 	}
-	err = viper.Unmarshal(&cfg)
-	return cfg, err
+
+	err = viper.Unmarshal(config)
+
+	config.ResourceLoaderHeaders = map[string]string{}
+
+	headers := strings.Split(config.ResourceLoaderHeadersStr, ",")
+
+	for _, value := range headers {
+		entries := strings.Split(value, ":")
+		if len(entries) == 2 {
+			config.ResourceLoaderHeaders[entries[0]] = entries[1]
+		}
+
+	}
+
+	return
 }

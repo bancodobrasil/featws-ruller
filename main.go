@@ -25,14 +25,14 @@ const DefaultKnowledgeBaseName = "default"
 const DefaultKnowledgeBaseVersion = "latest"
 
 //TODO RETIRATR ISSO AQUI
-var Config config.Config
+var Config = config.Config{}
 
 // Hello returns a greeting for the named person.
 func main() {
 
-	Config, err := config.LoadConfig()
+	err := config.LoadConfig(&Config)
 	if err != nil {
-		log.Fatal("Não foi possível carregar as configurações")
+		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
 	}
 
 	if Config.DefaultRules != "" {
