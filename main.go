@@ -7,27 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//TODO SUBSTITUIR PELO VIPER OU PORTA PADRAO
-/*func getEnv(key, fallback string) string {
-	value := viper.GetEnv(key)
-	if value == nil {
-		return fallback
-	}
-
-	return value.Error()
-
-}*/
-
 // DefaultKnowledgeBaseName its default name of Knowledge Base
 const DefaultKnowledgeBaseName = "default"
 
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
-//TODO RETIRATR ISSO AQUI
 var Config = config.Config{}
 
-// Hello returns a greeting for the named person.
 func main() {
 
 	err := config.LoadConfig(&Config)

@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// O config ira armazenar todas as configurações da aplicação
-// Os valores serão lidos pelo pelo viper de um arquivo de configuração ou de variaveis de ambiente
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
@@ -18,8 +16,6 @@ type Config struct {
 	DefaultRules             string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
 }
 
-// LoadConfig irá ler as configurações do arquivo ou varivaveis de ambiente
-//path string
 func LoadConfig(config *Config) (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
@@ -29,7 +25,7 @@ func LoadConfig(config *Config) (err error) {
 
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_TYPE", "http")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_URL", "")
-	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", map[string]string{})
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "map[string]string{}")
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
 	viper.SetDefault("FEATWS_RULLER_PORT", "8000")
 
