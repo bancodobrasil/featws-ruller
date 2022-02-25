@@ -13,7 +13,7 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
-// my var Config is ...
+//Config ...
 var Config = config.Config{}
 
 func main() {
