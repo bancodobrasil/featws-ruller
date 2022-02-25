@@ -33,11 +33,11 @@ type knowledgeBaseInfo struct {
 func loadRemoteGRL(knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
 	headers := make(http.Header)
-	for header, value := range config.ResourceLoader.Headers {
+	for header, value := range Config.ResourceLoader.Headers {
 		headers.Set(header, value)
 	}
 
-	url := config.ResourceLoader.URL
+	url := Config.ResourceLoader.URL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
 	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
 
