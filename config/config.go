@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config struct is ...
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
