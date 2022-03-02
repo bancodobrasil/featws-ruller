@@ -36,7 +36,6 @@ func setupServer(router *gin.Engine) {
 func homeHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.String(http.StatusOK, "FeatWS Works!!!")
-		fmt.Fprintf(c.Writer, "FeatWS Works!!!")
 	}
 
 }

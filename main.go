@@ -1,31 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
-	"os"
 
+	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/yaml.v3"
 )
-
-type resourceLoader struct {
-	Type    string            `yaml:"type"`
-	URL     string            `yaml:"url"`
-	Headers map[string]string `yaml:"headers"`
-}
-
-// Config its used to load config for resource loader
-type Config struct {
-	ResourceLoader resourceLoader `yaml:"resource-loader"`
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
 
 // DefaultKnowledgeBaseName its default name of Knowledge Base
 const DefaultKnowledgeBaseName = "default"
@@ -33,29 +13,19 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
-var config = Config{}
+//Config ...
+var Config = config.Config{}
 
-// Hello returns a greeting for the named person.
 func main() {
 
-	arg := os.Args[1:]
-
-	bytes, err := ioutil.ReadFile(arg[0])
+	err := config.LoadConfig(&Config)
 	if err != nil {
-		log.Fatalf("error: %v", err)
-		panic(err)
+		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
 	}
 
-	err = yaml.Unmarshal(bytes, &config)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-		panic(err)
-	}
-
-	if len(arg) > 1 {
-		defaultGRL := arg[1]
+	if Config.DefaultRules != "" {
+		defaultGRL := Config.DefaultRules
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
-
 		err := loadLocalGRL(defaultGRL, DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 		if err != nil {
 			panic(err)
@@ -63,11 +33,13 @@ func main() {
 	} else {
 		log.Println("Não foram carregadas regras default!")
 	}
+
 	router := gin.New()
 
 	setupServer(router)
 
-	port := getEnv("PORT", "8000")
+	port := Config.Port
 
 	router.Run(":" + port)
+
 }
