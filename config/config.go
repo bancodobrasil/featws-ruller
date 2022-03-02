@@ -27,7 +27,7 @@ func LoadConfig(config *Config) (err error) {
 
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_TYPE", "http")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_URL", "")
-	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "map[string]string{}")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "")
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
 	viper.SetDefault("FEATWS_RULLER_PORT", "8000")
 
