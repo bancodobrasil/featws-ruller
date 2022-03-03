@@ -17,8 +17,10 @@ type Config struct {
 	DefaultRules             string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
 }
 
+var config = &Config{}
+
 //LoadConfig ...
-func LoadConfig(config *Config) (err error) {
+func LoadConfig() (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
@@ -54,4 +56,8 @@ func LoadConfig(config *Config) (err error) {
 	}
 
 	return
+}
+
+func GetConfig() *Config {
+	return config
 }
