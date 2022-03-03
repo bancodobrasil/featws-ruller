@@ -3,7 +3,7 @@ name: Go
 on:
   push:
   pull_request:
-    branches: [ main ]
+    branches: [ develop, master ]
 
 env:
   LATEST_GO_VERSION: "1.17"
