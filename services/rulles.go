@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"bytes"
@@ -18,8 +18,10 @@ import (
 	"github.com/bancodobrasil/featws-ruller/types"
 )
 
+//KnowledgeLibrary ...
 var KnowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
 
+//LoadLocalGRL ...
 func LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
@@ -31,6 +33,7 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
+//LoadRemoteGRL ...
 func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
@@ -68,6 +71,7 @@ func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 
 var evalMutex sync.Mutex
 
+//Eval ...
 func Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()

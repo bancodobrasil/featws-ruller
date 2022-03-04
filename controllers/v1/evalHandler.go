@@ -1,4 +1,4 @@
-package controller
+package v1
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/bancodobrasil/featws-ruller/service"
+	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 )
@@ -19,15 +19,10 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
+//LoadMutex ...
 var LoadMutex sync.Mutex
 
-func HomeHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.String(http.StatusOK, "FeatWS Works!!!")
-	}
-
-}
-
+//EvalHandler ...
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		knowledgeBaseName := c.Param("knowledgeBase")
@@ -44,23 +39,23 @@ func EvalHandler() gin.HandlerFunc {
 
 		LoadMutex.Lock()
 
-		knowledgeBase := service.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+		knowledgeBase := services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
 		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
-			err := service.LoadRemoteGRL(knowledgeBaseName, version)
+			err := services.LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
 				log.Printf("Erro on load: %v", err)
 				c.Status(http.StatusNotFound)
 				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
-				// w.WriteHeader(http.StatusServiceUnavailable)
+				// w.WriteHeader(http.StatusservicesUnavailable)
 				// encoder := json.NewEncoder(w)
 				// encoder.Encode(err)
 				LoadMutex.Unlock()
 				return
 			}
 
-			knowledgeBase = service.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+			knowledgeBase = services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
 			if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 				c.Status(http.StatusNotFound)
@@ -89,7 +84,7 @@ func EvalHandler() gin.HandlerFunc {
 			ctx.Put(k.String(), t[k.String()])
 		}
 
-		result, err := service.Eval(ctx, knowledgeBase)
+		result, err := services.Eval(ctx, knowledgeBase)
 		if err != nil {
 			panic(err)
 		}

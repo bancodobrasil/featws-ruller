@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/bancodobrasil/featws-ruller/config"
-	"github.com/bancodobrasil/featws-ruller/controller"
-	"github.com/bancodobrasil/featws-ruller/route"
-	"github.com/bancodobrasil/featws-ruller/service"
+	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
+	"github.com/bancodobrasil/featws-ruller/routes"
+	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
-		err := service.LoadLocalGRL(defaultGRL, controller.DefaultKnowledgeBaseName, controller.DefaultKnowledgeBaseVersion)
+		err := services.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
 		if err != nil {
 			panic(err)
 		}
@@ -32,7 +32,7 @@ func main() {
 
 	router := gin.New()
 
-	route.SetupServer(router)
+	routes.SetupRoutes(router)
 
 	port := cfg.Port
 
