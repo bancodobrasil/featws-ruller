@@ -20,7 +20,7 @@ const DefaultKnowledgeBaseName = "default"
 const DefaultKnowledgeBaseVersion = "latest"
 
 //LoadMutex ...
-var LoadMutex sync.Mutex
+var loadMutex sync.Mutex
 
 //EvalHandler ...
 func EvalHandler() gin.HandlerFunc {
@@ -37,7 +37,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Printf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		LoadMutex.Lock()
+		loadMutex.Lock()
 
 		knowledgeBase := services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
@@ -51,7 +51,7 @@ func EvalHandler() gin.HandlerFunc {
 				// w.WriteHeader(http.StatusservicesUnavailable)
 				// encoder := json.NewEncoder(w)
 				// encoder.Encode(err)
-				LoadMutex.Unlock()
+				loadMutex.Unlock()
 				return
 			}
 
@@ -60,12 +60,12 @@ func EvalHandler() gin.HandlerFunc {
 			if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 				c.Status(http.StatusNotFound)
 				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
-				LoadMutex.Unlock()
+				loadMutex.Unlock()
 				return
 			}
 		}
 
-		LoadMutex.Unlock()
+		loadMutex.Unlock()
 
 		decoder := json.NewDecoder(c.Request.Body)
 		var t map[string]interface{}
