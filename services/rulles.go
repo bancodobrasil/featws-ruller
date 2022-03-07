@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"bytes"
@@ -13,14 +13,17 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
+	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
 )
 
-var knowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
+//KnowledgeLibrary ...
+var KnowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
 
-func loadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
+//LoadLocalGRL ...
+func LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
+	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
@@ -30,14 +33,16 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
-func loadRemoteGRL(knowledgeBaseName string, version string) error {
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
+//LoadRemoteGRL ...
+func LoadRemoteGRL(knowledgeBaseName string, version string) error {
+	cfg := config.GetConfig()
+	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
 	headers := make(http.Header)
-	for header, value := range Config.ResourceLoaderHeaders {
+	for header, value := range cfg.ResourceLoaderHeaders {
 		headers.Set(header, value)
 	}
 
-	url := Config.ResourceLoaderURL
+	url := cfg.ResourceLoaderURL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
 	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
 
@@ -66,7 +71,8 @@ func loadRemoteGRL(knowledgeBaseName string, version string) error {
 
 var evalMutex sync.Mutex
 
-func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+//Eval ...
+func Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
 	dataCtx := ast.NewDataContext()
