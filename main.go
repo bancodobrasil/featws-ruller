@@ -4,29 +4,25 @@ import (
 	"log"
 
 	"github.com/bancodobrasil/featws-ruller/config"
+	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
+	"github.com/bancodobrasil/featws-ruller/routes"
+	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/gin-gonic/gin"
 )
 
-// DefaultKnowledgeBaseName its default name of Knowledge Base
-const DefaultKnowledgeBaseName = "default"
-
-// DefaultKnowledgeBaseVersion its default version of Knowledge Base
-const DefaultKnowledgeBaseVersion = "latest"
-
-//Config ...
-var Config = config.Config{}
-
 func main() {
 
-	err := config.LoadConfig(&Config)
+	err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
 	}
 
-	if Config.DefaultRules != "" {
-		defaultGRL := Config.DefaultRules
+	cfg := config.GetConfig()
+
+	if cfg.DefaultRules != "" {
+		defaultGRL := cfg.DefaultRules
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
-		err := loadLocalGRL(defaultGRL, DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
+		err := services.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
 		if err != nil {
 			panic(err)
 		}
@@ -36,9 +32,9 @@ func main() {
 
 	router := gin.New()
 
-	setupServer(router)
+	routes.SetupRoutes(router)
 
-	port := Config.Port
+	port := cfg.Port
 
 	router.Run(":" + port)
 
