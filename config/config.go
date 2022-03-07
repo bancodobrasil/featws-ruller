@@ -13,7 +13,7 @@ type Config struct {
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
 	ResourceLoaderHeaders    map[string]string
 	ResourceLoaderHeadersStr string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HEADERS"`
-	Port                     string `mapstructure:"FEATWS_RULLER_PORT"`
+	Port                     string `mapstructure:"PORT"`
 	DefaultRules             string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
 }
 
@@ -29,7 +29,7 @@ func LoadConfig(config *Config) (err error) {
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_URL", "")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "")
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
-	viper.SetDefault("FEATWS_RULLER_PORT", "8000")
+	viper.SetDefault("PORT", "8000")
 
 	err = viper.ReadInConfig()
 	if err != nil {
