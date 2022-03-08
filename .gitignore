@@ -4,3 +4,4 @@ featws-ruller
 config.yaml
 example.json
 *.exe
+*.env
