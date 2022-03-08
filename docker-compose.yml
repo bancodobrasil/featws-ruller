@@ -2,7 +2,9 @@ version: "3.6"
 services:
   ruller:
     build: .
+    ports:
+      - 8000:8000
     expose:
       - 8000
-    volumes:
-      - ./config.yaml:/app/config.yml
+    env_file:
+      - .env

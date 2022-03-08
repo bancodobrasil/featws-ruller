@@ -1,6 +1,0 @@
-resource-loader:
-  type: http
-  url: https://myrepo.com/{knowledgeBase}/{version}/rules.grl
-  headers:
-    PRIVATE-TOKEN: 123123d12d12d12
-  

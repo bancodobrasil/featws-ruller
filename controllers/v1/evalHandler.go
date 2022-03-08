@@ -1,4 +1,4 @@
-package main
+package v1
 
 import (
 	"encoding/json"
@@ -8,40 +8,22 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 )
 
+// DefaultKnowledgeBaseName its default name of Knowledge Base
+const DefaultKnowledgeBaseName = "default"
+
+// DefaultKnowledgeBaseVersion its default version of Knowledge Base
+const DefaultKnowledgeBaseVersion = "latest"
+
+//LoadMutex ...
 var loadMutex sync.Mutex
 
-func setupServer(router *gin.Engine) {
-
-	router.GET("/", homeHandler())
-	router.POST("/eval/:knowledgeBase/:version", evalHandler())
-	router.POST("/eval/:knowledgeBase/:version/", evalHandler())
-	router.POST("/eval/:knowledgeBase", evalHandler())
-	router.POST("/eval/:knowledgeBase/", evalHandler())
-
-	knowledgeBase := knowledgeLibrary.GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
-
-	if knowledgeBase.ContainsRuleEntry("DefaultValues") {
-
-		router.POST("/eval/", evalHandler())
-		router.POST("/eval", evalHandler())
-
-	}
-
-}
-
-func homeHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.String(http.StatusOK, "FeatWS Works!!!")
-		fmt.Fprintf(c.Writer, "FeatWS Works!!!")
-	}
-
-}
-
-func evalHandler() gin.HandlerFunc {
+//EvalHandler ...
+func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		knowledgeBaseName := c.Param("knowledgeBase")
 		if knowledgeBaseName == "" {
@@ -57,23 +39,23 @@ func evalHandler() gin.HandlerFunc {
 
 		loadMutex.Lock()
 
-		knowledgeBase := knowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+		knowledgeBase := services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
 		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
-			err := loadRemoteGRL(knowledgeBaseName, version)
+			err := services.LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
 				log.Printf("Erro on load: %v", err)
 				c.Status(http.StatusNotFound)
 				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
-				// w.WriteHeader(http.StatusServiceUnavailable)
+				// w.WriteHeader(http.StatusservicesUnavailable)
 				// encoder := json.NewEncoder(w)
 				// encoder.Encode(err)
 				loadMutex.Unlock()
 				return
 			}
 
-			knowledgeBase = knowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+			knowledgeBase = services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
 
 			if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 				c.Status(http.StatusNotFound)
@@ -102,7 +84,7 @@ func evalHandler() gin.HandlerFunc {
 			ctx.Put(k.String(), t[k.String()])
 		}
 
-		result, err := eval(ctx, knowledgeBase)
+		result, err := services.Eval(ctx, knowledgeBase)
 		if err != nil {
 			panic(err)
 		}
