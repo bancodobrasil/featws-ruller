@@ -46,12 +46,22 @@ func (c *TypedMap) GetString(param string) string {
 // GetInt method get a int entry of map
 func (c *TypedMap) GetInt(param string) int64 {
 	value := c.Get(param)
-	strValue, ok := value.(string)
-	if ok {
-		intValue, _ := strconv.Atoi(strValue)
-		return int64(intValue)
+
+	if value == nil {
+		return 0
 	}
-	return int64(value.(int64))
+
+	switch v := value.(type) {
+	case string:
+		intValue, _ := strconv.Atoi(v)
+		return int64(intValue)
+	case int:
+		return int64(v)
+	case int64:
+		return v
+	default:
+		panic("It's not possible to recover this parameter as int64")
+	}
 }
 
 // GetBool method get a bool entry of map
@@ -66,13 +76,13 @@ func (c *TypedMap) GetEntries() map[string]interface{} {
 }
 
 // AddItem method inserts a item into a slice of map
-func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
+func (c *TypedMap) AddItem(param string, item ...interface{}) []interface{} {
 	if !c.Has(param) {
 		c.Put(param, []interface{}{})
 	}
 	list := c.GetSlice(param)
 
-	list = append(list, item)
+	list = append(list, item...)
 
 	c.Put(param, list)
 
