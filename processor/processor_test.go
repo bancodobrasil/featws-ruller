@@ -6,11 +6,11 @@ import (
 )
 
 func TestNewProcessor(t *testing.T) {
-	exp_return := &Processor{}
-
 	got := NewProcessor()
 
-	if reflect.TypeOf(got) != reflect.TypeOf(exp_return) {
+	expected := &Processor{}
+
+	if reflect.TypeOf(got) != reflect.TypeOf(expected) {
 		t.Error("you got an error while try to generate a new Processor")
 
 	}
