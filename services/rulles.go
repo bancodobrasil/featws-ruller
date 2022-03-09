@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"log"
-	"net/http"
 	"strings"
 	"sync"
 	"text/template"
@@ -37,10 +36,6 @@ type knowledgeBaseInfo struct {
 func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
-	headers := make(http.Header)
-	for header, value := range cfg.ResourceLoaderHeaders {
-		headers.Set(header, value)
-	}
 
 	url := cfg.ResourceLoaderURL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
@@ -65,7 +60,7 @@ func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 
 	url = doc.String()
 
-	fileRes := pkg.NewURLResourceWithHeaders(url, headers)
+	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
