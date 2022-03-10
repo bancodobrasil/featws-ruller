@@ -75,12 +75,22 @@ func (c *TypedMap) GetString(param string) string {
 // GetInt method get a int entry of map
 func (c *TypedMap) GetInt(param string) int64 {
 	value := c.Get(param)
-	strValue, ok := value.(string)
-	if ok {
-		intValue, _ := strconv.Atoi(strValue)
-		return int64(intValue)
+
+	if value == nil {
+		return 0
 	}
-	return int64(value.(int64))
+
+	switch v := value.(type) {
+	case string:
+		intValue, _ := strconv.Atoi(v)
+		return int64(intValue)
+	case int:
+		return int64(v)
+	case int64:
+		return v
+	default:
+		panic("It's not possible to recover this parameter as int64")
+	}
 }
 
 // GetFloat method get a int entry of map
@@ -144,4 +154,12 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 	c.Put(param, list)
 
 	return list
+}
+
+// AddItems methos insert some items into a slice of map
+func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
+	for _, item := range items {
+		c.AddItem(param, item)
+	}
+	return c.GetSlice(param)
 }
