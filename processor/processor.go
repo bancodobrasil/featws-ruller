@@ -12,7 +12,7 @@ func NewProcessor() *Processor {
 	return &Processor{}
 }
 
-// Boolean method to convert boolean string to boolean
+// Boolean method to convert boolean to string
 func (p *Processor) Boolean(value bool) string {
 	return strconv.FormatBool(value)
 }
