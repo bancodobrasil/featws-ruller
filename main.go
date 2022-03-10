@@ -1,16 +1,27 @@
 package main
 
 import (
-	"log"
+	"os"
 
 	"github.com/bancodobrasil/featws-ruller/config"
 	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
+func setupLog() {
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+
+	log.SetOutput(os.Stdout)
+
+	log.SetLevel(log.DebugLevel)
+}
+
 func main() {
+
+	setupLog()
 
 	err := config.LoadConfig()
 	if err != nil {
