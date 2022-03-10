@@ -83,6 +83,27 @@ func (c *TypedMap) GetInt(param string) int64 {
 	return int64(value.(int64))
 }
 
+// GetFloat method get a int entry of map
+func (c *TypedMap) GetFloat(param string) float64 {
+	value := c.Get(param)
+	if value == nil {
+		return 0
+	}
+	switch v := value.(type) {
+	case string:
+		floatValue, _ := strconv.ParseFloat(v, 64)
+		return floatValue
+	case int:
+		return float64(v)
+	case int64:
+		return float64(v)
+	case float64:
+		return v
+	default:
+		panic("fail to retrieve this param as float64")
+	}
+}
+
 // GetBool method get a bool entry of map
 func (c *TypedMap) GetBool(param string) bool {
 	value, _ := strconv.ParseBool(c.GetString(param))
