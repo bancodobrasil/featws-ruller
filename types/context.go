@@ -12,10 +12,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// RemoteLoaded ...
 type RemoteLoaded struct {
 	Resolver string
 }
 
+// RemoteLoadeds ...
 type RemoteLoadeds map[string]RemoteLoaded
 
 // Context its used to store parameters and temporary variables during rule assertions
@@ -34,6 +36,7 @@ func NewContext() *Context {
 	return instance
 }
 
+// RegistryRemoteLoaded ...
 func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
 	c.RemoteLoadeds[param] = RemoteLoaded{
 		Resolver: resolver,
@@ -51,6 +54,7 @@ func (c *Context) isRemoteLoaded(param string) bool {
 	return ok
 }
 
+// GetEntry ...
 func (c *Context) GetEntry(param string) interface{} {
 	value := c.TypedMap.GetEntry(param)
 

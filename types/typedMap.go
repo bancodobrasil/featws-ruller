@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Getter ...
 type Getter interface {
 	GetEntry(param string) interface{}
 }
@@ -26,7 +27,7 @@ func NewTypedMap() *TypedMap {
 	return instance
 }
 
-// NewTypedMap method create a new TypedMap
+// NewTypedMapFromMap method create a new TypedMap
 func NewTypedMapFromMap(values map[string]interface{}) *TypedMap {
 	instance := NewTypedMap()
 	for key, value := range values {
@@ -46,6 +47,7 @@ func (c *TypedMap) Has(param string) bool {
 	return exists
 }
 
+// GetEntry ...
 func (c *TypedMap) GetEntry(param string) interface{} {
 	value, ok := c.interfaceMap[param]
 	if !ok {
