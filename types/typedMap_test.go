@@ -9,7 +9,7 @@ func TestNewTypedMap(t *testing.T) {
 	got := NewTypedMap()
 
 	expected := &TypedMap{
-		entries: make(map[string]interface{}),
+		interfaceMap: make(map[string]interface{}),
 	}
 
 	if reflect.DeepEqual(got, expected) != true {
@@ -45,7 +45,7 @@ func TestHasTrue(t *testing.T) {
 
 func TestHasFalse(t *testing.T) {
 	tm := NewTypedMap()
-	tm.entries["mystring"] = 1
+	tm.Put("mystring", "test")
 	param := "myint"
 
 	got := tm.Has(param)
@@ -59,12 +59,12 @@ func TestHasFalse(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	tm := NewTypedMap()
-	tm.entries["mystring"] = 1
+	tm.Put("mystring", "test")
 	param := "mystring"
 
 	got := tm.Get(param)
 
-	expected := 1
+	expected := "test"
 
 	if got != expected {
 		t.Error("Test fail, the param doesn't exists into map")
