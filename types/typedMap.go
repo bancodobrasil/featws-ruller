@@ -76,15 +76,22 @@ func (c *TypedMap) GetEntries() map[string]interface{} {
 }
 
 // AddItem method inserts a item into a slice of map
-func (c *TypedMap) AddItem(param string, item ...interface{}) []interface{} {
+func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 	if !c.Has(param) {
 		c.Put(param, []interface{}{})
 	}
 	list := c.GetSlice(param)
 
-	list = append(list, item...)
+	list = append(list, item)
 
 	c.Put(param, list)
 
 	return list
+}
+
+func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
+	for _, item := range items {
+		c.AddItem(param, item)
+	}
+	return c.GetSlice(param)
 }
