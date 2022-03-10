@@ -1,0 +1,43 @@
+name: CI/CD to Heroku
+
+on:
+  push:
+    branches: [ develop ]
+
+env:
+  LATEST_GO_VERSION: "1.17"
+  GO111MODULE: "on"
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ env.LATEST_GO_VERSION }}
+
+    - name: "Fetch dependencies"
+      run: go mod download
+
+    - name: Build
+      run: go build -v ./...
+
+    - run: |
+        REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}')
+        echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      with:
+        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+        heroku_app_name: ${{env.REPOSITORY_NAME}} #Must be unique in Heroku
+        heroku_email: ${{secrets.HEROKU_EMAIL}}
+        usedocker: true
+
+    #- name: Test
+    #  run: go test -v ./...
