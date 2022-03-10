@@ -89,6 +89,7 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 	return list
 }
 
+// AddItems methos insert some items into a slice of map
 func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
 	for _, item := range items {
 		c.AddItem(param, item)
