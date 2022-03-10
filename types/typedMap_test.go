@@ -18,7 +18,6 @@ func TestNewTypedMap(t *testing.T) {
 
 }
 
-// não entendi como testar sem parametro de retorno
 func TestPut(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -129,20 +128,27 @@ func TestGetIntWithInt64(t *testing.T) {
 	}
 }
 
+func TestGetIntWithNoParam(t *testing.T) {
+	tm := NewTypedMap()
+	tm.Put("myint", "")
+	got := tm.GetInt("")
+	expected := int64(0)
+
+	if got != expected {
+		t.Error("Couldn't get the integer into the map")
+	}
+}
+
 func TestGetIntWithPanic(t *testing.T) {
-
-	// tm := NewTypedMap()
-	// tm.Put("myint", false)
-	// got := tm.GetInt("myint")
-	// defer func () {
-	// 	if err := recover(); err != nil {
-	// 		expected := err
-	// 	}
-	// }()
-
-	// if got != expected {
-	// 	t.Error("Couldn't get the integer into the map")
-	// }
+	defer func() {
+		r := recover()
+		if r != "It's not possible to recover this parameter as int64" {
+			t.Error("The panic message it's not throwed")
+		}
+	}()
+	tm := NewTypedMap()
+	tm.Put("myint", false)
+	tm.GetInt("myint")
 }
 
 func TestGetBool(t *testing.T) {
@@ -191,13 +197,43 @@ func TestAddItemWithOneItem(t *testing.T) {
 
 }
 
-func TestAddItemWithTwoItems(t *testing.T) {
+func TestAddItemWithThreeItemsNonInitlizated(t *testing.T) {
+	tm := NewTypedMap()
+	tm.AddItem("myslice", "test1")
+	tm.AddItem("myslice", "test2")
+	tm.AddItem("myslice", "test3")
+	got := tm.GetSlice("myslice")
+
+	expected := []interface{}{"test1", "test2", "test3"}
+
+	if reflect.DeepEqual(got, expected) != true {
+		t.Error("The the expected map doesn't match with the obtained one")
+	}
+
+}
+
+func TestAddItemWithThreeItems(t *testing.T) {
 	tm := NewTypedMap()
 	myslice := []interface{}{"test1", "test2"}
 	tm.Put("myslice", myslice)
+	tm.AddItem("myslice", "test3")
+	tm.AddItem("myslice", "test4")
+	tm.AddItem("myslice", "test5")
+	got := tm.GetSlice("myslice")
 
-	got := tm.AddItem("myslice", "test3", "10")
-	expected := []interface{}{"test1", "test2", "test3", "10"}
+	expected := []interface{}{"test1", "test2", "test3", "test4", "test5"}
+
+	if reflect.DeepEqual(got, expected) != true {
+		t.Error("The the expected map doesn't match with the obtained one")
+	}
+
+}
+
+func TestAddItemsWithThreeItemsNonInitlizated(t *testing.T) {
+	tm := NewTypedMap()
+	got := tm.AddItems("myslice", "test1", "test2", "test3")
+
+	expected := []interface{}{"test1", "test2", "test3"}
 
 	if reflect.DeepEqual(got, expected) != true {
 		t.Error("The the expected map doesn't match with the obtained one")
