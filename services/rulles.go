@@ -94,7 +94,7 @@ func Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, 
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
