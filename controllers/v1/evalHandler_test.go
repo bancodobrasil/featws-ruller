@@ -25,6 +25,12 @@ func mockGin() (*gin.Context, *httptest.ResponseRecorder) {
 }
 
 func TestEvalHandlerWithoutKnowledgeBase(t *testing.T) {
+
+	// LoadRemoteGRL = func(knowledgeBaseName string, version string) error {
+	// 	//fmt.Printf("MOCK: knowledgeBaseName: %s version: %s\n", knowledgeBaseName, version)
+	// 	return fmt.Errorf("error mock: %s", knowledgeBaseName)
+	// }
+
 	c, r := mockGin()
 	EvalHandler()(c)
 	gotStatus := r.Result().Status

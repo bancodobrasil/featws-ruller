@@ -22,6 +22,9 @@ const DefaultKnowledgeBaseVersion = "latest"
 //LoadMutex ...
 var loadMutex sync.Mutex
 
+// LoadRemoteGRL ...
+var LoadRemoteGRL = services.LoadRemoteGRL
+
 //EvalHandler ...
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -43,7 +46,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
-			err := services.LoadRemoteGRL(knowledgeBaseName, version)
+			err := LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
 				log.Printf("Erro on load: %v", err)
 				c.Status(http.StatusNotFound)
