@@ -33,7 +33,7 @@ func main() {
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
-		err := services.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
+		err := services.EvalService.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
 		if err != nil {
 			panic(err)
 		}

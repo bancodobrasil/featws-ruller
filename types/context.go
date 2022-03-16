@@ -26,10 +26,15 @@ type Context struct {
 	RemoteLoadeds RemoteLoadeds
 }
 
-// NewContext method create a new Context
+// NewContextFromMap method create a new Context
 func NewContext() *Context {
+	return NewContextFromMap(make(map[string]interface{}))
+}
+
+// NewContextFromMap method create a new Context from map
+func NewContextFromMap(values map[string]interface{}) *Context {
 	instance := &Context{
-		TypedMap:      *NewTypedMap(),
+		TypedMap:      *NewTypedMapFromMap(values),
 		RemoteLoadeds: make(map[string]RemoteLoaded),
 	}
 	instance.Getter = interface{}(instance).(Getter)

@@ -17,12 +17,9 @@ import (
 	"github.com/bancodobrasil/featws-ruller/types"
 )
 
-//KnowledgeLibrary ...
-var KnowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
-
 //LoadLocalGRL ...
-func LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
-	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
+func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
+	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
@@ -33,9 +30,9 @@ type knowledgeBaseInfo struct {
 }
 
 //LoadRemoteGRL ...
-func LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
-	ruleBuilder := builder.NewRuleBuilder(KnowledgeLibrary)
+	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 
 	url := cfg.ResourceLoaderURL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
@@ -66,8 +63,31 @@ func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 
 var evalMutex sync.Mutex
 
+type IEval interface {
+	GetKnowledgeLibrary() *ast.KnowledgeLibrary
+	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
+	LoadRemoteGRL(knowledgeBaseName string, version string) error
+	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
+}
+
+var EvalService IEval = NewEval()
+
+type Eval struct {
+	knowledgeLibrary *ast.KnowledgeLibrary
+}
+
+func NewEval() Eval {
+	return Eval{
+		knowledgeLibrary: ast.NewKnowledgeLibrary(),
+	}
+}
+
+func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
+	return s.knowledgeLibrary
+}
+
 //Eval ...
-func Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
 	dataCtx := ast.NewDataContext()

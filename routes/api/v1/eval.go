@@ -12,7 +12,7 @@ func evalRouter(router *gin.RouterGroup) {
 	router.POST("/:knowledgeBase", v1.EvalHandler())
 	router.POST("/:knowledgeBase/", v1.EvalHandler())
 
-	knowledgeBase := services.KnowledgeLibrary.GetKnowledgeBase(v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
+	knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
 
 	if knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
