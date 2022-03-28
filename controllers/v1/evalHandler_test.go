@@ -165,3 +165,122 @@ func TestEvalHandlerWithDefaultKnowledgeBase(t *testing.T) {
 		t.Error("got error on request evalHandler func")
 	}
 }
+
+type EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON struct {
+	services.IEval
+	kl *ast.KnowledgeLibrary
+	t  *testing.T
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+	return nil
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
+	return s.kl
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+	return types.NewResult(), nil
+}
+
+func TestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON(t *testing.T) {
+
+	services.EvalService = EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON{
+		t:  t,
+		kl: ast.NewKnowledgeLibrary(),
+	}
+
+	drls := `
+		rule DefaultValues salience 10 {
+			when 
+				true
+			then
+				Retract("DefaultValues");
+		}
+	`
+
+	ruleBuilder := builder.NewRuleBuilder(services.EvalService.GetKnowledgeLibrary())
+	bs := pkg.NewBytesResource([]byte(drls))
+	ruleBuilder.BuildRuleFromResource(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion, bs)
+
+	c, r := mockGin()
+
+	stringReader := strings.NewReader("")
+	c.Request.Body = io.NopCloser(stringReader)
+
+	EvalHandler()(c)
+	gotStatus := r.Code
+	expectedStatus := http.StatusInternalServerError
+
+	if gotStatus != expectedStatus {
+		t.Error("got error on request evalHandler func")
+	}
+
+	gotBody := r.Body.String()
+	expectedBody := "Error on json decode"
+
+	if gotBody != expectedBody {
+		t.Error("we expect error and the didn't came out")
+	}
+}
+
+type EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError struct {
+	services.IEval
+	kl *ast.KnowledgeLibrary
+	t  *testing.T
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+	return nil
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
+	return s.kl
+}
+
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+	return nil, fmt.Errorf("mock error")
+}
+
+func TestEvalHandlerWithDefaultKnowledgeBaseEvalError(t *testing.T) {
+
+	services.EvalService = EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError{
+		t:  t,
+		kl: ast.NewKnowledgeLibrary(),
+	}
+
+	drls := `
+		rule DefaultValues salience 10 {
+			when 
+				true
+			then
+				Retract("DefaultValues");
+		}
+	`
+
+	ruleBuilder := builder.NewRuleBuilder(services.EvalService.GetKnowledgeLibrary())
+	bs := pkg.NewBytesResource([]byte(drls))
+	ruleBuilder.BuildRuleFromResource(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion, bs)
+
+	c, r := mockGin()
+
+	stringReader := strings.NewReader("{}")
+	c.Request.Body = io.NopCloser(stringReader)
+
+	EvalHandler()(c)
+	gotStatus := r.Code
+	expectedStatus := http.StatusInternalServerError
+
+	if gotStatus != expectedStatus {
+		t.Error("got error on request evalHandler func")
+	}
+
+	gotBody := r.Body.String()
+	expectedBody := "Error on eval"
+
+	if gotBody != expectedBody {
+		t.Error("we expect error and the didn't came out")
+	}
+
+}
