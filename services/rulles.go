@@ -63,6 +63,7 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 
 var evalMutex sync.Mutex
 
+// IEval ...
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
@@ -70,18 +71,22 @@ type IEval interface {
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
 
+// EvalService ...
 var EvalService IEval = NewEval()
 
+// Eval ... struct
 type Eval struct {
 	knowledgeLibrary *ast.KnowledgeLibrary
 }
 
+// NewEval ...
 func NewEval() Eval {
 	return Eval{
 		knowledgeLibrary: ast.NewKnowledgeLibrary(),
 	}
 }
 
+// GetKnowledgeLibrary ...
 func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return s.knowledgeLibrary
 }
