@@ -7,12 +7,21 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/bancodobrasil/featws-ruller/config"
 )
+
+func TestMain(m *testing.M) {
+	// setup()
+	fmt.Println("Passou aqui")
+	code := m.Run()
+	// shutdown()
+	os.Exit(code)
+}
 
 // TestNewContext start
 func TestNewContext(t *testing.T) {
@@ -228,6 +237,7 @@ func TestEncodePanic(t *testing.T) {
 func TestRequestPanic(t *testing.T) {
 	defer func() {
 		r := recover()
+		config.LoadConfig()
 		if r != "error on create Request" {
 			t.Error("The panic message it's not throwed")
 		}
