@@ -80,7 +80,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
-			log.Errorf("Erro on eval: %v", err)
+			log.Errorf("Error on eval: %v", err)
 			c.Status(http.StatusInternalServerError)
 			fmt.Fprint(c.Writer, "Error on eval")
 			return
