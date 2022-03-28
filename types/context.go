@@ -24,9 +24,29 @@ type RemoteLoadeds map[string]RemoteLoaded
 type Context struct {
 	TypedMap
 	RemoteLoadeds RemoteLoadeds
+	Resolver
+	Loader
 }
 
-// NewContextFromMap method create a new Context
+// Resolver ...
+type Resolver interface {
+	resolve(resolver string, param string) interface{}
+}
+
+// Loader ...
+type Loader interface {
+	load(param string) interface{}
+}
+
+// HTTPClient ...
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// Client ...
+var Client HTTPClient = &http.Client{}
+
+// NewContext method create a new Context
 func NewContext() *Context {
 	return NewContextFromMap(make(map[string]interface{}))
 }
@@ -49,7 +69,19 @@ func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
 }
 
 func (c *Context) load(param string) interface{} {
-	value := c.resolve(c.RemoteLoadeds[param].Resolver, param)
+	if c.Loader != nil {
+		return c.Loader.load(param)
+	}
+	return c.loadImpl(param)
+}
+
+func (c *Context) loadImpl(param string) interface{} {
+	remote, ok := c.RemoteLoadeds[param]
+	if !ok {
+		panic("The param it's not registry as remote loaded")
+	}
+
+	value := c.resolve(remote.Resolver, param)
 	c.Put(param, value)
 	return value
 }
@@ -82,6 +114,13 @@ type resolveOutputV1 struct {
 }
 
 func (c *Context) resolve(resolver string, param string) interface{} {
+	if c.Resolver != nil {
+		return c.Resolver.resolve(resolver, param)
+	}
+	return c.resolveImpl(resolver, param)
+}
+
+func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	config := config.GetConfig()
 
 	url := fmt.Sprintf("%s/api/v1/resolve", config.ResolverBridgeURL)
@@ -97,36 +136,36 @@ func (c *Context) resolve(resolver string, param string) interface{} {
 	log.Debugf("Resolving with '%s': %v", url, input)
 
 	var buf bytes.Buffer
+
 	err := json.NewEncoder(&buf).Encode(input)
 	if err != nil {
-		panic(err.Error())
+		panic("error on encode input")
 	}
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		panic(err.Error())
+		panic("error on create Request")
 	}
 
 	req.Header = config.ResolverBridgeHeaders
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := Client.Do(req)
 	if err != nil {
-		panic(err.Error())
+		panic("error on execute request")
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err.Error())
+		panic("error on read the body")
 	}
 
-	log.Debugf("Resolving with '%s': %v > %s", url, input, string(data))
+	log.Infof("Resolving with '%s': %v > %s", url, input, string(data))
 
 	output := resolveOutputV1{}
 	err = json.Unmarshal(data, &output)
 	if err != nil {
-		panic(err.Error())
+		panic("error on response decoding")
 	}
 
 	if len(output.Errors) > 0 {
