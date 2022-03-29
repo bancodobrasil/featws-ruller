@@ -128,13 +128,16 @@ func (c *TypedMap) GetMap(param string) *TypedMap {
 	if value != nil {
 		result := NewTypedMap()
 		v := reflect.ValueOf(value)
-		if v.Kind() == reflect.Map {
+		kind := v.Kind()
+		if kind == reflect.Map {
 			for _, key := range v.MapKeys() {
 				strct := v.MapIndex(key)
 				result.Put(key.String(), strct.Interface())
 			}
+			return result
 		}
-		return result
+
+		panic("This param it's not a map")
 	}
 	return nil
 }

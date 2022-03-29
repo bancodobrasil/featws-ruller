@@ -3,14 +3,13 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"reflect"
 	"sync"
 
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // DefaultKnowledgeBaseName its default name of Knowledge Base
@@ -39,15 +38,14 @@ func EvalHandler() gin.HandlerFunc {
 
 		loadMutex.Lock()
 
-		knowledgeBase := services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+		knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
 		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 
-			err := services.LoadRemoteGRL(knowledgeBaseName, version)
+			err := services.EvalService.LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
-				log.Printf("Erro on load: %v", err)
-				c.Status(http.StatusNotFound)
-				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
+				log.Errorf("Erro on load: %v", err)
+				c.String(http.StatusInternalServerError, "Error on load knowledgeBase and/or version")
 				// w.WriteHeader(http.StatusservicesUnavailable)
 				// encoder := json.NewEncoder(w)
 				// encoder.Encode(err)
@@ -55,7 +53,7 @@ func EvalHandler() gin.HandlerFunc {
 				return
 			}
 
-			knowledgeBase = services.KnowledgeLibrary.GetKnowledgeBase(knowledgeBaseName, version)
+			knowledgeBase = services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
 			if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
 				c.Status(http.StatusNotFound)
@@ -71,22 +69,21 @@ func EvalHandler() gin.HandlerFunc {
 		var t map[string]interface{}
 		err := decoder.Decode(&t)
 		if err != nil {
-			panic(err)
+			log.Errorf("Erro on json decode: %v", err)
+			c.Status(http.StatusInternalServerError)
+			fmt.Fprint(c.Writer, "Error on json decode")
+			return
 		}
 		log.Println(t)
 
-		ctx := types.NewContext()
+		ctx := types.NewContextFromMap(t)
 
-		keys := reflect.ValueOf(t).MapKeys()
-
-		for i := range keys {
-			k := keys[i]
-			ctx.Put(k.String(), t[k.String()])
-		}
-
-		result, err := services.Eval(ctx, knowledgeBase)
+		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
-			panic(err)
+			log.Errorf("Error on eval: %v", err)
+			c.Status(http.StatusInternalServerError)
+			fmt.Fprint(c.Writer, "Error on eval")
+			return
 		}
 
 		// log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
