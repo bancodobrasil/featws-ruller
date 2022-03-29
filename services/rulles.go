@@ -2,10 +2,11 @@ package services
 
 import (
 	"bytes"
-	"log"
 	"strings"
 	"sync"
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -56,6 +57,8 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	}
 
 	url = doc.String()
+
+	log.Debug("LoadRemoteGRL: ", url)
 
 	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
@@ -119,7 +122,7 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")

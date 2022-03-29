@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -44,7 +45,19 @@ type HTTPClient interface {
 }
 
 // Client ...
-var Client HTTPClient = &http.Client{}
+var Client HTTPClient = newHTTPClient()
+
+func newHTTPClient() *http.Client {
+	config := config.GetConfig()
+	client := &http.Client{}
+	if config.DisableSSLVerify {
+		transCfg := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
+		}
+		client.Transport = transCfg
+	}
+	return client
+}
 
 // NewContext method create a new Context
 func NewContext() *Context {
