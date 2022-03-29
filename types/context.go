@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -105,6 +106,14 @@ func (c *Context) resolve(resolver string, param string) interface{} {
 	req.Header = config.ResolverBridgeHeaders
 
 	client := &http.Client{}
+
+	if config.DisableSSLVerify {
+		transCfg := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // ignore expired SSL certificates
+		}
+		client.Transport = transCfg
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		panic(err.Error())

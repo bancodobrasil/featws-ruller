@@ -2,10 +2,11 @@ package services
 
 import (
 	"bytes"
-	"log"
 	"strings"
 	"sync"
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -59,6 +60,8 @@ func LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	}
 
 	url = doc.String()
+
+	log.Debug("LoadRemoteGRL: ", url)
 
 	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
