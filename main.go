@@ -7,7 +7,9 @@ import (
 	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
+	ginMonitor "github.com/bancodobrasil/gin-monitor"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,9 +43,15 @@ func main() {
 		log.Println("Não foram carregadas regras default!")
 	}
 
-	router := gin.New()
+	monitor, err := ginMonitor.New("v1.0.0", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
+	if err != nil {
+		panic(err)
+	}
 
+	router := gin.New()
 	routes.SetupRoutes(router)
+	router.Use(monitor.Prometheus())
+	router.GET("metrics", gin.WrapH(promhttp.Handler()))
 
 	port := cfg.Port
 
