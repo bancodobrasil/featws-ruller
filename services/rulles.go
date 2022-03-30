@@ -53,6 +53,7 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	// standard output to print merged data
 	err := urlTemplate.Execute(&doc, info)
 	if err != nil {
+		log.Error("Error on load Remote GRL: %v", err)
 		return err
 	}
 
@@ -106,27 +107,31 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types
 
 	err := dataCtx.Add("processor", processor)
 	if err != nil {
+		log.Error("error on add processor to data context: \n the result was: %v \n the error was: %v", result, err)
 		return result, err
 	}
 
 	err = dataCtx.Add("ctx", ctx)
 	if err != nil {
+		log.Error("error on add context to data context: \n the result was: %v \n the error was: %v", result, err)
 		return result, err
 	}
 
 	err = dataCtx.Add("result", result)
 	if err != nil {
+		log.Error("error on add result to data context: \n the result was: %v \n the error was: %v", result, err)
 		return result, err
 	}
 
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
+		log.Error("error on execute the grule engine: %v", err)
 		return nil, err
 	}
 
-	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-	log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
+	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
+	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	evalMutex.Unlock()
 

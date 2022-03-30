@@ -17,7 +17,6 @@ import (
 
 func TestMain(m *testing.M) {
 	// setup()
-	fmt.Println("Passou aqui")
 	code := m.Run()
 	// shutdown()
 	os.Exit(code)
