@@ -1,26 +1,26 @@
-package main
+package services
 
 import (
 	"bytes"
-	"log"
-	"net/http"
 	"strings"
 	"sync"
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
+	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
 )
 
-var knowledgeLibrary *ast.KnowledgeLibrary = ast.NewKnowledgeLibrary()
-
-func loadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
+//LoadLocalGRL ...
+func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
+	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
@@ -30,14 +30,12 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
-func loadRemoteGRL(knowledgeBaseName string, version string) error {
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
-	headers := make(http.Header)
-	for header, value := range config.ResourceLoader.Headers {
-		headers.Set(header, value)
-	}
+//LoadRemoteGRL ...
+func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+	cfg := config.GetConfig()
+	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 
-	url := config.ResourceLoader.URL
+	url := cfg.ResourceLoaderURL
 	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
 	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
 
@@ -60,13 +58,44 @@ func loadRemoteGRL(knowledgeBaseName string, version string) error {
 
 	url = doc.String()
 
-	fileRes := pkg.NewURLResourceWithHeaders(url, headers)
+	log.Debug("LoadRemoteGRL: ", url)
+
+	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
 var evalMutex sync.Mutex
 
-func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+// IEval ...
+type IEval interface {
+	GetKnowledgeLibrary() *ast.KnowledgeLibrary
+	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
+	LoadRemoteGRL(knowledgeBaseName string, version string) error
+	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
+}
+
+// EvalService ...
+var EvalService IEval = NewEval()
+
+// Eval ... struct
+type Eval struct {
+	knowledgeLibrary *ast.KnowledgeLibrary
+}
+
+// NewEval ...
+func NewEval() Eval {
+	return Eval{
+		knowledgeLibrary: ast.NewKnowledgeLibrary(),
+	}
+}
+
+// GetKnowledgeLibrary ...
+func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
+	return s.knowledgeLibrary
+}
+
+//Eval ...
+func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
 	dataCtx := ast.NewDataContext()
@@ -93,11 +122,15 @@ func eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, 
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-	log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
+	if ctx.Has("errors") && len(ctx.GetMap("errors").GetEntries()) > 0 {
+		result.Put("errors", ctx.GetMap("errors").GetEntries())
+	}
+
+	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
+	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	evalMutex.Unlock()
 

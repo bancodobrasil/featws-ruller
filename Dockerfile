@@ -16,7 +16,7 @@ FROM alpine:3.15
 
 COPY --from=BUILD /app/ruller /bin/
 
-CMD [ "ruller", "/app/config.yml" ] 
+CMD [ "ruller" ] 
 
 
 
