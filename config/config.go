@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -25,6 +26,8 @@ type Config struct {
 }
 
 var config = &Config{}
+
+var loaded = false
 
 //LoadConfig ...
 func LoadConfig() (err error) {
@@ -76,5 +79,12 @@ func LoadConfig() (err error) {
 
 //GetConfig ...
 func GetConfig() *Config {
+	if !loaded {
+		err := LoadConfig()
+		loaded = true
+		if err != nil {
+			panic(fmt.Sprintf("load config error: %s", err))
+		}
+	}
 	return config
 }

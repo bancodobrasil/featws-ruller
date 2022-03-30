@@ -125,8 +125,12 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types
 		return nil, err
 	}
 
-	log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-	log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
+	if ctx.Has("errors") && len(ctx.GetMap("errors").GetEntries()) > 0 {
+		result.Put("errors", ctx.GetMap("errors").GetEntries())
+	}
+
+	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
+	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	evalMutex.Unlock()
 

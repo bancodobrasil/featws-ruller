@@ -126,15 +126,20 @@ func (c *TypedMap) GetBool(param string) bool {
 func (c *TypedMap) GetMap(param string) *TypedMap {
 	value := c.Get(param)
 	if value != nil {
-		result := NewTypedMap()
 		v := reflect.ValueOf(value)
 		kind := v.Kind()
 		if kind == reflect.Map {
+			result := NewTypedMap()
 			for _, key := range v.MapKeys() {
 				strct := v.MapIndex(key)
 				result.Put(key.String(), strct.Interface())
 			}
 			return result
+		}
+
+		tp, ok := value.(*TypedMap)
+		if ok {
+			return tp
 		}
 
 		panic("This param it's not a map")
