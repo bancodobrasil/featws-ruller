@@ -182,7 +182,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	}
 
 	if len(output.Errors) > 0 {
-		panic(fmt.Sprintf("%s", output.Errors))
+		log.Panic(fmt.Sprintf("%s", output.Errors))
 	}
 
 	return output.Context[param]

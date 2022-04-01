@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/bancodobrasil/featws-ruller/config"
+	"github.com/sirupsen/logrus"
 )
 
 func TestMain(m *testing.M) {
@@ -107,7 +108,7 @@ func TestLoad(t *testing.T) {
 func TestLoadPanicNotRemoted(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "The param it's not registry as remote loaded" {
+		if r.(*logrus.Entry).Message != "The param it's not registry as remote loaded" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -215,7 +216,7 @@ func (m *MockHTTPClientEncodePanic) Do(req *http.Request) (*http.Response, error
 func TestEncodePanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "error on encode input" {
+		if r.(*logrus.Entry).Message != "error on encode input" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -237,7 +238,7 @@ func TestRequestPanic(t *testing.T) {
 	defer func() {
 		r := recover()
 		config.LoadConfig()
-		if r != "error on create Request" {
+		if r.(*logrus.Entry).Message != "error on create Request" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -265,7 +266,7 @@ func (m *MockHTTPClientExecutePanic) Do(req *http.Request) (*http.Response, erro
 func TestRequestExecutePanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "error on execute request" {
+		if r.(*logrus.Entry).Message != "error on execute request" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -325,7 +326,7 @@ func (m *MockHTTPClientResponseDecodePanic) Do(req *http.Request) (*http.Respons
 func TestResponseDecodePanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "error on response decoding" {
+		if r.(*logrus.Entry).Message != "error on response decoding" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -388,7 +389,7 @@ func (m *MockHTTPClientReadBodyPanic) Do(req *http.Request) (*http.Response, err
 func TestPanicOnReadBody(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "error on read the body" {
+		if r.(*logrus.Entry).Message != "error on read the body" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -459,7 +460,7 @@ func (m *MockHTTPClientResponseDecodeMoreThenOneError) Do(req *http.Request) (*h
 func TestResponseDecodeMoreThenZero(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "map[myparam:myerror]" {
+		if r.(*logrus.Entry).Message != "map[myparam:myerror]" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
