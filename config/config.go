@@ -23,10 +23,6 @@ type Config struct {
 	ResolverBridgeURL        string `mapstructure:"FEATWS_RULLER_RESOLVER_BRIDGE_URL"`
 	ResolverBridgeHeaders    http.Header
 	ResolverBridgeHeadersStr string `mapstructure:"FEATWS_RULLER_RESOLVER_BRIDGE_HEADERS"`
-
-	TelemetryExporterURL   string `mapstructure:"TELEMETRY_EXPORTER_URL"`
-	TelemetryHTTPClientTLS bool   `mapstructure:"TELEMETRY_HTTPCLIENT_TLS"`
-	TelemetryDisabled      bool   `mapstructure:"TELEMETRY_DISABLED"`
 }
 
 var config = &Config{}
@@ -47,9 +43,6 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
 	viper.SetDefault("PORT", "8000")
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
-	viper.SetDefault("TELEMETRY_EXPORTER_URL", "http://localhost:14268")
-	viper.SetDefault("TELEMETRY_HTTPCLIENT_TLS", true)
-	viper.SetDefault("TELEMETRY_DISABLED", false)
 
 	err = viper.ReadInConfig()
 	if err != nil {
