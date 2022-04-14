@@ -2,9 +2,10 @@ package types
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Getter ...
