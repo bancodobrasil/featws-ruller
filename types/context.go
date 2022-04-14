@@ -89,6 +89,16 @@ func (c *Context) load(param string) interface{} {
 }
 
 func (c *Context) loadImpl(param string) interface{} {
+	defer func() {
+		r := recover()
+		if r == nil {
+			return
+		}
+		if !c.Has("errors") {
+			c.Put("errors", NewTypedMap())
+		}
+		c.GetMap("errors").AddItem(param, r)
+	}()
 	remote, ok := c.RemoteLoadeds[param]
 	if !ok {
 		log.Panic("The param it's not registry as remote loaded")
@@ -116,14 +126,15 @@ func (c *Context) GetEntry(param string) interface{} {
 }
 
 type resolveInputV1 struct {
-	Resolver string                 `json:"resolver"`
-	Context  map[string]interface{} `json:"context"`
-	Load     []string               `json:"load"`
+	Resolver string                 `json:"resolver,omitempty"`
+	Context  map[string]interface{} `json:"context,omitempty"`
+	Load     []string               `json:"load,omitempty"`
 }
 
 type resolveOutputV1 struct {
-	Context map[string]interface{} `json:"context"`
-	Errors  map[string]interface{} `json:"errors"`
+	Context map[string]interface{} `json:"context,omitempty"`
+	Errors  map[string]interface{} `json:"errors,omitempty"`
+	Error   string                 `json:"error,omitempty"`
 }
 
 func (c *Context) resolve(resolver string, param string) interface{} {
@@ -155,6 +166,8 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 		log.Panic("error on encode input")
 	}
 
+	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
+
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
 		log.Panic("error on create Request")
@@ -183,6 +196,10 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	if len(output.Errors) > 0 {
 		log.Panic(fmt.Sprintf("%s", output.Errors))
+	}
+
+	if output.Error != "" {
+		panic(output.Error)
 	}
 
 	return output.Context[param]
