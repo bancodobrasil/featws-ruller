@@ -109,8 +109,8 @@ func TestLoadPanicNotRemoted(t *testing.T) {
 	ctx := NewContext()
 	ctx.load("myRemoteParam")
 
-	got := ctx.GetMap("errors").GetSlice("myRemoteParam")
-	expected := []interface{}{"The param it's not registry as remote loaded"}
+	got := ctx.GetMap("errors").GetSlice("myRemoteParam")[0].(*logrus.Entry).Message
+	expected := "The param it's not registry as remote loaded"
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Error("The error message it's not throwed")
