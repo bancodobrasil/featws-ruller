@@ -24,7 +24,6 @@ var loadMutex sync.Mutex
 //EvalHandler ...
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		knowledgeBaseName := c.Param("knowledgeBase")
 		if knowledgeBaseName == "" {
 			knowledgeBaseName = DefaultKnowledgeBaseName
