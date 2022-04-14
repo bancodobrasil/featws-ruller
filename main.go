@@ -11,10 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
+	ginlogrus "github.com/toorop/gin-logrus"
 )
 
 func setupLog() {
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	// log.SetFormatter(&log.JSONFormatter{})
 
 	log.SetOutput(os.Stdout)
 
@@ -37,18 +39,22 @@ func main() {
 		log.Printf("Carregando '%s' como folha de regras default!", defaultGRL)
 		err := services.EvalService.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	} else {
-		log.Println("Não foram carregadas regras default!")
+		log.Warnln("Não foram carregadas regras default!")
 	}
 
 	monitor, err := ginMonitor.New("v1.0.0", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
+	gin.DefaultWriter = log.StandardLogger().WriterLevel(log.DebugLevel)
+	gin.DefaultErrorWriter = log.StandardLogger().WriterLevel(log.ErrorLevel)
+
 	router := gin.New()
+	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
 	routes.SetupRoutes(router)
 	router.Use(monitor.Prometheus())
 	router.GET("metrics", gin.WrapH(promhttp.Handler()))

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Getter ...
@@ -91,6 +93,7 @@ func (c *TypedMap) GetInt(param string) int64 {
 	case int64:
 		return v
 	default:
+		log.Panic("It's not possible to recover this parameter as int64")
 		panic("It's not possible to recover this parameter as int64")
 	}
 }
@@ -112,6 +115,7 @@ func (c *TypedMap) GetFloat(param string) float64 {
 	case float64:
 		return v
 	default:
+		log.Panic("fail to retrieve this param as float64")
 		panic("fail to retrieve this param as float64")
 	}
 }

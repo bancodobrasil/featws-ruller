@@ -34,7 +34,7 @@ func EvalHandler() gin.HandlerFunc {
 			version = DefaultKnowledgeBaseVersion
 		}
 
-		log.Printf("Eval with %s %s\n", knowledgeBaseName, version)
+		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
 		loadMutex.Lock()
 
@@ -74,7 +74,7 @@ func EvalHandler() gin.HandlerFunc {
 			fmt.Fprint(c.Writer, "Error on json decode")
 			return
 		}
-		log.Println(t)
+		log.Debugln(t)
 
 		ctx := types.NewContextFromMap(t)
 

@@ -101,7 +101,7 @@ func (c *Context) loadImpl(param string) interface{} {
 	}()
 	remote, ok := c.RemoteLoadeds[param]
 	if !ok {
-		panic("The param it's not registry as remote loaded")
+		log.Panic("The param it's not registry as remote loaded")
 	}
 
 	value := c.resolve(remote.Resolver, param)
@@ -163,39 +163,39 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	err := json.NewEncoder(&buf).Encode(input)
 	if err != nil {
-		panic("error on encode input")
+		log.Panic("error on encode input")
 	}
 
 	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
 
 	req, err := http.NewRequest("POST", url, &buf)
 	if err != nil {
-		panic("error on create Request")
+		log.Panic("error on create Request")
 	}
 
 	req.Header = config.ResolverBridgeHeaders
 
 	resp, err := Client.Do(req)
 	if err != nil {
-		panic("error on execute request")
+		log.Panic("error on execute request")
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic("error on read the body")
+		log.Panic("error on read the body")
 	}
 
-	log.Infof("Resolved with '%s': %v > %s", url, input, string(data))
+	log.Debugf("Resolving with '%s': %v > %s", url, input, string(data))
 
 	output := resolveOutputV1{}
 	err = json.Unmarshal(data, &output)
 	if err != nil {
-		panic("error on response decoding")
+		log.Panic("error on response decoding")
 	}
 
 	if len(output.Errors) > 0 {
-		panic(fmt.Sprintf("%s", output.Errors))
+		log.Panic(fmt.Sprintf("%s", output.Errors))
 	}
 
 	if output.Error != "" {
