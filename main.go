@@ -45,7 +45,7 @@ func main() {
 		log.Warnln("Não foram carregadas regras default!")
 	}
 
-	monitor, err := ginMonitor.New("v1.0.0", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
+	monitor, err := ginMonitor.New("v0.3.1-rc1", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
 	if err != nil {
 		log.Panic(err)
 	}
