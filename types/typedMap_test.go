@@ -3,6 +3,8 @@ package types
 import (
 	"reflect"
 	"testing"
+
+	"github.com/sirupsen/logrus"
 )
 
 func TestNewTypedMap(t *testing.T) {
@@ -187,7 +189,7 @@ func TestGetIntWithNoParam(t *testing.T) {
 func TestGetIntWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "It's not possible to recover this parameter as int64" {
+		if r.(*logrus.Entry).Message != "It's not possible to recover this parameter as int64" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -253,7 +255,7 @@ func TestGetFloatWithFloat64(t *testing.T) {
 func TestGetFloatWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "fail to retrieve this param as float64" {
+		if r.(*logrus.Entry).Message != "fail to retrieve this param as float64" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()

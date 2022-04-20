@@ -106,16 +106,15 @@ func TestLoad(t *testing.T) {
 
 // TestLoadPanicNotRemoted start
 func TestLoadPanicNotRemoted(t *testing.T) {
-	defer func() {
-		r := recover()
-		if r.(*logrus.Entry).Message != "The param it's not registry as remote loaded" {
-			t.Error("The panic message it's not throwed")
-		}
-	}()
-
 	ctx := NewContext()
 	ctx.load("myRemoteParam")
 
+	got := ctx.GetMap("errors").GetSlice("myRemoteParam")[0].(*logrus.Entry).Message
+	expected := "The param it's not registry as remote loaded"
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Error("The error message it's not throwed")
+	}
 }
 
 // TestLoadPanicNotRemoted stop
@@ -440,12 +439,6 @@ func (m *MockHTTPClientResponseDecodeMoreThenOneError) Do(req *http.Request) (*h
 		m.t.Error("The loads dont match each other")
 	}
 
-	output := resolveOutputV1{}
-	err = json.Unmarshal(data, &output)
-	if err != nil {
-		panic(err.Error())
-	}
-
 	stringReader := strings.NewReader(`{
 		"errors": {
 			"myparam": "myerror"
@@ -512,12 +505,6 @@ func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 		m.t.Error("The loads dont match each other")
 	}
 
-	output := resolveOutputV1{}
-	err = json.Unmarshal(data, &output)
-	if err != nil {
-		panic(err.Error())
-	}
-
 	stringReader := strings.NewReader(`{
 		"context": {
 			"param_name": "myresult"
@@ -543,6 +530,58 @@ func TestResolve(t *testing.T) {
 		t.Error("failed to resolve")
 	}
 
+}
+
+// TestResolve stop
+
+// TestResolveUnexpectedError start
+type MockHTTPClientUnexpectedError struct {
+	http.Client
+	t *testing.T
+}
+
+func (m *MockHTTPClientUnexpectedError) Do(req *http.Request) (*http.Response, error) {
+	data, err := io.ReadAll(req.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	input := resolveInputV1{}
+	err = json.Unmarshal(data, &input)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if input.Resolver != "resolver_name" {
+		m.t.Error("the resolver is wrong")
+	}
+
+	expectedLoad := []string{"param_name"}
+
+	if !reflect.DeepEqual(input.Load, expectedLoad) {
+		m.t.Error("The loads dont match each other")
+	}
+
+	stringReader := strings.NewReader(`{"error":"error message"}`)
+
+	return &http.Response{
+		Body: io.NopCloser(stringReader),
+	}, nil
+}
+
+func TestResolveUnexpectedError(t *testing.T) {
+	defer func() {
+		r := recover()
+		if r != "error message" {
+			t.Error("The panic message it's not throwed")
+		}
+	}()
+	Client = &MockHTTPClientUnexpectedError{
+		t: t,
+	}
+	ctx := NewContext()
+
+	ctx.resolve("resolver_name", "param_name")
 }
 
 // TestResolve stop
