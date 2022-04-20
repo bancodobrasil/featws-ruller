@@ -97,7 +97,18 @@ func (c *Context) loadImpl(param string) interface{} {
 		if !c.Has("errors") {
 			c.Put("errors", NewTypedMap())
 		}
-		c.GetMap("errors").AddItem(param, r)
+		switch r := r.(type) {
+		case *log.Entry:
+			c.GetMap("errors").AddItem(param, r.Message)
+		case log.Entry:
+			c.GetMap("errors").AddItem(param, r.Message)
+		case string:
+			c.GetMap("errors").AddItem(param, r)
+		case error:
+			c.GetMap("errors").AddItem(param, r.Error())
+		default:
+			c.GetMap("errors").AddItem(param, fmt.Sprintf("%v", r))
+		}
 	}()
 	remote, ok := c.RemoteLoadeds[param]
 	if !ok {

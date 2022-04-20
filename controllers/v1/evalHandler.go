@@ -86,11 +86,10 @@ func EvalHandler() gin.HandlerFunc {
 			return
 		}
 
-		// log.Print("Context:\n\t", ctx.GetEntries(), "\n\n")
-		// log.Print("Features:\n\t", result.GetFeatures(), "\n\n")
+		log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
+		log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
 		c.JSON(http.StatusOK, result.GetFeatures())
-		//fmt.Fprintf(w, "%v", result)
 	}
 
 }
