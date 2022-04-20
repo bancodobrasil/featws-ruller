@@ -46,7 +46,7 @@ func main() {
 		log.Warnln("Não foram carregadas regras default!")
 	}
 
-	monitor, err := ginMonitor.New("v1.0.0", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
+	monitor, err := ginMonitor.New("v0.3.2-rc1", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -56,10 +56,10 @@ func main() {
 
 	router := gin.New()
 	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
-	routes.SetupRoutes(router)
 	router.Use(monitor.Prometheus())
 	router.GET("metrics", gin.WrapH(promhttp.Handler()))
 	router.Use(telemetry.Middleware("featws-ruller"))
+	routes.SetupRoutes(router)
 
 	port := cfg.Port
 
