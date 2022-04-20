@@ -398,3 +398,29 @@ func TestAddItemsWithThreeItemsNonInitlizated(t *testing.T) {
 	}
 
 }
+
+func TestBooleanPlain(t *testing.T) {
+	tm := NewTypedMap()
+	tm.Put("mybool", true)
+
+	got := tm.GetBool("mybool")
+	expect := true
+
+	if got != expect {
+		t.Error("you got an error while try to convert boolean to string")
+	}
+
+}
+
+func TestIntegerPlain(t *testing.T) {
+	tm := NewTypedMap()
+	tm.Put("mynumber", 123)
+
+	got := tm.GetInt("mynumber")
+	expect := int64(123)
+
+	if got != expect {
+		t.Error("you got an error while try to convert int to string")
+	}
+
+}

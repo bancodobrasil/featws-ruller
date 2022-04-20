@@ -73,7 +73,12 @@ func (c *TypedMap) GetSlice(param string) []interface{} {
 
 // GetString method get a string entry of map
 func (c *TypedMap) GetString(param string) string {
-	return fmt.Sprintf("%s", c.Get(param))
+	switch v := c.Get(param).(type) {
+	case bool:
+		return strconv.FormatBool(v)
+	default:
+		return fmt.Sprintf("%s", v)
+	}
 }
 
 // GetInt method get a int entry of map
