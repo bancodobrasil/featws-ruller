@@ -8,3 +8,10 @@ services:
       - 8000
     env_file:
       - .env
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+      - "14268:14268"
