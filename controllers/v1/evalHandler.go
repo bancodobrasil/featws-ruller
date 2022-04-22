@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,22 @@ const DefaultKnowledgeBaseVersion = "latest"
 //LoadMutex ...
 var loadMutex sync.Mutex
 
-//EvalHandler ...
+// EvalHandler godoc
+// @Summary 		Evaluate the rulesheet
+// @Description 	Receive the params to execute the rulesheet
+// @Tags 			eval
+// @Accept  		json
+// @Produce  		json
+// @Param			knowledgeBase path string false "knowledgeBase"
+// @Param 			version path string false "version"
+// @Param  			parameters body payloads.Eval true "Parameters"
+// @Success 		200 {string} string "ok"
+// @Failure 		400,404 {object} string
+// @Failure 		500 {object} string
+// @Failure 		default {object} string
+// @Router 			/eval/{knowledgeBase}/{version} [post]
+// @Router 			/eval/{knowledgeBase} [post]
+// @Router 			/eval [post]
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		knowledgeBaseName := c.Param("knowledgeBase")
@@ -66,7 +82,7 @@ func EvalHandler() gin.HandlerFunc {
 		loadMutex.Unlock()
 
 		decoder := json.NewDecoder(c.Request.Body)
-		var t map[string]interface{}
+		var t payloads.Eval
 		err := decoder.Decode(&t)
 		if err != nil {
 			log.Errorf("Erro on json decode: %v", err)
