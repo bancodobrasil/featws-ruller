@@ -1,0 +1,160 @@
+basePath: /api/v1
+definitions:
+  v1.Eval:
+    additionalProperties: true
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Ruler Project provide the rules of the FeatWS operations
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: FeatWS Ruler
+  version: "1.0"
+paths:
+  /eval:
+    post:
+      consumes:
+      - application/json
+      description: Receive the params to execute the rulesheet
+      parameters:
+      - description: knowledgeBase
+        in: path
+        name: knowledgeBase
+        type: string
+      - description: version
+        in: path
+        name: version
+        type: string
+      - description: Parameters
+        in: body
+        name: parameters
+        required: true
+        schema:
+          $ref: '#/definitions/v1.Eval'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: Evaluate the rulesheet
+      tags:
+      - eval
+  /eval/{knowledgeBase}:
+    post:
+      consumes:
+      - application/json
+      description: Receive the params to execute the rulesheet
+      parameters:
+      - description: knowledgeBase
+        in: path
+        name: knowledgeBase
+        type: string
+      - description: version
+        in: path
+        name: version
+        type: string
+      - description: Parameters
+        in: body
+        name: parameters
+        required: true
+        schema:
+          $ref: '#/definitions/v1.Eval'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: Evaluate the rulesheet
+      tags:
+      - eval
+  /eval/{knowledgeBase}/{version}:
+    post:
+      consumes:
+      - application/json
+      description: Receive the params to execute the rulesheet
+      parameters:
+      - description: knowledgeBase
+        in: path
+        name: knowledgeBase
+        type: string
+      - description: version
+        in: path
+        name: version
+        type: string
+      - description: Parameters
+        in: body
+        name: parameters
+        required: true
+        schema:
+          $ref: '#/definitions/v1.Eval'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            type: string
+      summary: Evaluate the rulesheet
+      tags:
+      - eval
+swagger: "2.0"
+x-extension-openapi:
+  example: value on a json format

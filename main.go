@@ -5,6 +5,7 @@ import (
 
 	"github.com/bancodobrasil/featws-ruller/config"
 	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
+	_ "github.com/bancodobrasil/featws-ruller/docs"
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
 	ginMonitor "github.com/bancodobrasil/gin-monitor"
@@ -23,6 +24,30 @@ func setupLog() {
 
 	log.SetLevel(log.DebugLevel)
 }
+
+// @title FeatWS Ruler
+
+// @version 1.0
+
+// @description Ruler Project provide the rules of the FeatWS operations
+
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+
+// @contact.url http://www.swagger.io/support
+
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8000
+
+// @BasePath /api/v1
+
+// @x-extension-openapi {"example": "value on a json format"}
 
 func main() {
 
