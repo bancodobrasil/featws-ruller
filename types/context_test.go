@@ -38,10 +38,21 @@ func TestNewContext(t *testing.T) {
 
 // TestNewContext stop
 
+func TestRegistryRemoteLoadedWithFrom(t *testing.T) {
+	ctx := NewContext()
+	ctx.RegistryRemoteLoadedWithFrom("myparam", "myresolver", "myfrom")
+	got := ctx.isRemoteLoaded("myparam")
+	expected := true
+	if got != expected {
+		t.Errorf("Test Fail, we want %v, we got %v", got, expected)
+	}
+
+}
+
 // TestRegistryRemoteLoaded start
 func TestRegistryRemoteLoaded(t *testing.T) {
 	ct := NewContext()
-	ct.RegistryRemoteLoaded("myparam", "myresolver", "")
+	ct.RegistryRemoteLoaded("myparam", "myresolver")
 	got := ct.isRemoteLoaded("myparam")
 	expected := true
 	if got != expected {
@@ -91,7 +102,7 @@ func TestLoad(t *testing.T) {
 
 	ctx.Resolver = ctx
 
-	ctx.RegistryRemoteLoaded("myRemoteParam", "myresolver", "")
+	ctx.RegistryRemoteLoaded("myRemoteParam", "myresolver")
 
 	want := ctx.load("myRemoteParam")
 	expected := "myresult"
@@ -140,7 +151,7 @@ func TestGetEntryRemoteLoaded(t *testing.T) {
 
 	ctx.Loader = ctx
 
-	ctx.RegistryRemoteLoaded("myRemoteParam", "myresolver", "")
+	ctx.RegistryRemoteLoaded("myRemoteParam", "myresolver")
 	got := ctx.GetEntry("myRemoteParam")
 
 	expected := "myresult"
