@@ -77,6 +77,9 @@ func NewContextFromMap(values map[string]interface{}) *Context {
 
 // RegistryRemoteLoadedWithFrom ...
 func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, from string) {
+	if from == "" {
+		from = param
+	}
 	c.RemoteLoadeds[param] = RemoteLoaded{
 		Resolver: resolver,
 		From:     from,
@@ -85,9 +88,7 @@ func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, fr
 
 // RegistryRemoteLoaded ...
 func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
-	c.RemoteLoadeds[param] = RemoteLoaded{
-		Resolver: resolver,
-	}
+	c.RegistryRemoteLoadedWithFrom(param, resolver, "")
 }
 
 func (c *Context) load(param string) interface{} {
