@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//HealthRouter...
+// HealthRouter ...
 func HealthRouter(router *gin.RouterGroup) {
 	router.GET("/live", controllers.HealthLiveHandler())
 }
