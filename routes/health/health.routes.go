@@ -1,4 +1,4 @@
-package health
+package routes
 
 import (
 	"github.com/bancodobrasil/featws-ruller/controllers"
