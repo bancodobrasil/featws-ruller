@@ -12,7 +12,7 @@ import (
 func SetupRoutes(router *gin.Engine) {
 	homeRouter(router.Group("/"))
 	api.Router(router.Group("/api"))
-	health.HealthRouter(router.Group("/health"))
+	health.Router(router.Group("/health"))
 	// setup swagger docs
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
