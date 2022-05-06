@@ -38,6 +38,17 @@ func TestNewContext(t *testing.T) {
 
 // TestNewContext stop
 
+func TestRegistryRemoteLoadedWithFrom(t *testing.T) {
+	ctx := NewContext()
+	ctx.RegistryRemoteLoadedWithFrom("myparam", "myresolver", "myfrom")
+	got := ctx.isRemoteLoaded("myparam")
+	expected := true
+	if got != expected {
+		t.Errorf("Test Fail, we want %v, we got %v", got, expected)
+	}
+
+}
+
 // TestRegistryRemoteLoaded start
 func TestRegistryRemoteLoaded(t *testing.T) {
 	ct := NewContext()
@@ -103,6 +114,40 @@ func TestLoad(t *testing.T) {
 }
 
 // TestLoad stop
+
+type MockContextLoadWithFrom struct {
+	Context
+	t *testing.T
+}
+
+func (m *MockContextLoadWithFrom) resolve(resolver string, param string) interface{} {
+	if resolver != "myresolver" {
+		m.t.Error("the resolvers are not the same")
+	}
+
+	if param != "myfrom" {
+		m.t.Error("the params are not the same")
+	}
+	return "myresult"
+
+}
+func TestLoadWithFrom(t *testing.T) {
+	ctx := &MockContextLoadWithFrom{
+		Context: *NewContext(),
+		t:       t,
+	}
+
+	ctx.Resolver = ctx
+
+	ctx.RegistryRemoteLoadedWithFrom("myRemoteParam", "myresolver", "myfrom")
+
+	want := ctx.load("myRemoteParam")
+	expected := "myresult"
+
+	if want != expected {
+		t.Errorf("Couldn't load the resolve")
+	}
+}
 
 // TestLoadPanicNotRemoted start
 func TestLoadPanicNotRemoted(t *testing.T) {

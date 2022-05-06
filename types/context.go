@@ -16,6 +16,7 @@ import (
 // RemoteLoaded ...
 type RemoteLoaded struct {
 	Resolver string
+	From     string
 }
 
 // RemoteLoadeds ...
@@ -74,11 +75,20 @@ func NewContextFromMap(values map[string]interface{}) *Context {
 	return instance
 }
 
-// RegistryRemoteLoaded ...
-func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
+// RegistryRemoteLoadedWithFrom ...
+func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, from string) {
+	if from == "" {
+		from = param
+	}
 	c.RemoteLoadeds[param] = RemoteLoaded{
 		Resolver: resolver,
+		From:     from,
 	}
+}
+
+// RegistryRemoteLoaded ...
+func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
+	c.RegistryRemoteLoadedWithFrom(param, resolver, "")
 }
 
 func (c *Context) load(param string) interface{} {
@@ -115,7 +125,7 @@ func (c *Context) loadImpl(param string) interface{} {
 		log.Panic("The param it's not registry as remote loaded")
 	}
 
-	value := c.resolve(remote.Resolver, param)
+	value := c.resolve(remote.Resolver, remote.From)
 	c.Put(param, value)
 	return value
 }
