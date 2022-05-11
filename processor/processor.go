@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"encoding/json"
 	"strconv"
 )
 
@@ -25,4 +26,13 @@ func (p *Processor) Contains(slice []interface{}, val interface{}) bool {
 		}
 	}
 	return false
+}
+
+// ToMap method to convert a string to a map
+func (p *Processor) ToMap(objectstring string) map[string]interface{} {
+	o := make(map[string]interface{})
+
+	json.Unmarshal([]byte(objectstring), &o)
+
+	return o
 }
