@@ -102,6 +102,7 @@ func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return s.knowledgeLibrary
 }
 
+// GetDefaultKnowledgeBase ...
 func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
