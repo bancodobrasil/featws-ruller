@@ -13,12 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// DefaultKnowledgeBaseName its default name of Knowledge Base
-const DefaultKnowledgeBaseName = "default"
-
-// DefaultKnowledgeBaseVersion its default version of Knowledge Base
-const DefaultKnowledgeBaseVersion = "latest"
-
 //LoadMutex ...
 var loadMutex sync.Mutex
 
@@ -42,12 +36,12 @@ func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		knowledgeBaseName := c.Param("knowledgeBase")
 		if knowledgeBaseName == "" {
-			knowledgeBaseName = DefaultKnowledgeBaseName
+			knowledgeBaseName = services.DefaultKnowledgeBaseName
 		}
 
 		version := c.Param("version")
 		if version == "" {
-			version = DefaultKnowledgeBaseVersion
+			version = services.DefaultKnowledgeBaseVersion
 		}
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
@@ -56,7 +50,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-		if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
+		if !(len(knowledgeBase.RuleEntries) > 0) {
 
 			err := services.EvalService.LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
@@ -71,7 +65,7 @@ func EvalHandler() gin.HandlerFunc {
 
 			knowledgeBase = services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-			if !knowledgeBase.ContainsRuleEntry("DefaultValues") {
+			if !(len(knowledgeBase.RuleEntries) > 0) {
 				c.Status(http.StatusNotFound)
 				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
 				loadMutex.Unlock()

@@ -18,6 +18,12 @@ import (
 	"github.com/bancodobrasil/featws-ruller/types"
 )
 
+// DefaultKnowledgeBaseName its default name of Knowledge Base
+const DefaultKnowledgeBaseName = "default"
+
+// DefaultKnowledgeBaseVersion its default version of Knowledge Base
+const DefaultKnowledgeBaseVersion = "latest"
+
 //LoadLocalGRL ...
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -70,6 +76,7 @@ var evalMutex sync.Mutex
 // IEval ...
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
+	GetDefaultKnowledgeBase() *ast.KnowledgeBase
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
 	LoadRemoteGRL(knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
@@ -93,6 +100,11 @@ func NewEval() Eval {
 // GetKnowledgeLibrary ...
 func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return s.knowledgeLibrary
+}
+
+// GetDefaultKnowledgeBase ...
+func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
+	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
 //Eval ...
