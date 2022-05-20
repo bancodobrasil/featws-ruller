@@ -196,7 +196,8 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
 	for _, item := range items {
 		v := reflect.ValueOf(item)
-		if !v.IsNil() {
+		_, isString := item.(string)
+		if isString || !v.IsNil() {
 			c.AddItem(param, item)
 		}
 	}
