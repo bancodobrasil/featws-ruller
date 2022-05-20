@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/bancodobrasil/featws-ruller/config"
-	v1 "github.com/bancodobrasil/featws-ruller/controllers/v1"
 	_ "github.com/bancodobrasil/featws-ruller/docs"
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
@@ -63,7 +62,7 @@ func main() {
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules
 		log.Debugf("Carregando '%s' como folha de regras default!", defaultGRL)
-		err := services.EvalService.LoadLocalGRL(defaultGRL, v1.DefaultKnowledgeBaseName, v1.DefaultKnowledgeBaseVersion)
+		err := services.EvalService.LoadLocalGRL(defaultGRL, services.DefaultKnowledgeBaseName, services.DefaultKnowledgeBaseVersion)
 		if err != nil {
 			log.Fatal(err)
 		}

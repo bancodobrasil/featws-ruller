@@ -158,7 +158,24 @@ func (c *TypedMap) GetMap(param string) *TypedMap {
 
 // GetEntries method get all entries of map
 func (c *TypedMap) GetEntries() map[string]interface{} {
-	return c.interfaceMap
+	result := c.interfaceMap
+	for k, v := range result {
+		result[k] = parseValue(v)
+	}
+	return result
+}
+
+func parseValue(v interface{}) interface{} {
+	switch v := v.(type) {
+	case []interface{}:
+		for i, item := range v {
+			v[i] = parseValue(item)
+		}
+	case *TypedMap:
+		return v.GetEntries()
+	default:
+	}
+	return v
 }
 
 // AddItem method inserts a item into a slice of map
@@ -178,7 +195,10 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 // AddItems methos insert some items into a slice of map
 func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
 	for _, item := range items {
-		c.AddItem(param, item)
+		v := reflect.ValueOf(item)
+		if !v.IsNil() {
+			c.AddItem(param, item)
+		}
 	}
 	return c.GetSlice(param)
 }
