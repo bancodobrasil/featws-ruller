@@ -135,6 +135,7 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types
 		return result, err
 	}
 
+	// FIXME: Analyze if this is the best way to do this
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
