@@ -88,6 +88,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		ctx := types.NewContextFromMap(t)
 
+		// a trava esta aqui
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
 			log.Errorf("Error on eval: %v", err)
