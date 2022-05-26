@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"sync"
 	"text/template"
@@ -108,39 +109,46 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 }
 
 //Eval ...
-func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
+	defer evalMutex.Unlock()
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("recovered from panic: %v", r)
+			log.Error(err)
+		}
+	}()
 	dataCtx := ast.NewDataContext()
 
 	processor := processor.NewProcessor()
 
-	result := types.NewResult()
+	result = types.NewResult()
 
-	err := dataCtx.Add("processor", processor)
+	err = dataCtx.Add("processor", processor)
 	if err != nil {
 		log.Error("error on add processor to data context: \n the result was: %w \n the error was: %w", result, err)
-		return result, err
+		return
 	}
 
 	err = dataCtx.Add("ctx", ctx)
 	if err != nil {
 		log.Error("error on add context to data context: \n the result was: %w \n the error was: %w", result, err)
-		return result, err
+		return
 	}
 
 	err = dataCtx.Add("result", result)
 	if err != nil {
 		log.Error("error on add result to data context: \n the result was: %w \n the error was: %w", result, err)
-		return result, err
+		return
 	}
 
-	// FIXME: Analyze if this is the best way to do this
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
 		log.Error("error on execute the grule engine: %w", err)
-		return nil, err
+		return
 	}
 
 	if ctx.Has("errors") && len(ctx.GetMap("errors").GetEntries()) > 0 {
@@ -150,7 +158,5 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types
 	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
 	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
-	evalMutex.Unlock()
-
-	return result, nil
+	return
 }
