@@ -5,10 +5,12 @@ go 1.16
 require (
 	github.com/bancodobrasil/gin-monitor v1.0.0-rc1
 	github.com/bancodobrasil/gin-telemetry v0.0.1-rc1
+	github.com/bancodobrasil/healthcheck v0.0.2-rc1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-openapi/spec v0.20.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
+	github.com/gsdenys/healthcheck v0.0.0-20220412001953-64e5089fa0bc
 	github.com/hyperjumptech/grule-rule-engine v1.10.5
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
