@@ -27,15 +27,15 @@ func NewHealthController() *HealthController {
 
 func newHandler() healthcheck.Handler {
 	cfg := config.GetConfig()
-	rawResourceLoaderUrl := cfg.ResourceLoaderURL
-	resolverBridgeUrl := cfg.ResolverBridgeURL
-	resourceLoader, _ := url.Parse(rawResourceLoaderUrl)
+	rawResourceLoaderURL := cfg.ResourceLoaderURL
+	resolverBridgeURL := cfg.ResolverBridgeURL
+	resourceLoader, _ := url.Parse(rawResourceLoaderURL)
 	finalResourceLoader := resourceLoader.Scheme + "://" + resourceLoader.Host
 	health := healthcheck.NewHandler()
 	health.AddLivenessCheck("goroutine-threshold", goroutine.Count(100))
 	// log.Println("resourceLoader: ", resourceLoader)
 	health.AddReadinessCheck("remote-resources", Get(finalResourceLoader, 1*time.Second))
-	health.AddReadinessCheck("resolver-bridge", Get(resolverBridgeUrl, 1*time.Second))
+	health.AddReadinessCheck("resolver-bridge", Get(resolverBridgeURL, 1*time.Second))
 	return health
 }
 
