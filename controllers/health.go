@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/healthcheck"
 	"github.com/bancodobrasil/healthcheck/checks/goroutine"
@@ -25,21 +27,35 @@ func NewHealthController() *HealthController {
 	}
 }
 
+var health = healthcheck.NewHandler()
+
 func newHandler() healthcheck.Handler {
 	cfg := config.GetConfig()
-	rawResourceLoaderURL := cfg.ResourceLoaderURL
-	resolverBridgeURL := cfg.ResolverBridgeURL
-	resourceLoader, _ := url.Parse(rawResourceLoaderURL)
-	finalResourceLoader := resourceLoader.Scheme + "://" + resourceLoader.Host
-	health := healthcheck.NewHandler()
 	health.AddLivenessCheck("goroutine-threshold", goroutine.Count(100))
-	// log.Println("resourceLoader: ", resourceLoader)
-	health.AddReadinessCheck("remote-resources", Get(finalResourceLoader, 1*time.Second))
-	health.AddReadinessCheck("resolver-bridge", Get(resolverBridgeURL, 1*time.Second))
+
+	if cfg.ResourceLoaderURL != "" {
+		rawResourceLoaderURL := cfg.ResourceLoaderURL
+		resourceLoader, _ := url.Parse(rawResourceLoaderURL)
+
+		if resourceLoader.Scheme == "" {
+			log.Fatal("ResourceLoaderURL must have a scheme: http:// or https://")
+		}
+
+		if resourceLoader.Host == "" {
+			log.Fatal("ResourceLoaderURL must have a host: example.com")
+		}
+		finalResourceLoader := resourceLoader.Scheme + "://" + resourceLoader.Host
+		health.AddReadinessCheck("resource-loader", Get(finalResourceLoader, 1*time.Second))
+	}
+
+	if cfg.ResolverBridgeURL != "" {
+		resolverBridgeURL := cfg.ResolverBridgeURL
+		health.AddReadinessCheck("resolver-bridge", Get(resolverBridgeURL, 1*time.Second))
+	}
+
 	return health
 }
 
-// Get was the function that allow follow the url
 func Get(url string, timeout time.Duration) checks.Check {
 	client := http.Client{
 		Timeout: timeout,
