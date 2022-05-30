@@ -56,6 +56,7 @@ func newHandler() healthcheck.Handler {
 	return health
 }
 
+// Get ...
 func Get(url string, timeout time.Duration) checks.Check {
 	client := http.Client{
 		Timeout: timeout,
