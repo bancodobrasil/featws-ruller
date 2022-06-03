@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -89,10 +90,20 @@ func EvalHandler() gin.HandlerFunc {
 		ctx := types.NewContextFromMap(t)
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
+		requiredError := errors.New("rule engine execute panic ! recovered : &{0xc000162000 map[] 2022-06-02 18:07:46.9685124 -0300 -03 m=+111.767871001 panic <nil> The param is not registry as remote loaded and is required <nil> <nil> }")
+		log.Print(requiredError)
+		log.Print(err)
 		if err != nil {
+			if errors.Is(err, requiredError) {
+				log.Errorf("Error on eval: %v", err)
+				c.Status(http.StatusBadRequest)
+				fmt.Fprintf(c.Writer, "The param is not registry as remote loaded and is required")
+				return
+			}
+
 			log.Errorf("Error on eval: %v", err)
 			c.Status(http.StatusInternalServerError)
-			fmt.Fprint(c.Writer, "Error on eval")
+			fmt.Fprintf(c.Writer, "Error on eval: %v", err)
 			return
 		}
 

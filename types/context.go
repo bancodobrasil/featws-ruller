@@ -19,13 +19,22 @@ type RemoteLoaded struct {
 	From     string
 }
 
+// RequiredParam ...
+type RequiredParam struct {
+	Param string
+}
+
+// RequiredParams ...
+type RequiredParams []RequiredParam
+
 // RemoteLoadeds ...
 type RemoteLoadeds map[string]RemoteLoaded
 
 // Context its used to store parameters and temporary variables during rule assertions
 type Context struct {
 	TypedMap
-	RemoteLoadeds RemoteLoadeds
+	RemoteLoadeds  RemoteLoadeds
+	RequiredParams RequiredParams
 	Resolver
 	Loader
 }
@@ -68,12 +77,34 @@ func NewContext() *Context {
 // NewContextFromMap method create a new Context from map
 func NewContextFromMap(values map[string]interface{}) *Context {
 	instance := &Context{
-		TypedMap:      *NewTypedMapFromMap(values),
-		RemoteLoadeds: make(map[string]RemoteLoaded),
+		TypedMap:       *NewTypedMapFromMap(values),
+		RemoteLoadeds:  make(map[string]RemoteLoaded),
+		RequiredParams: []RequiredParam{},
 	}
 	instance.Getter = interface{}(instance).(Getter)
 	return instance
 }
+
+// RegistryRequiredParams ...
+func (c *Context) RegistryRequiredParams(params string) {
+	c.RequiredParams = append(c.RequiredParams, RequiredParam{Param: params})
+	for _, param := range strings.Split(params, ",") {
+		if c.isRemoteLoaded(param) {
+			c.load(param)
+		}
+		if !c.Has(param) && !c.isRemoteLoaded(param) {
+			log.Panic("The param is not registry as remote loaded and is required")
+		}
+	}
+}
+
+// func requiredError() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+// 			"error": "The param is not registry as remote loaded and is required",
+// 		})
+// 	}
+// }
 
 // RegistryRemoteLoadedWithFrom ...
 func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, from string) {
