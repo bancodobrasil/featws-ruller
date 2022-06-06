@@ -89,17 +89,7 @@ func EvalHandler() gin.HandlerFunc {
 		ctx := types.NewContextFromMap(t)
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
-		//FIXME: Handler error when the riquered para
-		// requiredError := errors.New("rule engine execute panic ! recovered : &{0xc000162000 map[] 2022-06-02 18:07:46.9685124 -0300 -03 m=+111.767871001 panic <nil> The param is not registry as remote loaded and is required <nil> <nil> }")
-		// log.Print(requiredError)
-		// log.Print(err)
 		if err != nil {
-			// if errors.Is(err, requiredError) {
-			// 	log.Errorf("Error on eval: %v", err)
-			// 	c.Status(http.StatusBadRequest)
-			// 	fmt.Fprintf(c.Writer, "The param is not registry as remote loaded and is required")
-			// 	return
-			// }
 
 			log.Errorf("Error on eval: %v", err)
 			c.Status(http.StatusInternalServerError)
@@ -110,7 +100,13 @@ func EvalHandler() gin.HandlerFunc {
 		log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
 		log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
-		c.JSON(http.StatusOK, result.GetFeatures())
+		responseCode := http.StatusOK
+
+		if result.Has("requiredParamErrors") {
+			responseCode = http.StatusBadRequest
+		}
+
+		c.JSON(responseCode, result.GetFeatures())
 	}
 
 }

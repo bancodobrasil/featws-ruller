@@ -19,13 +19,8 @@ type RemoteLoaded struct {
 	From     string
 }
 
-// RequiredParam ...
-type RequiredParam struct {
-	Param string
-}
-
 // RequiredParams ...
-type RequiredParams []RequiredParam
+type RequiredParams []string
 
 // RemoteLoadeds ...
 type RemoteLoadeds map[string]RemoteLoaded
@@ -79,22 +74,43 @@ func NewContextFromMap(values map[string]interface{}) *Context {
 	instance := &Context{
 		TypedMap:       *NewTypedMapFromMap(values),
 		RemoteLoadeds:  make(map[string]RemoteLoaded),
-		RequiredParams: []RequiredParam{},
+		RequiredParams: []string{},
 	}
 	instance.Getter = interface{}(instance).(Getter)
 	return instance
 }
 
 // RegistryRequiredParams ...
-func (c *Context) RegistryRequiredParams(params string) {
-	c.RequiredParams = append(c.RequiredParams, RequiredParam{Param: params})
-	for _, param := range strings.Split(params, ",") {
+func (c *Context) RegistryRequiredParams(params ...string) {
+
+	for _, param := range params {
 		if c.isRemoteLoaded(param) {
-			c.load(param)
+			continue
 		}
-		if !c.Has(param) && !c.isRemoteLoaded(param) {
-			log.Panic("The param is not registry as remote loaded and is required")
+		c.RequiredParams = append(c.RequiredParams, param)
+		if !c.Has(param) {
+			c.addError("requiredParamErrors", param, fmt.Errorf("parameter %s is required", param))
 		}
+
+	}
+}
+
+func (c *Context) addError(key, param string, err interface{}) {
+	if !c.Has(key) {
+		c.Put(key, NewTypedMap())
+	}
+
+	switch r := err.(type) {
+	case *log.Entry:
+		c.GetMap(key).AddItem(param, r.Message)
+	case log.Entry:
+		c.GetMap(key).AddItem(param, r.Message)
+	case string:
+		c.GetMap(key).AddItem(param, r)
+	case error:
+		c.GetMap(key).AddItem(param, r.Error())
+	default:
+		c.GetMap(key).AddItem(param, fmt.Sprintf("%v", r))
 	}
 }
 
@@ -135,21 +151,7 @@ func (c *Context) loadImpl(param string) interface{} {
 		if r == nil {
 			return
 		}
-		if !c.Has("errors") {
-			c.Put("errors", NewTypedMap())
-		}
-		switch r := r.(type) {
-		case *log.Entry:
-			c.GetMap("errors").AddItem(param, r.Message)
-		case log.Entry:
-			c.GetMap("errors").AddItem(param, r.Message)
-		case string:
-			c.GetMap("errors").AddItem(param, r)
-		case error:
-			c.GetMap("errors").AddItem(param, r.Error())
-		default:
-			c.GetMap("errors").AddItem(param, fmt.Sprintf("%v", r))
-		}
+		c.addError("errors", param, r)
 	}()
 	remote, ok := c.RemoteLoadeds[param]
 	if !ok {
@@ -199,14 +201,14 @@ func (c *Context) resolve(resolver string, param string) interface{} {
 func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	config := config.GetConfig()
 
-	url := fmt.Sprintf("%s/api/v1/resolve", config.ResolverBridgeURL)
+	url := fmt.Sprintf("%s/api/v1/resolve/%s", config.ResolverBridgeURL, resolver)
 
 	url = strings.ReplaceAll(url, "//api/v1", "/api/v1")
 
 	input := resolveInputV1{
-		Resolver: resolver,
-		Context:  c.GetEntries(),
-		Load:     []string{param},
+		// Resolver: resolver,
+		Context: c.GetEntries(),
+		Load:    []string{param},
 	}
 
 	log.Debugf("Resolving with '%s': %v", url, input)
