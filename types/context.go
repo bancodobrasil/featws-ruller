@@ -19,9 +19,6 @@ type RemoteLoaded struct {
 	From     string
 }
 
-// RequiredParams ...
-type RequiredParams []string
-
 // RemoteLoadeds ...
 type RemoteLoadeds map[string]RemoteLoaded
 
@@ -29,9 +26,10 @@ type RemoteLoadeds map[string]RemoteLoaded
 type Context struct {
 	TypedMap
 	RemoteLoadeds  RemoteLoadeds
-	RequiredParams RequiredParams
+	RequiredParams []string
 	Resolver
 	Loader
+	RequiredConfigured bool
 }
 
 // Resolver ...
@@ -257,4 +255,12 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	}
 
 	return output.Context[param]
+}
+
+func (c *Context) SetRequiredConfigured() {
+	c.RequiredConfigured = true
+}
+
+func (c *Context) IsReady() bool {
+	return c.RequiredConfigured && !c.Has("requiredParamErrors")
 }
