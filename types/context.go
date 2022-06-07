@@ -168,14 +168,14 @@ func (c *Context) resolve(resolver string, param string) interface{} {
 func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	config := config.GetConfig()
 
-	url := fmt.Sprintf("%s/api/v1/resolve", config.ResolverBridgeURL)
+	url := fmt.Sprintf("%s/api/v1/resolve/%s", config.ResolverBridgeURL, resolver)
 
 	url = strings.ReplaceAll(url, "//api/v1", "/api/v1")
 
 	input := resolveInputV1{
-		Resolver: resolver,
-		Context:  c.GetEntries(),
-		Load:     []string{param},
+		// Resolver: resolver,
+		Context: c.GetEntries(),
+		Load:    []string{param},
 	}
 
 	log.Debugf("Resolving with '%s': %v", url, input)
