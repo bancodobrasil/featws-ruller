@@ -56,9 +56,6 @@ func EvalHandler() gin.HandlerFunc {
 			if err != nil {
 				log.Errorf("Erro on load: %v", err)
 				c.String(http.StatusInternalServerError, "Error on load knowledgeBase and/or version")
-				// w.WriteHeader(http.StatusservicesUnavailable)
-				// encoder := json.NewEncoder(w)
-				// encoder.Encode(err)
 				loadMutex.Unlock()
 				return
 			}

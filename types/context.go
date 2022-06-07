@@ -112,14 +112,6 @@ func (c *Context) addError(key, param string, err interface{}) {
 	}
 }
 
-// func requiredError() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-// 			"error": "The param is not registry as remote loaded and is required",
-// 		})
-// 	}
-// }
-
 // RegistryRemoteLoadedWithFrom ...
 func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, from string) {
 	if from == "" {
