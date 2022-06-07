@@ -257,10 +257,12 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	return output.Context[param]
 }
 
+// SetRequiredConfigured ...
 func (c *Context) SetRequiredConfigured() {
 	c.RequiredConfigured = true
 }
 
+// IsReady ...
 func (c *Context) IsReady() bool {
 	return c.RequiredConfigured && !c.Has("requiredParamErrors")
 }
