@@ -155,6 +155,10 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result
 		result.Put("errors", ctx.GetMap("errors").GetEntries())
 	}
 
+	if ctx.Has("requiredParamErrors") && len(ctx.GetMap("requiredParamErrors").GetEntries()) > 0 {
+		result.Put("requiredParamErrors", ctx.GetMap("requiredParamErrors").GetEntries())
+	}
+
 	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
 	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 

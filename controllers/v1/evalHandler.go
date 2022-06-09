@@ -56,9 +56,6 @@ func EvalHandler() gin.HandlerFunc {
 			if err != nil {
 				log.Errorf("Erro on load: %v", err)
 				c.String(http.StatusInternalServerError, "Error on load knowledgeBase and/or version")
-				// w.WriteHeader(http.StatusservicesUnavailable)
-				// encoder := json.NewEncoder(w)
-				// encoder.Encode(err)
 				loadMutex.Unlock()
 				return
 			}
@@ -90,6 +87,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
+
 			log.Errorf("Error on eval: %v", err)
 			c.Status(http.StatusInternalServerError)
 			fmt.Fprint(c.Writer, "Error on eval")
@@ -99,7 +97,13 @@ func EvalHandler() gin.HandlerFunc {
 		log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
 		log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
-		c.JSON(http.StatusOK, result.GetFeatures())
+		responseCode := http.StatusOK
+
+		if result.Has("requiredParamErrors") {
+			responseCode = http.StatusBadRequest
+		}
+
+		c.JSON(responseCode, result.GetFeatures())
 	}
 
 }

@@ -25,9 +25,11 @@ type RemoteLoadeds map[string]RemoteLoaded
 // Context its used to store parameters and temporary variables during rule assertions
 type Context struct {
 	TypedMap
-	RemoteLoadeds RemoteLoadeds
+	RemoteLoadeds  RemoteLoadeds
+	RequiredParams []string
 	Resolver
 	Loader
+	RequiredConfigured bool
 }
 
 // Resolver ...
@@ -68,11 +70,46 @@ func NewContext() *Context {
 // NewContextFromMap method create a new Context from map
 func NewContextFromMap(values map[string]interface{}) *Context {
 	instance := &Context{
-		TypedMap:      *NewTypedMapFromMap(values),
-		RemoteLoadeds: make(map[string]RemoteLoaded),
+		TypedMap:       *NewTypedMapFromMap(values),
+		RemoteLoadeds:  make(map[string]RemoteLoaded),
+		RequiredParams: []string{},
 	}
 	instance.Getter = interface{}(instance).(Getter)
 	return instance
+}
+
+// RegistryRequiredParams ...
+func (c *Context) RegistryRequiredParams(params ...string) {
+
+	for _, param := range params {
+		if c.isRemoteLoaded(param) {
+			continue
+		}
+		c.RequiredParams = append(c.RequiredParams, param)
+		if !c.Has(param) {
+			c.addError("requiredParamErrors", param, fmt.Errorf("parameter %s is required", param))
+		}
+
+	}
+}
+
+func (c *Context) addError(key, param string, err interface{}) {
+	if !c.Has(key) {
+		c.Put(key, NewTypedMap())
+	}
+
+	switch r := err.(type) {
+	case *log.Entry:
+		c.GetMap(key).AddItem(param, r.Message)
+	case log.Entry:
+		c.GetMap(key).AddItem(param, r.Message)
+	case string:
+		c.GetMap(key).AddItem(param, r)
+	case error:
+		c.GetMap(key).AddItem(param, r.Error())
+	default:
+		c.GetMap(key).AddItem(param, fmt.Sprintf("%v", r))
+	}
 }
 
 // RegistryRemoteLoadedWithFrom ...
@@ -104,21 +141,7 @@ func (c *Context) loadImpl(param string) interface{} {
 		if r == nil {
 			return
 		}
-		if !c.Has("errors") {
-			c.Put("errors", NewTypedMap())
-		}
-		switch r := r.(type) {
-		case *log.Entry:
-			c.GetMap("errors").AddItem(param, r.Message)
-		case log.Entry:
-			c.GetMap("errors").AddItem(param, r.Message)
-		case string:
-			c.GetMap("errors").AddItem(param, r)
-		case error:
-			c.GetMap("errors").AddItem(param, r.Error())
-		default:
-			c.GetMap("errors").AddItem(param, fmt.Sprintf("%v", r))
-		}
+		c.addError("errors", param, r)
 	}()
 	remote, ok := c.RemoteLoadeds[param]
 	if !ok {
@@ -224,4 +247,14 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	}
 
 	return output.Context[param]
+}
+
+// SetRequiredConfigured ...
+func (c *Context) SetRequiredConfigured() {
+	c.RequiredConfigured = true
+}
+
+// IsReady ...
+func (c *Context) IsReady() bool {
+	return c.RequiredConfigured && !c.Has("requiredParamErrors")
 }
