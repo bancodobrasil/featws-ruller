@@ -9,7 +9,7 @@ import (
 //HomeHandler ...
 func HomeHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.String(http.StatusOK, "FeatWS Works!!!")
+		c.String(http.StatusOK, "FeatWS Ruller Works!!!")
 	}
 
 }
