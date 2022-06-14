@@ -10,7 +10,7 @@
 
 ## Initializate the project
 - Clone this project to your local machine.
-- On _main.go_ folder (*../featws-ruller/main.go*), open your local terminal and type the command `go run main.go` or by build and run the executable `go build && ./featws-ruler.exe`.
+- On _main.go_ folder (*../featws-ruller/main.go*), open your local terminal and type the command `go run main.go`, if your OS is windows, you can by build and run the executable `go build && ./featws-ruler.exe`, or if your OS is mac, type the command `go build -o ruller && ./ruller $@`.
 
 ## Testing diferents rulesheets
 - Check if you have in your workspace the **featws-transpiler** and copy the path from .grl file for the new case, you can find that on the cases _tests_ -> cases
