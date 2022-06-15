@@ -35,7 +35,7 @@ func TestHomeHandler(t *testing.T) {
 	}
 
 	gotBody := r.Body.String()
-	expectedBody := "FeatWS Works!!!"
+	expectedBody := "FeatWS Ruller Works!!!"
 
 	if gotBody != expectedBody {
 		t.Error("got error on request homeHandler func")
