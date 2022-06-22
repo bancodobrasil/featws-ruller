@@ -1,7 +1,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/abu-lang/goabu.svg)](https://pkg.go.dev/github.com/bancodobrasil/featws-ruller)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/bancodobrasil/featws-ruller/blob/develop/LICENSE)
 
-# Featws Ruller
+# **Featws Ruller** [![About_de](https://github.com/yammadev/flag-icons/blob/master/png/BR.png?raw=true)](https://github.com/bancodobrasil/featws-transpiler/blob/develop/README_ptbr.md)
 - O projeto featws-ruller é uma implementação do [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), usado para aveliar planilhas de regaras (.grl).
 
 ## Software Necessário
