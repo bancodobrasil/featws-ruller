@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Getter ...
@@ -71,7 +73,12 @@ func (c *TypedMap) GetSlice(param string) []interface{} {
 
 // GetString method get a string entry of map
 func (c *TypedMap) GetString(param string) string {
-	return fmt.Sprintf("%s", c.Get(param))
+	switch v := c.Get(param).(type) {
+	case bool:
+		return strconv.FormatBool(v)
+	default:
+		return fmt.Sprintf("%s", v)
+	}
 }
 
 // GetInt method get a int entry of map
@@ -91,6 +98,7 @@ func (c *TypedMap) GetInt(param string) int64 {
 	case int64:
 		return v
 	default:
+		log.Panic("It's not possible to recover this parameter as int64")
 		panic("It's not possible to recover this parameter as int64")
 	}
 }
@@ -112,6 +120,7 @@ func (c *TypedMap) GetFloat(param string) float64 {
 	case float64:
 		return v
 	default:
+		log.Panic("fail to retrieve this param as float64")
 		panic("fail to retrieve this param as float64")
 	}
 }
@@ -149,7 +158,24 @@ func (c *TypedMap) GetMap(param string) *TypedMap {
 
 // GetEntries method get all entries of map
 func (c *TypedMap) GetEntries() map[string]interface{} {
-	return c.interfaceMap
+	result := c.interfaceMap
+	for k, v := range result {
+		result[k] = parseValue(v)
+	}
+	return result
+}
+
+func parseValue(v interface{}) interface{} {
+	switch v := v.(type) {
+	case []interface{}:
+		for i, item := range v {
+			v[i] = parseValue(item)
+		}
+	case *TypedMap:
+		return v.GetEntries()
+	default:
+	}
+	return v
 }
 
 // AddItem method inserts a item into a slice of map
@@ -169,7 +195,11 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 // AddItems methos insert some items into a slice of map
 func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
 	for _, item := range items {
-		c.AddItem(param, item)
+		v := reflect.ValueOf(item)
+		_, isString := item.(string)
+		if isString || !v.IsNil() {
+			c.AddItem(param, item)
+		}
 	}
 	return c.GetSlice(param)
 }

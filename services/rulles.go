@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"sync"
 	"text/template"
@@ -17,6 +18,12 @@ import (
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
 )
+
+// DefaultKnowledgeBaseName its default name of Knowledge Base
+const DefaultKnowledgeBaseName = "default"
+
+// DefaultKnowledgeBaseVersion its default version of Knowledge Base
+const DefaultKnowledgeBaseVersion = "latest"
 
 //LoadLocalGRL ...
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
@@ -53,6 +60,7 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	// standard output to print merged data
 	err := urlTemplate.Execute(&doc, info)
 	if err != nil {
+		log.Error("error on load Remote GRL: %w", err)
 		return err
 	}
 
@@ -69,6 +77,7 @@ var evalMutex sync.Mutex
 // IEval ...
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
+	GetDefaultKnowledgeBase() *ast.KnowledgeBase
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
 	LoadRemoteGRL(knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
@@ -94,45 +103,64 @@ func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return s.knowledgeLibrary
 }
 
+// GetDefaultKnowledgeBase ...
+func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
+	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
+}
+
 //Eval ...
-func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
+func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
+	defer evalMutex.Unlock()
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("recovered from panic: %v", r)
+			log.Error(err)
+		}
+	}()
 	dataCtx := ast.NewDataContext()
 
 	processor := processor.NewProcessor()
 
-	result := types.NewResult()
+	result = types.NewResult()
 
-	err := dataCtx.Add("processor", processor)
+	err = dataCtx.Add("processor", processor)
 	if err != nil {
-		return result, err
+		log.Error("error on add processor to data context: \n the result was: %w \n the error was: %w", result, err)
+		return
 	}
 
 	err = dataCtx.Add("ctx", ctx)
 	if err != nil {
-		return result, err
+		log.Error("error on add context to data context: \n the result was: %w \n the error was: %w", result, err)
+		return
 	}
 
 	err = dataCtx.Add("result", result)
 	if err != nil {
-		return result, err
+		log.Error("error on add result to data context: \n the result was: %w \n the error was: %w", result, err)
+		return
 	}
 
 	eng := engine.NewGruleEngine()
 	err = eng.Execute(dataCtx, knowledgeBase)
 	if err != nil {
-		return nil, err
+		log.Error("error on execute the grule engine: %w", err)
+		return
 	}
 
 	if ctx.Has("errors") && len(ctx.GetMap("errors").GetEntries()) > 0 {
 		result.Put("errors", ctx.GetMap("errors").GetEntries())
 	}
 
+	if ctx.Has("requiredParamErrors") && len(ctx.GetMap("requiredParamErrors").GetEntries()) > 0 {
+		result.Put("requiredParamErrors", ctx.GetMap("requiredParamErrors").GetEntries())
+	}
+
 	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
 	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
 
-	evalMutex.Unlock()
-
-	return result, nil
+	return
 }

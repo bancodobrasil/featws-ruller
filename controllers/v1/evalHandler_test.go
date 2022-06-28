@@ -38,7 +38,7 @@ type EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion struct {
 }
 
 func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) LoadRemoteGRL(knowledgeBaseName string, version string) error {
-	if knowledgeBaseName != DefaultKnowledgeBaseName || version != DefaultKnowledgeBaseVersion {
+	if knowledgeBaseName != services.DefaultKnowledgeBaseName || version != services.DefaultKnowledgeBaseVersion {
 		s.t.Error("Did not load the default")
 	}
 	return nil
@@ -143,7 +143,7 @@ func TestEvalHandlerWithDefaultKnowledgeBase(t *testing.T) {
 
 	ruleBuilder := builder.NewRuleBuilder(services.EvalService.GetKnowledgeLibrary())
 	bs := pkg.NewBytesResource([]byte(drls))
-	ruleBuilder.BuildRuleFromResource(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion, bs)
+	ruleBuilder.BuildRuleFromResource(services.DefaultKnowledgeBaseName, services.DefaultKnowledgeBaseVersion, bs)
 
 	c, r := mockGin()
 
@@ -202,7 +202,7 @@ func TestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON(t *testing.T) {
 
 	ruleBuilder := builder.NewRuleBuilder(services.EvalService.GetKnowledgeLibrary())
 	bs := pkg.NewBytesResource([]byte(drls))
-	ruleBuilder.BuildRuleFromResource(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion, bs)
+	ruleBuilder.BuildRuleFromResource(services.DefaultKnowledgeBaseName, services.DefaultKnowledgeBaseVersion, bs)
 
 	c, r := mockGin()
 
@@ -261,7 +261,7 @@ func TestEvalHandlerWithDefaultKnowledgeBaseEvalError(t *testing.T) {
 
 	ruleBuilder := builder.NewRuleBuilder(services.EvalService.GetKnowledgeLibrary())
 	bs := pkg.NewBytesResource([]byte(drls))
-	ruleBuilder.BuildRuleFromResource(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion, bs)
+	ruleBuilder.BuildRuleFromResource(services.DefaultKnowledgeBaseName, services.DefaultKnowledgeBaseVersion, bs)
 
 	c, r := mockGin()
 

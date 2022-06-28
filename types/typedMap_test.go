@@ -3,6 +3,8 @@ package types
 import (
 	"reflect"
 	"testing"
+
+	"github.com/sirupsen/logrus"
 )
 
 func TestNewTypedMap(t *testing.T) {
@@ -187,7 +189,7 @@ func TestGetIntWithNoParam(t *testing.T) {
 func TestGetIntWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "It's not possible to recover this parameter as int64" {
+		if r.(*logrus.Entry).Message != "It's not possible to recover this parameter as int64" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -253,7 +255,7 @@ func TestGetFloatWithFloat64(t *testing.T) {
 func TestGetFloatWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "fail to retrieve this param as float64" {
+		if r.(*logrus.Entry).Message != "fail to retrieve this param as float64" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -393,6 +395,32 @@ func TestAddItemsWithThreeItemsNonInitlizated(t *testing.T) {
 
 	if reflect.DeepEqual(got, expected) != true {
 		t.Error("The the expected map doesn't match with the obtained one")
+	}
+
+}
+
+func TestBooleanPlain(t *testing.T) {
+	tm := NewTypedMap()
+	tm.Put("mybool", true)
+
+	got := tm.GetBool("mybool")
+	expect := true
+
+	if got != expect {
+		t.Error("you got an error while try to convert boolean to string")
+	}
+
+}
+
+func TestIntegerPlain(t *testing.T) {
+	tm := NewTypedMap()
+	tm.Put("mynumber", 123)
+
+	got := tm.GetInt("mynumber")
+	expect := int64(123)
+
+	if got != expect {
+		t.Error("you got an error while try to convert int to string")
 	}
 
 }
