@@ -216,7 +216,13 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
 
 	ctx := c.RawContext
-	req, err := http.NewRequestWithContext(ctx, "POST", url, &buf)
+	var req *http.Request
+
+	if ctx != nil {
+		req, err = http.NewRequestWithContext(ctx, "POST", url, &buf)
+	} else {
+		req, err = http.NewRequest("POST", url, &buf)
+	}
 
 	if err != nil {
 		log.Panic("error on create Request")
@@ -224,7 +230,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	req.Header = config.ResolverBridgeHeaders
 
-	if telemetry.MiddlewareDisabled {
+	if telemetry.MiddlewareDisabled && ctx != nil {
 		telemetry.Inject(ctx, req.Header)
 	}
 
