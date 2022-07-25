@@ -230,7 +230,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	req.Header = config.ResolverBridgeHeaders
 
-	if telemetry.MiddlewareDisabled && ctx != nil {
+	if !telemetry.MiddlewareDisabled && ctx != nil {
 		telemetry.Inject(ctx, req.Header)
 	}
 
