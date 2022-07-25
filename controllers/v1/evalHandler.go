@@ -84,6 +84,7 @@ func EvalHandler() gin.HandlerFunc {
 		log.Debugln(t)
 
 		ctx := types.NewContextFromMap(t)
+		ctx.RawContext = c.Request.Context()
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
