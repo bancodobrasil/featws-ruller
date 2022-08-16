@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/bancodobrasil/featws-ruller/config"
+	telemetry "github.com/bancodobrasil/gin-telemetry"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,6 +26,7 @@ type RemoteLoadeds map[string]RemoteLoaded
 
 // Context its used to store parameters and temporary variables during rule assertions
 type Context struct {
+	RawContext context.Context
 	TypedMap
 	RemoteLoadeds  RemoteLoadeds
 	RequiredParams []string
@@ -212,12 +215,24 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
 
-	req, err := http.NewRequest("POST", url, &buf)
+	ctx := c.RawContext
+	var req *http.Request
+
+	if ctx != nil {
+		req, err = http.NewRequestWithContext(ctx, "POST", url, &buf)
+	} else {
+		req, err = http.NewRequest("POST", url, &buf)
+	}
+
 	if err != nil {
 		log.Panic("error on create Request")
 	}
 
 	req.Header = config.ResolverBridgeHeaders
+
+	if !telemetry.MiddlewareDisabled && ctx != nil {
+		telemetry.Inject(ctx, req.Header)
+	}
 
 	resp, err := Client.Do(req)
 	if err != nil {

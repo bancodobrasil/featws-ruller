@@ -6,3 +6,4 @@ example.json
 *.exe
 *.env
 *.out
+vendor
