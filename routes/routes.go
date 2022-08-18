@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"github.com/bancodobrasil/featws-ruller/config"
+	"github.com/bancodobrasil/featws-ruller/docs"
 	"github.com/bancodobrasil/featws-ruller/routes/api"
 	"github.com/bancodobrasil/featws-ruller/routes/health"
 	telemetry "github.com/bancodobrasil/gin-telemetry"
@@ -11,6 +13,9 @@ import (
 
 //SetupRoutes ...
 func SetupRoutes(router *gin.Engine) {
+	cfg := config.GetConfig()
+	docs.SwaggerInfo.Host = cfg.ExternalHost
+
 	homeRouter(router.Group("/"))
 	health.Router(router.Group("/health"))
 	// setup swagger docs
