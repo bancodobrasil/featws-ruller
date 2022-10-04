@@ -14,7 +14,7 @@ type VerifyAPIKeyMiddleware struct {
 var verifyAPIKeyMiddleware *VerifyAPIKeyMiddleware
 
 // Middleware function to verify the JWT token
-func VerifyAuthToken() gin.HandlerFunc {
+func VerifyAPIKey() gin.HandlerFunc {
 	return verifyAPIKeyMiddleware.Run()
 }
 
