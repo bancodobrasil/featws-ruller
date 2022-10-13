@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"strings"
-
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/gin-gonic/gin"
 )
@@ -39,13 +37,9 @@ func (m *VerifyAPIKeyMiddleware) Run() gin.HandlerFunc {
 }
 
 func (m *VerifyAPIKeyMiddleware) extractKeyFromHeader(c *gin.Context) string {
-	authorizationHeader := c.Request.Header.Get("Authorization")
+	authorizationHeader := c.Request.Header.Get("X-API-Key")
 	if authorizationHeader == "" {
-		respondWithError(c, 401, "Missing Authorization Header")
+		respondWithError(c, 401, "Missing X-API-Key Header")
 	}
-	splitHeader := strings.Split(authorizationHeader, "Bearer")
-	if len(splitHeader) != 2 {
-		respondWithError(c, 401, "Invalid Authorization Header")
-	}
-	return strings.TrimSpace(splitHeader[1])
+	return authorizationHeader
 }
