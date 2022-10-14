@@ -2,10 +2,12 @@ package middlewares
 
 import "github.com/gin-gonic/gin"
 
+// Middleware ...
 type Middleware interface {
 	Run()
 }
 
+// InitializeMiddlewares ...
 func InitializeMiddlewares() {
 	NewVerifyAPIKeyMiddleware()
 }

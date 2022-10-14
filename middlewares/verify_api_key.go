@@ -5,17 +5,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// VerifyAPIKeyMiddleware ...
 type VerifyAPIKeyMiddleware struct {
 	key string
 }
 
 var verifyAPIKeyMiddleware *VerifyAPIKeyMiddleware
 
-// Middleware function to verify the JWT token
+// VerifyAPIKey ...
 func VerifyAPIKey() gin.HandlerFunc {
 	return verifyAPIKeyMiddleware.Run()
 }
 
+// NewVerifyAPIKeyMiddleware ...
 func NewVerifyAPIKeyMiddleware() {
 	cfg := config.GetConfig()
 
@@ -24,6 +26,7 @@ func NewVerifyAPIKeyMiddleware() {
 	}
 }
 
+// Run ...
 func (m *VerifyAPIKeyMiddleware) Run() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := m.extractKeyFromHeader(c)
