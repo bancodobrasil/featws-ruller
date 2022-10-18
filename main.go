@@ -5,6 +5,7 @@ import (
 
 	"github.com/bancodobrasil/featws-ruller/config"
 	_ "github.com/bancodobrasil/featws-ruller/docs"
+	"github.com/bancodobrasil/featws-ruller/middlewares"
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
 	ginMonitor "github.com/bancodobrasil/gin-monitor"
@@ -78,6 +79,9 @@ func main() {
 	gin.DefaultErrorWriter = log.StandardLogger().WriterLevel(log.ErrorLevel)
 
 	router := gin.New()
+
+	middlewares.InitializeMiddlewares()
+
 	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
 	router.Use(monitor.Prometheus())
 	router.GET("metrics", gin.WrapH(promhttp.Handler()))
