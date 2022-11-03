@@ -20,6 +20,11 @@
     "paths": {
         "/eval": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -90,6 +95,11 @@
         },
         "/eval/{knowledgeBase}": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -160,6 +170,11 @@
         },
         "/eval/{knowledgeBase}/{version}": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -233,6 +248,13 @@
         "v1.Eval": {
             "type": "object",
             "additionalProperties": true
+        }
+    },
+    "securityDefinitions": {
+        "Authentication Api Key": {
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
         }
     },
     "x-extension-openapi": {

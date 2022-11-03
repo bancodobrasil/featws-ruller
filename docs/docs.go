@@ -27,6 +27,11 @@ const docTemplate = `{
     "paths": {
         "/eval": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -97,6 +102,11 @@ const docTemplate = `{
         },
         "/eval/{knowledgeBase}": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -167,6 +177,11 @@ const docTemplate = `{
         },
         "/eval/{knowledgeBase}/{version}": {
             "post": {
+                "security": [
+                    {
+                        "Authentication Api Key": []
+                    }
+                ],
                 "description": "Receive the params to execute the rulesheet",
                 "consumes": [
                     "application/json"
@@ -240,6 +255,13 @@ const docTemplate = `{
         "v1.Eval": {
             "type": "object",
             "additionalProperties": true
+        }
+    },
+    "securityDefinitions": {
+        "Authentication Api Key": {
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
         }
     },
     "x-extension-openapi": {
