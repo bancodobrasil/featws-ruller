@@ -29,7 +29,7 @@ var loadMutex sync.Mutex
 // @Failure 		400,404 {object} string
 // @Failure 		500 {object} string
 // @Failure 		default {object} string
-// @Security 			Authentication Api Key
+// @Security 		Authentication Api Key
 // @Router 			/eval/{knowledgeBase}/{version} [post]
 // @Router 			/eval/{knowledgeBase} [post]
 // @Router 			/eval [post]
