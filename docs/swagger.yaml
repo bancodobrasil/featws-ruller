@@ -60,6 +60,8 @@ paths:
           description: ""
           schema:
             type: string
+      security:
+      - Authentication Api Key: []
       summary: Evaluate the rulesheet
       tags:
       - eval
@@ -106,6 +108,8 @@ paths:
           description: ""
           schema:
             type: string
+      security:
+      - Authentication Api Key: []
       summary: Evaluate the rulesheet
       tags:
       - eval
@@ -152,9 +156,16 @@ paths:
           description: ""
           schema:
             type: string
+      security:
+      - Authentication Api Key: []
       summary: Evaluate the rulesheet
       tags:
       - eval
+securityDefinitions:
+  Authentication Api Key:
+    in: header
+    name: X-API-Key
+    type: apiKey
 swagger: "2.0"
 x-extension-openapi:
   example: value on a json format
