@@ -8,6 +8,7 @@ import (
 	"github.com/bancodobrasil/featws-ruller/routes"
 	"github.com/bancodobrasil/featws-ruller/services"
 	ginMonitor "github.com/bancodobrasil/gin-monitor"
+	"github.com/bancodobrasil/goauth"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
@@ -83,7 +84,7 @@ func main() {
 
 	router := gin.New()
 
-	//middlewares.InitializeMiddlewares()
+	goauth.BootstrapMiddleware()
 
 	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
 	router.Use(monitor.Prometheus())

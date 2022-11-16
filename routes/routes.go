@@ -5,6 +5,7 @@ import (
 	"github.com/bancodobrasil/featws-ruller/docs"
 	"github.com/bancodobrasil/featws-ruller/routes/api"
 	"github.com/bancodobrasil/featws-ruller/routes/health"
+	telemetry "github.com/bancodobrasil/gin-telemetry"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -23,6 +24,6 @@ func SetupRoutes(router *gin.Engine) {
 // APIRoutes define all api routes
 func APIRoutes(router *gin.Engine) {
 	group := router.Group("/api")
-	//group.Use(telemetry.Middleware("featws-ruller"))
+	group.Use(telemetry.Middleware("featws-ruller"))
 	api.Router(group)
 }
