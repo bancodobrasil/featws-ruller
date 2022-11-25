@@ -11,7 +11,7 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
-//SetupRoutes ...
+// SetupRoutes ...
 func SetupRoutes(router *gin.Engine) {
 	cfg := config.GetConfig()
 	docs.SwaggerInfo.Host = cfg.ExternalHost
