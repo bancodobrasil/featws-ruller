@@ -89,9 +89,6 @@ func (c *TypedMap) GetInt(param string) int64 {
 		return 0
 	}
 
-	//print the type of value
-	fmt.Printf("Type: %T\n", value)
-
 	switch v := value.(type) {
 	case float64:
 		return int64(v)
