@@ -180,11 +180,17 @@ func parseValue(v interface{}) interface{} {
 	return v
 }
 
-// AddItem method inserts a item into a slice of map
-func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
+// CreateSlice method inserts a empty slice on map if not exists
+func (c *TypedMap) CreateSlice(param string) {
 	if !c.Has(param) {
 		c.Put(param, []interface{}{})
 	}
+}
+
+// AddItem method inserts a item into a slice of map
+func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
+	c.CreateSlice(param)
+
 	list := c.GetSlice(param)
 
 	list = append(list, item)
