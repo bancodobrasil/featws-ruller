@@ -3,6 +3,7 @@ module github.com/bancodobrasil/featws-ruller
 go 1.16
 
 require (
+	github.com/aws/aws-sdk-go v1.34.28
 	github.com/bancodobrasil/gin-monitor v1.0.0-rc1
 	github.com/bancodobrasil/gin-telemetry v0.0.1-rc5
 	github.com/bancodobrasil/goauth v1.0.2
