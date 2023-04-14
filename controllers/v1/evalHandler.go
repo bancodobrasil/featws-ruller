@@ -20,9 +20,22 @@ var loadMutex sync.Mutex
 // @Summary 		Evaluate the rulesheet / Avaliação da folha de Regra
 // @Description 	Ao receber os parâmetros para executar as folhas de regras. A seguir é explicado com mais detalhes sobre os endpoints:
 // @Description
-// @Description  	- /Eval: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
-// @Description  	- /Eval/{knowledgeBase}: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
-// @Description  	- /Eval/{knowledgeBase}/{version}: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
+// @Description  	- **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
+// @Description  	- **/Eval/{knowledgeBase}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
+// @Description  	- **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
+// @Description
+// @Description		**Parameters / Parâmetros**
+// @Description		No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
+// @Description
+// @Description		[Exemplo 1](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0001%20-%20one_parameter):
+// @Description		Nesse exemplo, é possível testar a feature *myboolfeat*. Ao abrir o arquivo [rules.featws](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0001%20-%20one_parameter/rules.featws), é possível observar que, se o valor de *mynumber* for menor que 12, a feature *myboolfeat* retornará *true*. Caso contrário, se for maior ou igual a 12, o retorno será *false*. Portanto, para testar essa regra, basta inserir o seguinte corpo de *Parameters*.
+// @Description		```
+// @Description		{
+// @Description			"mynumber": "1"
+// @Description		}
+// @Description		```
+// @Description
+// @Description
 // @Tags 			eval
 // @Accept  		json
 // @Produce  		json
