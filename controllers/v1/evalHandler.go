@@ -71,21 +71,35 @@ var loadMutex sync.Mutex
 // @Description		```
 // @Description		Caso seja colocado um valor maior que 5000 em *salary*, também será uma interseção. Temos como resultados esperados o valor de "mygroup": "true", "taget_client": "true" e   "high_income": "true".
 // @Description
-// @Description		[Exemplo 5](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0008%20-%20group%20_intersection) **Regra com interseção de grupos**:
-// @Description		A interseção de grupos ocorre quando dois ou mais grupos têm elementos em comum, ou seja, há um conjunto de elementos que pertencem a todos os grupos em questão. Nesse caso só haverá interseção quando tivermos passado:
-// @Description		```
-// @Description		{
-// @Description			"name": "jose",
-// @Description			"age": "30",
-// @Description			"salary": "5001"
-// @Description		}
-// @Description		```
-// @Description
 // @Description		[Exemplo 6](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0012%20-%20increment_value/rules.featws) **Regra com incrementação de valor**:
 // @Description		Nesse exemplo será somado um valor na variável. Com isso teremos como resposta de travel_1: travel_distance + 10, ou seja 10, e como resposta de travel_2: travel_distance + 10, ou seja, 110.
 // @Description		```
 // @Description		{
 // @Description			"travel_distance": "0"
+// @Description		}
+// @Description		```
+// @Description
+// @Description
+// @Description		Exemplo 7 **Regra com incrementação de valor**:
+// @Description		- [Adição](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0017%20-%20target_group_string_and_integer/rules.featws): Nesse exemplo será somado um valor na variável. Com isso teremos como resposta de travel_1: travel_distance + 10, ou seja 10, e como resposta de travel_2: travel_distance + 10, ou seja, 110.
+// @Description		```
+// @Description		{
+// @Description			"travel_distance": "0"
+// @Description		}
+// @Description		```
+// @Description		- Valor [Quadratico](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0025%20-%20age%20_squared) e [Cubico](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0026%20-%20age%20_cubed): Ao enviar um valor escolhido será retornado o valor cubico e quadrático do valor, podendo ser pedido um ou outro ao depender da regra escrita.
+// @Description		```
+// @Description		{
+// @Description			"idade": "5"
+// @Description		}
+// @Description		```
+// @Description
+// @Description		[Exemplo 8](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com Condição**:
+// @Description
+// @Description		```
+// @Description		{
+// @Description			"mynumber": "-5",
+// @Description			"myothernumber": "12"
 // @Description		}
 // @Description		```
 // @Tags 			eval
