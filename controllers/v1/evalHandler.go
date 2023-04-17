@@ -27,7 +27,7 @@ var loadMutex sync.Mutex
 // @Description		**Parameters / Parâmetros**
 // @Description		No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
 // @Description
-// @Description		[Exemplo 1](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0001%20-%20one_parameter):
+// @Description		[Exemplo 1](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0001%20-%20one_parameter) **Testando uma variável**:
 // @Description		Nesse exemplo, é possível testar a feature *myboolfeat*. Ao abrir o arquivo [rules.featws](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0001%20-%20one_parameter/rules.featws), é possível observar que, se o valor de *mynumber* for menor que 12, a feature *myboolfeat* retornará *true*. Caso contrário, se for maior ou igual a 12, o retorno será *false*. Portanto, para testar essa regra, basta inserir o seguinte corpo de *Parameters*.
 // @Description		```
 // @Description		{
@@ -35,7 +35,41 @@ var loadMutex sync.Mutex
 // @Description		}
 // @Description		```
 // @Description
+// @Description		[Exemplo 2](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0003%20-%20simple_group) **Regra com um grupo**:
+// @Description		Nesse exemplo vamos testar a utilização de um grupo espeífico. Ao enviarmos um **clientingroup** que tenha no grupo [mygroup](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0003%20-%20simple_group/groups/mygroup.json), espera-se como retorno **mygroup** = true, caso seja passado uma agencia e conta válidas como a seguir:
+// @Description		```
+// @Description		{
+// @Description			"branch": "00000",
+// @Description	 		"account": "00000000"
+// @Description		}
+// @Description		```
 // @Description
+// @Description		[Exemplo 3](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0004%20-%20default_value_true) **Regra com um valor padrão**:
+// @Description		Nesse exemplo vamos testar a utilização de um valor padrão. Ao enviarmos um **gender** F sua resposta esperada será "female" = "true", e "male" ="false", pois no [rules.featws](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0004%20-%20default_value_true/rules.featws) da regra diz que female é o inverso de male. Logo caso seja enviado o valor de "gender": "M", teremos female ="false" e male ="true". Sendo enviado qualque outra letra como parâmetro será recebido female="false" e male="true", pois o default male está declarado primeiro do que o female no arquivo [features.json](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0004%20-%20default_value_true/features.json) da regra.
+// @Description		```
+// @Description		{
+// @Description			"gender": "F"
+// @Description		}
+// @Description		```
+// @Description
+// @Description		[Exemplo 4](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0005%20-%20precedence_order) **Regra com ordem de procedência**:
+// @Description		Nesse exemplo vamos testar a utilização de uma ordem de procedência. Similar ao caso anterior, se é enviado um valor menor ou igual à 18, receberemos como resposta "menor_de_idade": "true" e "maior_de_idade": "false", caso seja enviado um valor maior que 18 deveremos receber "menor_de_idade": "false" e "maior_de_idade": "true". Caso não seja enviado nenhum valor de idade, será interpretado como "menor_de_idade": "true" e "maior_de_idade":"false".
+// @Description		```
+// @Description		{
+// @Description			"idade": "21"
+// @Description		}
+// @Description		```
+// @Description
+// @Description		[Exemplo 5](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0008%20-%20group%20_intersection) **Regra com interseção de grupos**:
+// @Description		A interseção de grupos ocorre quando dois ou mais grupos têm elementos em comum, ou seja, há um conjunto de elementos que pertencem a todos os grupos em questão. Nesse caso só haverá interseção quando tivermos passado:
+// @Description		```
+// @Description		{
+// @Description			"name": "jose",
+// @Description			"age": "30",
+// @Description			"salary": "5001"
+// @Description		}
+// @Description		```
+// @Description		Caso seja colocado um valor maior que 5000 em *salary*, também será uma interseção. Temos como resultados esperados o valor de "mygroup": "true", "taget_client": "true" e   "high_income": "true"
 // @Tags 			eval
 // @Accept  		json
 // @Produce  		json
