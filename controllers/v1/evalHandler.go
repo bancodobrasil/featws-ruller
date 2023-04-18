@@ -71,17 +71,8 @@ var loadMutex sync.Mutex
 // @Description		```
 // @Description		Caso seja colocado um valor maior que 5000 em *salary*, também será uma interseção. Temos como resultados esperados o valor de "mygroup": "true", "taget_client": "true" e   "high_income": "true".
 // @Description
-// @Description		[Exemplo 6](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0012%20-%20increment_value/rules.featws) **Regra com incrementação de valor**:
-// @Description		Nesse exemplo será somado um valor na variável. Com isso teremos como resposta de travel_1: travel_distance + 10, ou seja 10, e como resposta de travel_2: travel_distance + 10, ou seja, 110.
-// @Description		```
-// @Description		{
-// @Description			"travel_distance": "0"
-// @Description		}
-// @Description		```
-// @Description
-// @Description
-// @Description		Exemplo 7 **Regra com operações matemáticas**:
-// @Description		- [Adição](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0017%20-%20target_group_string_and_integer/rules.featws): Nesse exemplo será somado um valor na variável. Com isso teremos como resposta de travel_1: travel_distance + 10, ou seja 10, e como resposta de travel_2: travel_distance + 10, ou seja, 110.
+// @Description		Exemplo 6 **Regra com operações matemáticas**:
+// @Description		- [Adição](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0012%20-%20increment_value/rules.featws): Nesse exemplo será somado um valor na variável. Com isso teremos como resposta de travel_1: travel_distance + 10, ou seja 10, e como resposta de travel_2: travel_distance + 10, ou seja, 110.
 // @Description		```
 // @Description		{
 // @Description			"travel_distance": "0"
@@ -94,7 +85,7 @@ var loadMutex sync.Mutex
 // @Description		}
 // @Description		```
 // @Description
-// @Description		[Exemplo 8](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
+// @Description		[Exemplo 7](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
 // @Description		Nesta regra, o valor do recurso "myfeat" será retornado somente se a condição especificada for atendida. Se o corpo (body) enviado não cumprir essa condição, não será gerada nenhuma resposta em relação a esse recurso. Em outras palavras, a condição é um requisito para que a regra seja acionada e para que haja retorno do valor do recurso. Caso contrário, a regra não terá efeito e não será gerada nenhuma resposta em relação a ela.
 // @Description		Ao enviar um corpo (body) na requisição, se o valor de "myothernumber" for menor ou igual a 10, nenhum valor será retornado como resposta. Porém, se o valor for maior que 10, o valor de "mynumber" será retornado, acrescido de 12. Para obter uma resposta adequada, é necessário enviar ambos os valores no corpo da requisição. Isso garantirá que a condição seja atendida e a regra possa ser aplicada, gerando uma resposta com o valor desejado. É importante observar que o valor de "myothernumber" é um critério para a aplicação da regra e que o valor de "mynumber" é o resultado final que será retornado pela API.
 // @Description		```
