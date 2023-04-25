@@ -9,12 +9,17 @@ info:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: |-
+  description: |
     O projeto Ruler é uma implementação do motor de regras [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), que é utilizado para avaliar regras no formato .grl . O Ruler permite que as regras definidas em arquivos .grl sejam avaliadas de maneira automática e eficiente, ajudando a automatizar as decisões tomadas pelo FeatWS. Isso possibilita que o sistema possa analisar e classificar grandes quantidades de informações de maneira rápida e precisa.
 
     Ao utilizar as regras fornecidas pelo projeto Ruler, o FeatWS é capaz de realizar análises de regras em larga escala e fornecer resultados precisos e relevantes para seus usuários. Isso é especialmente importante em áreas como análise de sentimentos em mídias sociais, detecção de fraudes financeiras e análise de dados em geral.
 
     Antes de realizar os testes no Swagger, é necessário autorizar o acesso clicando no botão **Authorize**, ao lado, e inserindo a senha correspondente. Após inserir o campo **value** e clicar no botão **Authorize**, o Swagger estará disponível para ser utilizado.
+
+    A seguir é explicado com mais detalhes sobre os endpoints:
+    - **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
+    - **/Eval/{knowledgeBase}**: Nesse endpoint, é necessário informar o parâmetro com o nome da folha de regra desejada e, como resultado, será retornado a última versão da folha de regra correspondente.
+    - **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parâmetro do nome da folha de regra como também o número da versão da folha de regra que você deseja testar a regra.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -27,12 +32,6 @@ paths:
       consumes:
       - application/json
       description: |-
-        Ao receber os parâmetros para executar as folhas de regras. A seguir é explicado com mais detalhes sobre os endpoints:
-
-        - **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
-        - **/Eval/{knowledgeBase}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
-        - **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
-
         **Parameters / Parâmetros**
         No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
 
@@ -94,7 +93,7 @@ paths:
         }
         ```
 
-        [Exemplo 8](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
+        [Exemplo 7](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
         Nesta regra, o valor do recurso "myfeat" será retornado somente se a condição especificada for atendida. Se o corpo (body) enviado não cumprir essa condição, não será gerada nenhuma resposta em relação a esse recurso. Em outras palavras, a condição é um requisito para que a regra seja acionada e para que haja retorno do valor do recurso. Caso contrário, a regra não terá efeito e não será gerada nenhuma resposta em relação a ela.
         Ao enviar um corpo (body) na requisição, se o valor de "myothernumber" for menor ou igual a 10, nenhum valor será retornado como resposta. Porém, se o valor for maior que 10, o valor de "mynumber" será retornado, acrescido de 12. Para obter uma resposta adequada, é necessário enviar ambos os valores no corpo da requisição. Isso garantirá que a condição seja atendida e a regra possa ser aplicada, gerando uma resposta com o valor desejado. É importante observar que o valor de "myothernumber" é um critério para a aplicação da regra e que o valor de "mynumber" é o resultado final que será retornado pela API.
         ```
@@ -151,12 +150,6 @@ paths:
       consumes:
       - application/json
       description: |-
-        Ao receber os parâmetros para executar as folhas de regras. A seguir é explicado com mais detalhes sobre os endpoints:
-
-        - **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
-        - **/Eval/{knowledgeBase}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
-        - **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
-
         **Parameters / Parâmetros**
         No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
 
@@ -218,7 +211,7 @@ paths:
         }
         ```
 
-        [Exemplo 8](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
+        [Exemplo 7](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
         Nesta regra, o valor do recurso "myfeat" será retornado somente se a condição especificada for atendida. Se o corpo (body) enviado não cumprir essa condição, não será gerada nenhuma resposta em relação a esse recurso. Em outras palavras, a condição é um requisito para que a regra seja acionada e para que haja retorno do valor do recurso. Caso contrário, a regra não terá efeito e não será gerada nenhuma resposta em relação a ela.
         Ao enviar um corpo (body) na requisição, se o valor de "myothernumber" for menor ou igual a 10, nenhum valor será retornado como resposta. Porém, se o valor for maior que 10, o valor de "mynumber" será retornado, acrescido de 12. Para obter uma resposta adequada, é necessário enviar ambos os valores no corpo da requisição. Isso garantirá que a condição seja atendida e a regra possa ser aplicada, gerando uma resposta com o valor desejado. É importante observar que o valor de "myothernumber" é um critério para a aplicação da regra e que o valor de "mynumber" é o resultado final que será retornado pela API.
         ```
@@ -275,12 +268,6 @@ paths:
       consumes:
       - application/json
       description: |-
-        Ao receber os parâmetros para executar as folhas de regras. A seguir é explicado com mais detalhes sobre os endpoints:
-
-        - **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
-        - **/Eval/{knowledgeBase}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
-        - **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
-
         **Parameters / Parâmetros**
         No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
 
@@ -342,7 +329,7 @@ paths:
         }
         ```
 
-        [Exemplo 8](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
+        [Exemplo 7](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0034%20-%20simple_feature_with_condition) **Regra com condição**:
         Nesta regra, o valor do recurso "myfeat" será retornado somente se a condição especificada for atendida. Se o corpo (body) enviado não cumprir essa condição, não será gerada nenhuma resposta em relação a esse recurso. Em outras palavras, a condição é um requisito para que a regra seja acionada e para que haja retorno do valor do recurso. Caso contrário, a regra não terá efeito e não será gerada nenhuma resposta em relação a ela.
         Ao enviar um corpo (body) na requisição, se o valor de "myothernumber" for menor ou igual a 10, nenhum valor será retornado como resposta. Porém, se o valor for maior que 10, o valor de "mynumber" será retornado, acrescido de 12. Para obter uma resposta adequada, é necessário enviar ambos os valores no corpo da requisição. Isso garantirá que a condição seja atendida e a regra possa ser aplicada, gerando uma resposta com o valor desejado. É importante observar que o valor de "myothernumber" é um critério para a aplicação da regra e que o valor de "mynumber" é o resultado final que será retornado pela API.
         ```

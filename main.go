@@ -33,6 +33,12 @@ func setupLog() {
 // @description Ao utilizar as regras fornecidas pelo projeto Ruler, o FeatWS é capaz de realizar análises de regras em larga escala e fornecer resultados precisos e relevantes para seus usuários. Isso é especialmente importante em áreas como análise de sentimentos em mídias sociais, detecção de fraudes financeiras e análise de dados em geral.
 // @description
 // @description Antes de realizar os testes no Swagger, é necessário autorizar o acesso clicando no botão **Authorize**, ao lado, e inserindo a senha correspondente. Após inserir o campo **value** e clicar no botão **Authorize**, o Swagger estará disponível para ser utilizado.
+// @description
+// @description A seguir é explicado com mais detalhes sobre os endpoints:
+// @description  	- **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
+// @description  	- **/Eval/{knowledgeBase}**: Nesse endpoint, é necessário informar o parâmetro com o nome da folha de regra desejada e, como resultado, será retornado a última versão da folha de regra correspondente.
+// @description  	- **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parâmetro do nome da folha de regra como também o número da versão da folha de regra que você deseja testar a regra.
+// @description
 
 // @termsOfService http://swagger.io/terms/
 

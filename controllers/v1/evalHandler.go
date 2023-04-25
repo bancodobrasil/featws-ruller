@@ -18,12 +18,6 @@ var loadMutex sync.Mutex
 
 // EvalHandler godoc
 // @Summary 		Evaluate the rulesheet / Avaliação da folha de Regra
-// @Description 	Ao receber os parâmetros para executar as folhas de regras. A seguir é explicado com mais detalhes sobre os endpoints:
-// @Description
-// @Description  	- **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
-// @Description  	- **/Eval/{knowledgeBase}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra
-// @Description  	- **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parametro do nome da folha de regra como também o número da versão da folha de regra que você deseja escrever a regra.
-// @Description
 // @Description		**Parameters / Parâmetros**
 // @Description		No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**,você pode especificar o que deseja testar em sua folha de regras. A seguir, serão apresentados alguns exemplos de testes:
 // @Description
