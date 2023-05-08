@@ -23,6 +23,9 @@ var loadMutex sync.Mutex
 // @Description		A seguir, serão apresentados alguns exemplos de testes:
 // @Description
 // @Description		[**Exemplo 1**](https://github.com/bancodobrasil/featws-transpiler/tree/develop/__tests__/cases/0001%20-%20one_parameter) **Testando uma variável**:
+// @Description		```
+// @Description			"myboolfeat" = "$mynumber < 12"
+// @Description		```
 // @Description
 // @Description		Nesse exemplo, é possível testar a feature *myboolfeat*. Ao abrir o arquivo [rules.featws](https://github.com/bancodobrasil/featws-transpiler/blob/develop/__tests__/cases/0001%20-%20one_parameter/rules.featws), é possível observar que, se o valor de *mynumber* for menor que 12, a feature *myboolfeat* retornará *true*. Caso contrário, se for maior ou igual a 12, o retorno será *false*. Portanto, para testar essa regra, basta inserir o seguinte corpo de *Parameters*.
 // @Description		```
