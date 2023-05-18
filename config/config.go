@@ -24,6 +24,10 @@ type Config struct {
 	ResolverBridgeURL        string `mapstructure:"FEATWS_RULLER_RESOLVER_BRIDGE_URL"`
 	ResolverBridgeHeaders    http.Header
 	ResolverBridgeHeadersStr string `mapstructure:"FEATWS_RULLER_RESOLVER_BRIDGE_HEADERS"`
+
+	ExternalHost string `mapstructure:"EXTERNAL_HOST"`
+
+	AuthAPIKey string `mapstructure:"FEATWS_RULLER_API_KEY"`
 }
 
 var config = &Config{}
@@ -46,6 +50,8 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
 	viper.SetDefault("PORT", "8000")
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
+	viper.SetDefault("EXTERNAL_HOST", "localhost:8000")
+	viper.SetDefault("FEATWS_RULLER_API_KEY", "")
 
 	err = viper.ReadInConfig()
 	if err != nil {

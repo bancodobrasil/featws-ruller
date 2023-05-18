@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//LoadMutex ...
+// LoadMutex ...
 var loadMutex sync.Mutex
 
 // EvalHandler godoc
@@ -29,6 +29,7 @@ var loadMutex sync.Mutex
 // @Failure 		400,404 {object} string
 // @Failure 		500 {object} string
 // @Failure 		default {object} string
+// @Security 		Authentication Api Key
 // @Router 			/eval/{knowledgeBase}/{version} [post]
 // @Router 			/eval/{knowledgeBase} [post]
 // @Router 			/eval [post]
@@ -84,6 +85,7 @@ func EvalHandler() gin.HandlerFunc {
 		log.Debugln(t)
 
 		ctx := types.NewContextFromMap(t)
+		ctx.RawContext = c.Request.Context()
 
 		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {

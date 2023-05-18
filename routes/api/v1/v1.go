@@ -1,8 +1,12 @@
 package v1
 
-import "github.com/gin-gonic/gin"
+import (
+	goauthgin "github.com/bancodobrasil/goauth-gin"
+	"github.com/gin-gonic/gin"
+)
 
-//Router ...
+// Router ...
 func Router(router *gin.RouterGroup) {
+	router.Use(goauthgin.Authenticate())
 	evalRouter(router.Group("/eval"))
 }
