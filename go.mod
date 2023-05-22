@@ -13,7 +13,7 @@ require (
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/gsdenys/healthcheck v0.0.0-20220412001953-64e5089fa0bc
-	github.com/hyperjumptech/grule-rule-engine v1.10.5
+	github.com/hyperjumptech/grule-rule-engine v1.13.0
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/common v0.34.0 // indirect

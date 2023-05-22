@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/bancodobrasil/featws-ruller/cache"
 	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
@@ -47,11 +48,12 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
+		cacheData := cache.GetCache(knowledgeBaseName, version)
 		loadMutex.Lock()
 
-		knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+		//knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-		if !(len(knowledgeBase.RuleEntries) > 0) {
+		if !(len(cacheData.KnowledgeBase.RuleEntries) > 0) {
 
 			err := services.EvalService.LoadRemoteGRL(knowledgeBaseName, version)
 			if err != nil {
@@ -61,9 +63,7 @@ func EvalHandler() gin.HandlerFunc {
 				return
 			}
 
-			knowledgeBase = services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-
-			if !(len(knowledgeBase.RuleEntries) > 0) {
+			if !(len(cacheData.KnowledgeBase.RuleEntries) > 0) {
 				c.Status(http.StatusNotFound)
 				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
 				loadMutex.Unlock()
@@ -87,7 +87,7 @@ func EvalHandler() gin.HandlerFunc {
 		ctx := types.NewContextFromMap(t)
 		ctx.RawContext = c.Request.Context()
 
-		result, err := services.EvalService.Eval(ctx, knowledgeBase)
+		result, err := services.EvalService.Eval(ctx, cacheData.KnowledgeBase)
 		if err != nil {
 
 			log.Errorf("Error on eval: %v", err)
