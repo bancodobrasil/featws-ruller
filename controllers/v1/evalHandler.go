@@ -49,9 +49,13 @@ func EvalHandler() gin.HandlerFunc {
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
 		cacheData := cache.GetCache(knowledgeBaseName, version)
-		loadMutex.Lock()
 
-		//knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+		if !cache.IsValid(&cacheData) {
+			cacheData.KnowledgeBase = nil
+			cacheData = cache.GetCache(knowledgeBaseName, version)
+		}
+
+		loadMutex.Lock()
 
 		if !(len(cacheData.KnowledgeBase.RuleEntries) > 0) {
 
