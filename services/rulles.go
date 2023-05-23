@@ -25,19 +25,31 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
-//LoadLocalGRL ...
+// LoadLocalGRL loads a GRL (Grule Rule Language) file from a local path and builds a rule from it
+// using the `builder.NewRuleBuilder` function. It takes in the path of the GRL file, the name of the
+// knowledge base, and the version of the knowledge base as parameters. It returns an error if there is
+// any issue building the rule from the resource.
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
+// The type `knowledgeBaseInfo` contains information about a knowledge base, including its name and
+// version.
+// @property {string} KnowledgeBaseName - The KnowledgeBaseName property is a string that represents
+// the name of a knowledge base. A knowledge base is a repository of information that is used to
+// support decision-making, problem-solving, and other activities. It can contain a wide range of
+// information, including facts, rules, procedures, and best practices.
+// @property {string} Version - The "Version" property is a string that represents the version number
+// of a knowledge base. It can be used to keep track of changes and updates made to the knowledge base
+// over time.
 type knowledgeBaseInfo struct {
 	KnowledgeBaseName string
 	Version           string
 }
 
-//LoadRemoteGRL ...
+// LoadRemoteGRL ...
 func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -108,7 +120,7 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-//Eval ...
+// Eval ...
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()

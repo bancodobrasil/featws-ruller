@@ -246,6 +246,7 @@ func TestGetFloatWithString(t *testing.T) {
 	}
 }
 
+// This test checks if an integer can be converted to a float and stored in a typed map.
 func TestGetFloatWithInteger(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myFloatInteger", 1)
@@ -257,6 +258,7 @@ func TestGetFloatWithInteger(t *testing.T) {
 	}
 }
 
+// This function tests if an int64 value can be retrieved as a float64 from a typed map.
 func TestGetFloatWithInt64(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myFloatInt64", int64(12))
@@ -268,6 +270,7 @@ func TestGetFloatWithInt64(t *testing.T) {
 	}
 }
 
+// This test checks if a float64 value can be added to a typed map and retrieved correctly.
 func TestGetFloatWithFloat64(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myFloat64", float64(12.562))
@@ -279,6 +282,8 @@ func TestGetFloatWithFloat64(t *testing.T) {
 	}
 }
 
+// This function tests if a panic message is thrown when trying to retrieve a non-float parameter from
+// a typed map.
 func TestGetFloatWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -292,6 +297,7 @@ func TestGetFloatWithPanic(t *testing.T) {
 
 }
 
+// This is a test function that checks if a boolean value can be retrieved from a typed map.
 func TestGetBool(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mybool", "true")
@@ -304,6 +310,7 @@ func TestGetBool(t *testing.T) {
 
 }
 
+// This checks if a TypedMap object can retrieve a map and compare it to an expected map.
 func TestGetMap(t *testing.T) {
 	tm := NewTypedMap()
 	mymap := map[string]interface{}{
@@ -323,6 +330,7 @@ func TestGetMap(t *testing.T) {
 
 }
 
+// This is a test checks if a map retrieved from a TypedMap object is nil.
 func TestGetMapNil(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mymap", "")
@@ -335,6 +343,7 @@ func TestGetMapNil(t *testing.T) {
 
 }
 
+// This test checks if a panic message is thrown when trying to get a map from a non-map parameter in a typed map.
 func TestGetMapWithoutMap(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -348,6 +357,7 @@ func TestGetMapWithoutMap(t *testing.T) {
 
 }
 
+// This is a test checks if a TypedMap can correctly retrieve its entries.
 func TestGetEntries(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -368,6 +378,7 @@ func TestGetEntries(t *testing.T) {
 
 }
 
+// The function tests adding an item to a slice in a typed map.
 func TestAddItemWithOneItem(t *testing.T) {
 	tm := NewTypedMap()
 	myslice := []interface{}{"test1", "test2"}
@@ -382,6 +393,7 @@ func TestAddItemWithOneItem(t *testing.T) {
 
 }
 
+// This test checks if adding three items to a non-initialized slice in a TypedMap works correctly.
 func TestAddItemWithThreeItemsNonInitlizated(t *testing.T) {
 	tm := NewTypedMap()
 	tm.AddItem("myslice", "test1")
@@ -397,6 +409,7 @@ func TestAddItemWithThreeItemsNonInitlizated(t *testing.T) {
 
 }
 
+// This test checks if adding multiple items to a slice in a typed map works correctly.
 func TestAddItemWithThreeItems(t *testing.T) {
 	tm := NewTypedMap()
 	myslice := []interface{}{"test1", "test2"}
@@ -414,6 +427,8 @@ func TestAddItemWithThreeItems(t *testing.T) {
 
 }
 
+// This tests the AddItems method of a TypedMap object by adding three items to a
+// non-initialized slice and comparing the obtained result with the expected one.
 func TestAddItemsWithThreeItemsNonInitlizated(t *testing.T) {
 	tm := NewTypedMap()
 	got := tm.AddItems("myslice", "test1", "test2", "test3")
@@ -426,6 +441,8 @@ func TestAddItemsWithThreeItemsNonInitlizated(t *testing.T) {
 
 }
 
+// This test checks if a boolean value stored in a TypedMap can be retrieved and
+// converted to the expected value.
 func TestBooleanPlain(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mybool", true)
@@ -439,6 +456,7 @@ func TestBooleanPlain(t *testing.T) {
 
 }
 
+// This function tests if an integer value can be retrieved from a typed map.
 func TestIntegerPlain(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mynumber", 123)
