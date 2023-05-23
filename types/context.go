@@ -156,12 +156,21 @@ func (c *Context) loadImpl(param string) interface{} {
 	return value
 }
 
+// The `isRemoteLoaded` method is a function defined on the `Context` struct in the Go programming
+// language. It takes a single parameter `param` of type `string` and returns a boolean value. The
+// purpose of this method is to check whether a given parameter is registered as a remote loaded
+// parameter in the `RemoteLoadeds` field of the `Context` struct.
 func (c *Context) isRemoteLoaded(param string) bool {
 	_, ok := c.RemoteLoadeds[param]
 	return ok
 }
 
-// GetEntry ...
+// GetEntry is used to retrieve a value from the `Context` struct. It first tries to get the value
+// from the `TypedMap` field of the `Context` struct using the `GetEntry` method. If the value is not
+// found in the `TypedMap`, it checks if the parameter is registered as a remote loaded parameter using
+// the `isRemoteLoaded` method. If it is, it calls the `load` method to load the value from a remote
+// resolver and stores it in the `TypedMap` before returning it. If the parameter is not found in the
+// `TypedMap` and is not registered as a remote loaded parameter, it returns `nil`.
 func (c *Context) GetEntry(param string) interface{} {
 	value := c.TypedMap.GetEntry(param)
 
@@ -172,18 +181,38 @@ func (c *Context) GetEntry(param string) interface{} {
 	return value
 }
 
+// The `resolveInputV1` type in Go represents a set of optional parameters for resolving data,
+// including a resolver string, context map, and load array.
+//
+// Property:
+//   - Resolver {string}: The "Resolver" property is a string that specifies the name of the resolver function to be executed. A resolver function is a function that retrieves data from a data source and returns it to the client.
+//   - Context: The `Context` property is a map of key-value pairs that can be used to provide additional information or context to the resolver function. The keys in the map are strings, and the values can be of any type. This property is optional and can be omitted if no additional context is needed.
+//   - Load {[]string}: The `Load` property is an optional array of strings that specifies the fields to be loaded by the resolver. This is useful when you want to optimize the performance of your application by only loading the necessary data. The values in the `Load` array correspond to the fields in the GraphQL query that need
 type resolveInputV1 struct {
 	Resolver string                 `json:"resolver,omitempty"`
 	Context  map[string]interface{} `json:"context,omitempty"`
 	Load     []string               `json:"load,omitempty"`
 }
 
+// The type `resolveOutputV1` has three optional fields: `Context`, `Errors`, and `Error`, which are
+// used for JSON serialization.
+//
+// Property:
+//   - Context: Context is a map of key-value pairs that represent the context of the resolved output. This can include any relevant information that was used to generate the output, such as input parameters or metadata. The context is optional and may be omitted if not needed.
+//   - Errors: The `Errors` property is a map that can contain any additional error information related to the operation being performed. It is optional and can be omitted if there are no errors to report. The keys in the map represent the error codes or error types, and the values can be any additional information related to
+//     -Error {string}: The "Error" property is a string that represents a general error message. It is optional and may be used to provide additional information about any errors that occurred during the execution of a function or method.
 type resolveOutputV1 struct {
 	Context map[string]interface{} `json:"context,omitempty"`
 	Errors  map[string]interface{} `json:"errors,omitempty"`
 	Error   string                 `json:"error,omitempty"`
 }
 
+// This function is responsible for resolving a parameter using a remote resolver. It first checks if
+// the `Resolver` field of the `Context` struct is not nil, and if it is not, it calls the `resolve`
+// method of the `Resolver` interface to resolve the parameter. If the `Resolver` field is nil, it
+// calls the `resolveImpl` method of the `Context` struct to resolve the parameter. The `resolveImpl`
+// method constructs a request to the resolver bridge API, sends the request, and returns the resolved
+// value.
 func (c *Context) resolve(resolver string, param string) interface{} {
 	if c.Resolver != nil {
 		return c.Resolver.resolve(resolver, param)
@@ -191,6 +220,10 @@ func (c *Context) resolve(resolver string, param string) interface{} {
 	return c.resolveImpl(resolver, param)
 }
 
+// The `resolveImpl` function is responsible for resolving a parameter using a remote resolver. It
+// constructs a request to the resolver bridge API, sends the request, and returns the resolved value.
+// The function takes two arguments: `resolver` and `param`, where `resolver` is the name of the
+// resolver to use and `param` is the name of the parameter to resolve.
 func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	config := config.GetConfig()
 
@@ -264,12 +297,17 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	return output.Context[param]
 }
 
-// SetRequiredConfigured ...
+// SetRequiredConfigured sets the `RequiredConfigured` field of the `Context` struct to `true`. This field is
+// used to keep track of whether all the required parameters have been configured or not. When this
+// field is set to `true`, it means that all the required parameters have been configured and the
+// context is ready to be used.
 func (c *Context) SetRequiredConfigured() {
 	c.RequiredConfigured = true
 }
 
-// IsReady ...
+// IsReady returns a boolean value indicating whether the context is ready or not. A context is
+// considered ready if all the required parameters have been configured and there are no errors
+// related to missing required parameters.
 func (c *Context) IsReady() bool {
 	return c.RequiredConfigured && !c.Has("requiredParamErrors")
 }
