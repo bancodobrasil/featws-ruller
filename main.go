@@ -52,6 +52,8 @@ func setupLog() {
 
 // @x-extension-openapi {"example": "value on a json format"}
 
+// This function sets up a server using the Gin framework and loads default rules if specified in the
+// configuration.
 func main() {
 
 	setupLog()

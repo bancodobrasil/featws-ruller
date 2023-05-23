@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// This is a test that checks if a new instance of a TypedMap is generated correctly.
 func TestNewTypedMap(t *testing.T) {
 	got := NewTypedMap()
 
@@ -20,6 +21,7 @@ func TestNewTypedMap(t *testing.T) {
 
 }
 
+// This tests creates a new typed map from a regular map.
 func TestNewTypedMapFromMap(t *testing.T) {
 	m := interfaceMap{"mystring": "test"}
 	got := NewTypedMapFromMap(m).GetEntries()
@@ -29,6 +31,7 @@ func TestNewTypedMapFromMap(t *testing.T) {
 	}
 }
 
+// This test checks if a value can be successfully added to a typed map.
 func TestPut(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -41,6 +44,7 @@ func TestPut(t *testing.T) {
 	}
 }
 
+// This test function checks if a specific key exists in a typed map.
 func TestHasTrue(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -53,6 +57,7 @@ func TestHasTrue(t *testing.T) {
 	}
 }
 
+// This test checks if a specific parameter is present in a typed map and returns false if it isn't.
 func TestHasFalse(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -67,6 +72,7 @@ func TestHasFalse(t *testing.T) {
 	}
 }
 
+// This is a test that tests the Get method of a TypedMap object.
 func TestGet(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -81,6 +87,7 @@ func TestGet(t *testing.T) {
 	}
 }
 
+// This is a test function that tests the GetEntry method of a TypedMap object.
 func TestGetEntry(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -95,14 +102,23 @@ func TestGetEntry(t *testing.T) {
 	}
 }
 
+// The mockGetter type embeds the Getter interface.
+//
+// Property:
+//   - Getter: The `mockGetter` struct can implement the methods of the `Getter` interface and also add its own methods.
 type mockGetter struct {
 	Getter
 }
 
+// GetEntry function is a method of the `mockGetter` struct that implements the `GetEntry` method of the `Getter` interface. It returns a
+// mock value of type `interface{}`. This function is used in the `TestGetWithGetter` test function to
+// test the `Get` method of the `TypedMap` object when a `Getter` interface is embedded in the `TypedMap` object.
 func (m *mockGetter) GetEntry(param string) interface{} {
 	return "mock"
 }
 
+// This test function in Go that tests the Get method of a TypedMap object with a mock
+// getter.
 func TestGetWithGetter(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Getter = &mockGetter{}
@@ -118,6 +134,7 @@ func TestGetWithGetter(t *testing.T) {
 	}
 }
 
+// This test checks if a slice retrieved from a typed map matches an expected slice.
 func TestGetSlice(t *testing.T) {
 	tm := NewTypedMap()
 	myArray := []interface{}{1, 2, 3, 4, 5}
@@ -131,6 +148,7 @@ func TestGetSlice(t *testing.T) {
 	}
 }
 
+// The function tests if a string value exists in a typed map and returns an error if it doesn't.
 func TestGetString(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("mystring", "test")
@@ -142,6 +160,7 @@ func TestGetString(t *testing.T) {
 	}
 }
 
+// This test checks if an integer value can be retrieved from a typed map.
 func TestGetIntWithInteger(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myint", 10)
@@ -153,6 +172,7 @@ func TestGetIntWithInteger(t *testing.T) {
 	}
 }
 
+// This tests if an integer can be retrieved from a string value in a typed map.
 func TestGetIntWithString(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myint", "10")
@@ -164,6 +184,7 @@ func TestGetIntWithString(t *testing.T) {
 	}
 }
 
+// This test checks if an integer value can be retrieved from a typed map.
 func TestGetIntWithInt64(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myint", int64(10))
@@ -175,6 +196,7 @@ func TestGetIntWithInt64(t *testing.T) {
 	}
 }
 
+// This test checks if an integer can be retrieved from a typed map with no parameter.
 func TestGetIntWithNoParam(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myint", "")
@@ -186,6 +208,8 @@ func TestGetIntWithNoParam(t *testing.T) {
 	}
 }
 
+// This function tests if a panic message is thrown when trying to recover a non-integer parameter as
+// an int64.
 func TestGetIntWithPanic(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -198,6 +222,7 @@ func TestGetIntWithPanic(t *testing.T) {
 	tm.GetInt("myint")
 }
 
+// This test checks if a float value can be retrieved from a typed map with no parameters.
 func TestGetFloatWithNoParams(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myint", "")
@@ -208,6 +233,8 @@ func TestGetFloatWithNoParams(t *testing.T) {
 		t.Error("Couldn't get the float value into the map")
 	}
 }
+
+// This test checks if a string value can be converted to a float and stored in a typed map.
 func TestGetFloatWithString(t *testing.T) {
 	tm := NewTypedMap()
 	tm.Put("myFloatString", "5.5")
