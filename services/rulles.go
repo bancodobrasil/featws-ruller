@@ -35,21 +35,19 @@ func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version str
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
-// The type `knowledgeBaseInfo` contains information about a knowledge base, including its name and
-// version.
-// @property {string} KnowledgeBaseName - The KnowledgeBaseName property is a string that represents
-// the name of a knowledge base. A knowledge base is a repository of information that is used to
-// support decision-making, problem-solving, and other activities. It can contain a wide range of
-// information, including facts, rules, procedures, and best practices.
-// @property {string} Version - The "Version" property is a string that represents the version number
-// of a knowledge base. It can be used to keep track of changes and updates made to the knowledge base
-// over time.
+// The type `knowledgeBaseInfo` contains information about a knowledge base (rule sheet), including its name and version.
+//
+// Property
+//   - KnowledgeBaseName: The property is a string that represents the name of a knowledge base. A knowledge base is a repository of information used to support decision-making, problem-solving, and other activities. In this case, each knowledge base is a rule sheet and contains the rules within it.
+//   - Version: It's a string that represents the version number of the rule sheet, that is, the version of the knowledge base you want to use.
 type knowledgeBaseInfo struct {
 	KnowledgeBaseName string
 	Version           string
 }
 
-// LoadRemoteGRL ...
+// LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
+// and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
+// knowledge base version as parameters.
 func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -84,6 +82,8 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
+// evalMutex is a variable of type sync.Mutex. This variable is used to synchronize access to the Eval method of the Eval struct, which is concurrently
+// called by multiple goroutines. By using a mutex, it ensures that only one goroutine can execute the Eval method at a time, preventing race conditions and ensuring proper execution of the method.
 var evalMutex sync.Mutex
 
 // IEval ...
