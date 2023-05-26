@@ -86,7 +86,14 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 // called by multiple goroutines. By using a mutex, it ensures that only one goroutine can execute the Eval method at a time, preventing race conditions and ensuring proper execution of the method.
 var evalMutex sync.Mutex
 
-// IEval ...
+// IEval interface defines methods for loading and evaluating knowledge bases in Go.
+//
+// Property
+//   - GetKnowledgeLibrary: is a method that returns a pointer to an ast.KnowledgeLibrary object. This object represents a collection of knowledge bases and their associated rules and facts.
+//   - GetDefaultKnowledgeBase: is a method of the IEval interface that returns the default knowledge base of the implementation. A knowledge base is a collection of rules and facts that are used to make inferences and deductions. The default knowledge base is the one that is used if no specific knowledge base is provided during
+//   - LoadLocalGRL: is a method that loads a GRL (Guideline Representation Language) file from the local file system and adds its contents to a specified knowledge base with a given version. The method takes in the path of the GRL file, the name of the knowledge base, and the version
+//   - {error} LoadRemoteGRL - LoadRemoteGRL is a method that loads a GRL (Guideline Representation Language) file from a remote location into the knowledge base specified by the knowledgeBaseName and version parameters. This method is used to retrieve the rules and facts from a remote source and add them to the knowledge base for evaluation
+//   - Eval - Eval is a method that takes in a context and a knowledge base and evaluates the rules in the knowledge base based on the context. It returns a result and an error if there was an issue during evaluation.
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
@@ -95,32 +102,46 @@ type IEval interface {
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
 
-// EvalService ...
+// EvalService is a variable type of `IEval` and initializing it with a new instance of the `Eval` struct created by calling the `NewEval()`
+// function. This variable can be used to access the methods defined in the `IEval` interface.
 var EvalService IEval = NewEval()
 
-// Eval ... struct
+// Eval type contains a reference to a knowledge library in Go's abstract syntax tree.
+//
+// Property:
+//   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
 	knowledgeLibrary *ast.KnowledgeLibrary
 }
 
-// NewEval ...
+// NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
 		knowledgeLibrary: ast.NewKnowledgeLibrary(),
 	}
 }
 
-// GetKnowledgeLibrary ...
+// GetKnowledgeLibrary function is a method of the `Eval` struct that returns a pointer to an
+// `ast.KnowledgeLibrary` object. This object represents a collection of knowledge bases and their
+// associated rules and facts. The `knowledgeLibrary` property of the `Eval` struct is a pointer to an
+// `ast.KnowledgeLibrary` object, and this function simply returns that pointer. This function allows
+// other parts of the code to access the `ast.KnowledgeLibrary` object stored in the `Eval` struct.
 func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return s.knowledgeLibrary
 }
 
-// GetDefaultKnowledgeBase ...
+// GetDefaultKnowledgeBase function is a method of the `Eval` struct that returns a pointer to
+// the default knowledge base of the implementation. A knowledge base is a collection of rules and
+// facts that are used to make inferences and deductions. The default knowledge base is the one that is
+// used if no specific knowledge base is provided during evaluation.
 func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-// Eval ...
+// Eval function is responsible for evaluating a knowledge base (a collection of rules and facts)
+// based on a given context. It takes in two parameters: `ctx`, which is a pointer to a `types.Context`
+// object that contains the context for the evaluation, and `knowledgeBase`, which is a pointer to an
+// `ast.KnowledgeBase` object that represents the knowledge base to be evaluated.
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
