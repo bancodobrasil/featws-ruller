@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Router ...
+// Router sets up two routes for health checks using the Gin framework in Go.
 func Router(router *gin.RouterGroup) {
 
 	healthController := controllers.NewHealthController()
