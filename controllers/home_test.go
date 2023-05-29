@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// The function creates a mock Gin context and HTTP response recorder for testing purposes.
 func mockGin() (*gin.Context, *httptest.ResponseRecorder) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
@@ -24,6 +25,8 @@ func mockGin() (*gin.Context, *httptest.ResponseRecorder) {
 	return c, w
 }
 
+// TestHomeHandler tests the HomeHandler function and checks if it returns the
+// expected status and body.
 func TestHomeHandler(t *testing.T) {
 	c, r := mockGin()
 	HomeHandler()(c)

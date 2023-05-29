@@ -13,7 +13,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// LoadMutex ...
+// LoadMutex is used to synchronize access to the knowledge base during the evaluation process. The
+// `sync.Mutex` type provides a mutual exclusion lock, which can be used to protect shared resources
+// from concurrent access. In this case, the `loadMutex` variable is used to ensure that only one
+// goroutine at a time can load a knowledge base from a remote source.
 var loadMutex sync.Mutex
 
 // EvalHandler godoc
@@ -33,6 +36,7 @@ var loadMutex sync.Mutex
 // @Router 			/eval/{knowledgeBase}/{version} [post]
 // @Router 			/eval/{knowledgeBase} [post]
 // @Router 			/eval [post]
+// This function handles requests to evaluate a knowledge base and returns the result as a JSON object.
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		knowledgeBaseName := c.Param("knowledgeBase")
