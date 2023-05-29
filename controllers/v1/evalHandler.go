@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/bancodobrasil/featws-ruller/cache"
 	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
@@ -48,11 +47,11 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		cacheData := cache.GetCache(knowledgeBaseName, version)
+		cacheData := getCache(knowledgeBaseName, version)
 
-		if !cache.IsValid(&cacheData) {
+		if !isValid(&cacheData) {
 			cacheData.KnowledgeBase = nil
-			cacheData = cache.GetCache(knowledgeBaseName, version)
+			cacheData = getCache(knowledgeBaseName, version)
 		}
 
 		loadMutex.Lock()

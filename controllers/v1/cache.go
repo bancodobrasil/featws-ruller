@@ -1,4 +1,4 @@
-package cache
+package v1
 
 import (
 	"time"
@@ -7,15 +7,15 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 )
 
-type Cache struct {
+type cache struct {
 	KnowledgeBase     *ast.KnowledgeBase
 	KnowledgeBaseName string
 	Version           string
 	ExpirationDate    time.Time
 }
 
-func GetCache(knowledgeBaseName string, version string) Cache {
-	c := Cache{}
+func getCache(knowledgeBaseName string, version string) cache {
+	c := cache{}
 
 	c.KnowledgeBase = services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 	c.ExpirationDate = time.Now().Add(time.Minute * 5)
@@ -23,7 +23,7 @@ func GetCache(knowledgeBaseName string, version string) Cache {
 	return c
 }
 
-func IsValid(c *Cache) bool {
+func isValid(c *cache) bool {
 	if c.KnowledgeBase == nil {
 		return false
 	}
