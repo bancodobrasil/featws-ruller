@@ -10,7 +10,23 @@ import (
 	"github.com/spf13/viper"
 )
 
-//Config ...
+// Config type contains various configuration options for a program, including resource loader
+// settings, port, default rules, SSL verification, resolver bridge settings, external host, and API
+// key.
+//
+// Property:
+//   - ResourceLoaderType: This property specifies the type of resource loader to be used by the application.
+//   - ResourceLoaderURL: The URL of the resource loader used by the feature flag ruller to load feature flag rules.
+//   - ResourceLoaderHeaders: This is a field of type http.Header which represents the headers to be sent with the HTTP requests made by the resource loader. It can be used to set custom headers such as authentication tokens or user agents.
+//   - ResourceLoaderHeadersStr: This is a string representation of the HTTP headers that will be sent with requests made by the resource loader. These headers can be used to provide additional information or authentication credentials to the server being accessed. The headers will be parsed into an http.Header object before being used.
+//   - Port: The port number on which the application will listen for incoming requests.
+//   - DefaultRules: This property is used to specify the default rules that should be loaded by the resource loader. It is specified in the configuration file using the key "FEATWS_RULLER_DEFAULT_RULES".
+//   - DisableSSLVerify: A boolean flag that indicates whether SSL verification should be disabled or not. If set to true, SSL verification will be disabled.
+//   - ResolverBridgeURL: This property is a string that represents the URL of the resolver bridge. The resolver bridge is a service that is responsible for resolving feature flags and rules.
+//   - ResolverBridgeHeaders: This field will be used to store HTTP headers that will be sent along with requests to the resolver bridge URL. The `http.Header` type is a map of strings to slices of strings, representing the headers and their values.
+//   - ResolverBridgeHeadersStr: This property is a string representation of the HTTP headers that will be sent to the resolver bridge. It is used in conjunction with the ResolverBridgeHeaders property to set the headers for requests made to the resolver bridge. The headers can be specified as a JSON object in string format.
+//   - ExternalHost: This property represents the external host name or IP address of the server where the application is running. It is used to construct URLs for external resources and APIs.
+//   - AuthAPIKey: This property is used to store the API key for authentication purposes. It is used to authenticate requests made to the Ruller API.
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
@@ -34,7 +50,7 @@ var config = &Config{}
 
 var loaded = false
 
-//LoadConfig ...
+// LoadConfig loads configuration settings from a file and sets default values for missing settings.
 func LoadConfig() (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
@@ -85,7 +101,7 @@ func LoadConfig() (err error) {
 	return
 }
 
-//GetConfig ...
+// GetConfig returns the loaded configuration or panics if there was an error loading it.
 func GetConfig() *Config {
 	if !loaded {
 		err := LoadConfig()

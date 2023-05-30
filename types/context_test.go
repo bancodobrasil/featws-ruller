@@ -16,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// This test sets up and shuts down the test environment.
 func TestMain(m *testing.M) {
 	// setup()
 	code := m.Run()
@@ -23,7 +24,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-// TestNewContext start
+// TestNewContext checks if a new context is generated correctly.
 func TestNewContext(t *testing.T) {
 	got := NewContext()
 
@@ -38,6 +39,8 @@ func TestNewContext(t *testing.T) {
 
 // TestNewContext stop
 
+// TestRegistryRemoteLoadedWithFrom checks if a registry is loaded remotely with a specific parameter,
+// resolver, and from value.
 func TestRegistryRemoteLoadedWithFrom(t *testing.T) {
 	ctx := NewContext()
 	ctx.RegistryRemoteLoadedWithFrom("myparam", "myresolver", "myfrom")
@@ -49,7 +52,7 @@ func TestRegistryRemoteLoadedWithFrom(t *testing.T) {
 
 }
 
-// TestRegistryRemoteLoaded start
+// TestRegistryRemoteLoaded checks if a registry remote is loaded.
 func TestRegistryRemoteLoaded(t *testing.T) {
 	ct := NewContext()
 	ct.RegistryRemoteLoaded("myparam", "myresolver")
@@ -63,7 +66,7 @@ func TestRegistryRemoteLoaded(t *testing.T) {
 
 // TestRegistryRemoteLoaded stop
 
-// TestRegistryNotRemoteLoaded start
+// TestRegistryNotRemoteLoaded checks if a registry is not remotely loaded.
 func TestRegistryNotRemoteLoaded(t *testing.T) {
 	ct := NewContext()
 	// ct.RegistryRemoteLoaded("myparam", "myresolver")
@@ -75,9 +78,11 @@ func TestRegistryNotRemoteLoaded(t *testing.T) {
 
 }
 
-// TestRegistryNotRemoteLoaded stop
-
-// TestLoad start
+// MockContextLoad is a struct that embeds the `Context` type and includes a pointer to a `testing.T` object.
+// The code snippet defines a struct named `MockContextLoad` with the properties:
+//
+// Property:
+//   - t: is a pointer to the testing.T struct that provide methods for logging and reporting test results. It is commonly used in unit tests to assert expected behavior and report any failures. In this case, it is being used as a property of
 type MockContextLoad struct {
 	Context
 	t *testing.T
@@ -94,6 +99,8 @@ func (m *MockContextLoad) resolve(resolver string, param string) interface{} {
 	return "myresult"
 
 }
+
+// This is a unit test function that tests the load function of a context object.
 func TestLoad(t *testing.T) {
 	ctx := &MockContextLoad{
 		Context: *NewContext(),
@@ -113,13 +120,19 @@ func TestLoad(t *testing.T) {
 
 }
 
-// TestLoad stop
-
+// MockContextLoadWithFrom embeds the `Context` type and includes a testing `T` object.
+//
+// Property:
+//   - Context: The `MockContextLoadWithFrom` struct is a custom struct that embeds the `Context` interface and has an additional property `t` of type `*testing.T`. This struct is likely used in unit tests to mock a context object and provide a testing context for functions that require a context.
+//   - t: is a pointer to the testing.T struct, which is used for logging and reporting test results in Go unit tests. It is typically passed as an argument to test functions and methods.
 type MockContextLoadWithFrom struct {
 	Context
 	t *testing.T
 }
 
+// resolve method takes two parameters `resolver` and `param` and returns an interface. It checks if the `resolver`
+// parameter is equal to "myresolver" and the `param` parameter is equal to "myfrom". If they are not
+// equal, it raises an error. If they are equal, it returns the string "myresult".
 func (m *MockContextLoadWithFrom) resolve(resolver string, param string) interface{} {
 	if resolver != "myresolver" {
 		m.t.Error("the resolvers are not the same")
@@ -131,6 +144,8 @@ func (m *MockContextLoadWithFrom) resolve(resolver string, param string) interfa
 	return "myresult"
 
 }
+
+// TestLoadWithFrom tests the "load" function with a specific input and expected output.
 func TestLoadWithFrom(t *testing.T) {
 	ctx := &MockContextLoadWithFrom{
 		Context: *NewContext(),
@@ -149,7 +164,7 @@ func TestLoadWithFrom(t *testing.T) {
 	}
 }
 
-// TestLoadPanicNotRemoted start
+// TestLoadPanicNotRemoted checks if an error message is thrown when a remote parameter isn't loaded.
 func TestLoadPanicNotRemoted(t *testing.T) {
 	ctx := NewContext()
 	ctx.load("myRemoteParam")
@@ -162,14 +177,17 @@ func TestLoadPanicNotRemoted(t *testing.T) {
 	}
 }
 
-// TestLoadPanicNotRemoted stop
-
-// TestGetEntryRemoteLoaded start
+// MockContextGetEntry is a struct that embeds the `Context` type and includes a testing `t` object.
+//
+// Property:
+//   - Context: `MockContextGetEntry` is a struct type.
+//   - t: is a pointer to the testing.T struct, which is used in Go's testing package for writing tests and reporting test results. It provides methods for logging test output, marking tests as failed or skipped, and measuring test execution time.
 type MockContextGetEntry struct {
 	Context
 	t *testing.T
 }
 
+// load is a struct called `MockContextGetEntry`, this method takes a string parameter called `param` and returns an interface.
 func (m *MockContextGetEntry) load(param string) interface{} {
 	if param != "myRemoteParam" {
 		m.t.Error("the params are not the same")
@@ -177,6 +195,8 @@ func (m *MockContextGetEntry) load(param string) interface{} {
 	return "myresult"
 
 }
+
+// TestGetEntryRemoteLoaded checks if a remote entry is loaded correctly.
 func TestGetEntryRemoteLoaded(t *testing.T) {
 	ctx := &MockContextGetEntry{
 		Context: *NewContext(),
@@ -196,9 +216,7 @@ func TestGetEntryRemoteLoaded(t *testing.T) {
 
 }
 
-// TestGetEntryRemoteLoaded stop
-
-// TestGetEntryContext start
+// TestGetEntryContext tests the GetEntryContext method of a context object in Go programming language.
 func TestGetEntryContext(t *testing.T) {
 	ctx := NewContext()
 	ctx.Put("mystring", "teste")
@@ -212,14 +230,20 @@ func TestGetEntryContext(t *testing.T) {
 
 }
 
-// TestGetEntryContext stop
-
-// TestEncodePanic start
+// MockHTTPClientEncodePanic is a struct that embeds the http.Client type and includes a testing.T object for testing purposes.
+// The `MockHTTPClientEncodePanic` struct is a custom implementation of the `http.Client` struct that includes an additional property `t` of type `*testing.T`. This struct is likely used in unit tests to simulate a panic during encoding.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClientEncodePanic struct {
 	http.Client
 	t *testing.T
 }
 
+// Do is a mock HTTP client that reads the request body, unmarshals it into a struct, and checks if the values of the struct fields match the expected
+// values. If the values do not match, it returns an error. If the values match, it returns an HTTP
+// response with an empty JSON object. The method also includes panic statements to handle errors
+// during the reading and unmarshaling of the request body.
 func (m *MockHTTPClientEncodePanic) Do(req *http.Request) (*http.Response, error) {
 	defer req.Body.Close()
 
@@ -257,6 +281,8 @@ func (m *MockHTTPClientEncodePanic) Do(req *http.Request) (*http.Response, error
 		Body: io.NopCloser(stringReader),
 	}, nil
 }
+
+// This function tests if a panic message is thrown when encoding input fails.
 func TestEncodePanic(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -275,9 +301,7 @@ func TestEncodePanic(t *testing.T) {
 
 }
 
-// TestEncodePanic stop
-
-// TestRequestPanic start
+// TestRequestPanic tests if a panic message is thrown when a request cannot be created.
 func TestRequestPanic(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -295,18 +319,26 @@ func TestRequestPanic(t *testing.T) {
 	ctx.resolve("resolver_name", "param_name")
 }
 
-//TestRequestPanic stop
-
-// TestRequestExecutePanic start
+// MockHTTPClientExecutePanic is a struct that embeds the `http.Client` type and includes a testing `t` object for panic handling.
+// The `MockHTTPClientExecutePanic` struct is a custom implementation of the `http.Client`
+// struct that includes an additional property `t` of type `*testing.T`. This struct is likely used in
+// unit tests to simulate a panic during an HTTP request and capture the panic for testing purposes.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for logging and reporting test results in Go unit tests. It allows the MockHTTPClientExecutePanic struct to log any errors or failures that occur during testing.
 type MockHTTPClientExecutePanic struct {
 	http.Client
 	t *testing.T
 }
 
+// A method `Do` for a struct `MockHTTPClientExecutePanic` in Go. This method takes a pointer to an
+// `http.Request` as input and returns a `nil` response and an error with a message "mock do error".
+// This is likely used for testing purposes to simulate an error occurring during an HTTP request.
 func (m *MockHTTPClientExecutePanic) Do(req *http.Request) (*http.Response, error) {
 	return nil, fmt.Errorf("mock do error")
 }
 
+// TestRequestExecutePanic tests if a panic message is thrown when executing a request.
 func TestRequestExecutePanic(t *testing.T) {
 	defer func() {
 		r := recover()

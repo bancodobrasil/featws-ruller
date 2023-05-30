@@ -21,12 +21,45 @@ type RemoteLoaded struct {
 	From     string
 }
 
-// RemoteLoadeds ...
+// RemoteLoadeds is a map with string keys and values of type `RemoteLoaded`. `RemoteLoaded` is likely a
+// custom struct or type defined elsewhere in the code. This declaration allows for the creation of variables
+// of type `RemoteLoadeds` which can be used to store and access data in a key-value format.
 type RemoteLoadeds map[string]RemoteLoaded
 
 // Context its used to store parameters and temporary variables during rule assertions
+// The Context type contains various fields related to context, typed maps, remote loaded data,
+// required parameters, resolvers, loaders, and configuration.
+//
+// Property:
+//   - RawContext - This is a property of type `context.Context` which is used to carry
+//
+// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
+// processes. It is a standard Go library package used for managing context in a program.
+//   - TypedMap: 1. `RawContext`: This is a context.Context object that is used to carry
+//
+// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
+// processes.
+// @property {RemoteLoadeds} RemoteLoadeds - RemoteLoadeds is a custom type defined in the codebase and
+// is a map of string keys to values of type `RemoteLoaded`. `RemoteLoaded` is another custom type that
+// represents a remote resource that has been loaded and cached in memory. The `RemoteLoadeds` map is
+// used to store
+//   - RequiredParams: is a slice of strings that represents the required parameters for a function or method that uses this context. These parameters must be provided when calling the function or method, otherwise an error will be returned.
+//   - Resolver  - 1. `RawContext`: This is a context.Context object that is used to carry
+//
+// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
+// processes.
+// @property {Loader}  - 1. `RawContext`: This is a context.Context object that is used to carry
+// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
+// processes.
+// @property {bool} RequiredConfigured - `RequiredConfigured` is a boolean property that indicates
+// whether all the required parameters and configurations have been set for the context. If it is set
+// to `true`, it means that all the necessary parameters and configurations have been provided and the
+// context is ready to be used. If it is set to `
 type Context struct {
 	RawContext context.Context
+	// The above code is not complete and does not provide enough context to determine its purpose.
+	// However, based on the name "TypedMap", it is possible that it is defining a data structure that
+	// maps keys to values, where the types of the keys and values are specified or enforced.
 	TypedMap
 	RemoteLoadeds  RemoteLoadeds
 	RequiredParams []string
@@ -35,24 +68,36 @@ type Context struct {
 	RequiredConfigured bool
 }
 
-// Resolver ...
+// Resolver defines an interface for resolving a parameter using a resolver.
+//
+// Property:
+//   - resolve: is the name of a method that should be implemented by any type that implements the "Resolver" interface. This method takes two parameters: a string "resolver" and a string "param", and returns an interface{} value.
 type Resolver interface {
 	resolve(resolver string, param string) interface{}
 }
 
-// Loader ...
+// Loader is an interface with a method signature for loading data.
+//
+// Property:
+//   - Load: is a method signature of an interface called "Loader". It specifies that any type that implements this interface must have a method called "load" that takes a string parameter and returns an interface{} (an empty interface, which means it can hold any type of value). The purpose of this
 type Loader interface {
 	load(param string) interface{}
 }
 
-// HTTPClient ...
+// HTTPClient interface defines a method for making HTTP requests and returning the response or an
+// error.
+//
+// Property:
+//   - Do: is a method that takes an HTTP request as input and returns an HTTP response and an error as output. It is used to send an HTTP request and receive an HTTP response. The implementation of this method is responsible for handling the details of making the HTTP request, such as setting headers, encoding data
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// Client ...
+// Client function creates a new HTTP client with optional SSL verification disabled based on the
+// configuration.
 var Client HTTPClient = newHTTPClient()
 
+// The function returns a new HTTP client with an option to disable SSL certificate verification.
 func newHTTPClient() *http.Client {
 	config := config.GetConfig()
 	client := &http.Client{}
@@ -81,7 +126,11 @@ func NewContextFromMap(values map[string]interface{}) *Context {
 	return instance
 }
 
-// RegistryRequiredParams ...
+// RegistryRequiredParams have a struct called `Context`. This method takes in a variable number of string parameters and checks if each parameter is loaded
+// remotely. If a parameter is not loaded remotely, it is added to the `RequiredParams` slice of the
+// `Context` struct. Additionally, if the parameter is not present in the `Context`, an error is added
+// to the `requiredParamErrors` slice of the `Context` struct indicating that the parameter is
+// required.
 func (c *Context) RegistryRequiredParams(params ...string) {
 
 	for _, param := range params {
@@ -96,6 +145,8 @@ func (c *Context) RegistryRequiredParams(params ...string) {
 	}
 }
 
+// The method called `addError` for a `Context` struct. This method takes in three parameters: `key` (a string),
+// `param` (a string), and `err` (an interface{}).
 func (c *Context) addError(key, param string, err interface{}) {
 	if !c.Has(key) {
 		c.Put(key, NewTypedMap())
@@ -115,7 +166,13 @@ func (c *Context) addError(key, param string, err interface{}) {
 	}
 }
 
-// RegistryRemoteLoadedWithFrom ...
+// RegistryRemoteLoadedWithFrom function is a method defined on the `Context` struct. It is used to register
+// a parameter as a remote loaded parameter in the `RemoteLoadeds` field of the `Context` struct. It takes
+// three parameters: `param`, which is the name of the parameter to be registered, `resolver`, which is the
+// name of the resolver to be used to load the parameter, and `from`, which is an optional parameter that specifies
+// the name of the parameter to be used as the source of the loaded value. If `from` is not provided, it defaults
+// to the value of `param`. This function is used to register a parameter as a remote loaded parameter, which means
+// that its value will be loaded from a remote resolver when it is accessed.
 func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, from string) {
 	if from == "" {
 		from = param
@@ -126,11 +183,17 @@ func (c *Context) RegistryRemoteLoadedWithFrom(param string, resolver string, fr
 	}
 }
 
-// RegistryRemoteLoaded ...
+// RegistryRemoteLoaded function is a method defined on the `Context` struct. It is used to register a
+// parameter as a remote loaded parameter in the `RemoteLoadeds` field of the `Context` struct. It takes
+// two parameters: `param`, which is the name of the parameter to be registered, and `resolver`, which is
+// the name of the resolver to be used to load the parameter. This function is a shorthand for calling the
+// `RegistryRemoteLoadedWithFrom` function with an empty `from` parameter.
 func (c *Context) RegistryRemoteLoaded(param string, resolver string) {
 	c.RegistryRemoteLoadedWithFrom(param, resolver, "")
 }
 
+// The `load` function is a method defined on the `Context` struct. It is responsible for loading a parameter
+// from a remote resolver and storing it in the `TypedMap` field of the `Context` struct.
 func (c *Context) load(param string) interface{} {
 	if c.Loader != nil {
 		return c.Loader.load(param)
@@ -138,6 +201,9 @@ func (c *Context) load(param string) interface{} {
 	return c.loadImpl(param)
 }
 
+// The `loadImpl` function is a method defined on the `Context` struct in the Go programming language.
+// It is responsible for loading a parameter from a remote resolver and storing it in the `TypedMap`
+// field of the `Context` struct.
 func (c *Context) loadImpl(param string) interface{} {
 	defer func() {
 		r := recover()
