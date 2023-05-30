@@ -356,14 +356,22 @@ func TestRequestExecutePanic(t *testing.T) {
 	ctx.resolve("resolver_name", "param_name")
 }
 
-// TestRequestExecutePanic stop
-
-// TestResponseDecodePanic start
+// TestResponseDecodePanic  is a struct that embeds the `http.Client` type and includes a testing `t` object for panic
+// handling.
+// @property  - - `MockHTTPClientResponseDecodePanic`: a struct type
+// that represents a mock HTTP client response that will cause a panic
+// when decoded.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClientResponseDecodePanic struct {
 	http.Client
 	t *testing.T
 }
 
+// Do method is a mock HTTP client that is used for testing purposes. The method reads the request body, unmarshals it into a `resolveInputV1` struct, and
+// checks if the `Context` and `Load` fields match the expected values. If they don't match, it raises
+// an error. Finally, it returns an empty HTTP response.
 func (m *MockHTTPClientResponseDecodePanic) Do(req *http.Request) (*http.Response, error) {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -399,6 +407,8 @@ func (m *MockHTTPClientResponseDecodePanic) Do(req *http.Request) (*http.Respons
 		Body: io.NopCloser(stringReader),
 	}, nil
 }
+
+// TestResponseDecodePanic tests if a panic message is thrown when decoding a response.
 func TestResponseDecodePanic(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -416,18 +426,30 @@ func TestResponseDecodePanic(t *testing.T) {
 	ctx.resolve("resolver_name", "param_name")
 }
 
-// TestResponseDecodePanic stop
-
-// TestPanicOnReadBody start
+// The type MockHTTPClientReadBodyPanic is a struct that extends the http.Client type and includes a
+// testing.T object for error reporting.
+// The code defines a struct named `MockHTTPClientReadBodyPanic` which embeds the
+// `http.Client` struct. This means that `MockHTTPClientReadBodyPanic` has access to all the fields and
+// methods of `http.Client`.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClientReadBodyPanic struct {
 	http.Client
 	t *testing.T
 }
 
+// Read is a mock HTTP client struct `MockHTTPClientReadBodyPanic`. This method returns an error with a message "everything is broken
+// /o\". This is likely used for testing error handling in code that uses the HTTP client.
 func (m *MockHTTPClientReadBodyPanic) Read(p []byte) (n int, err error) {
 	return 0, errors.New(`everything is broken /o\`)
 }
 
+// Do method for a mock HTTP client that reads the body of an HTTP request and unmarshals it into a `resolveInputV1` struct. It then checks if the `Resolver` field of
+// the struct is equal to a specific value and if the `Context` and `Load` fields of the struct match
+// expected values. If any of these checks fail, it raises an error. Finally, it returns a mock HTTP
+// response with an empty body. If there is an error reading the request body or unmarshaling it into
+// the struct, the method pan
 func (m *MockHTTPClientReadBodyPanic) Do(req *http.Request) (*http.Response, error) {
 
 	data, err := io.ReadAll(req.Body)
@@ -479,14 +501,23 @@ func TestPanicOnReadBody(t *testing.T) {
 	ctx.resolve("resolver_name", "param_name")
 }
 
-// TestPanicOnReadBody stop
-
-// TestResponseDecodeMoreThenZero start
+// The type MockHTTPClientResponseDecodeMoreThenOneError is a struct that extends the http.Client type and includes a
+// testing.T object for error reporting.
+// The code defines a struct named `MockHTTPClientResponseDecodeMoreThenOneError` which embeds the
+// `http.Client` struct. This means that `MockHTTPClientResponseDecodeMoreThenOneError` has access to all the fields and
+// methods of `http.Client`.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClientResponseDecodeMoreThenOneError struct {
 	http.Client
 	t *testing.T
 }
 
+// Do method is a mock HTTP client that reads the request body, unmarshals it into a `resolveInputV1` struct, checks if the context and load fields of the struct
+// match the expected values, and then returns a response with a JSON body containing an error message
+// for a specific parameter. This is likely being used for testing purposes to simulate an error
+// response from an external API.
 func (m *MockHTTPClientResponseDecodeMoreThenOneError) Do(req *http.Request) (*http.Response, error) {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -527,6 +558,7 @@ func (m *MockHTTPClientResponseDecodeMoreThenOneError) Do(req *http.Request) (*h
 	}, nil
 }
 
+// TestResponseDecodeMoreThenZero tests if a panic message is thrown with a specific error message.
 func TestResponseDecodeMoreThenZero(t *testing.T) {
 	defer func() {
 		r := recover()
@@ -545,14 +577,22 @@ func TestResponseDecodeMoreThenZero(t *testing.T) {
 
 }
 
-// TestResponseDecodeMoreThenZero stop
-
-// TestResolve start
+// The typeMockHTTPClient is a struct that extends the http.Client type and includes a
+// testing.T object for error reporting.
+// The code defines a struct named `MockHTTPClient` which embeds the
+// `http.Client` struct. This means that `MockHTTPClient` has access to all the fields and
+// methods of `http.Client`.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClient struct {
 	http.Client
 	t *testing.T
 }
 
+// Do is a mock HTTP client in Go. This method reads the request body, unmarshals it into a `resolveInputV1` struct, and checks if the `Context` and `Load`
+// fields of the struct match the expected values. If they don't match, it raises an error. Finally, it
+// returns a mock HTTP response with a predefined JSON string as the response body.
 func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -593,6 +633,7 @@ func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	}, nil
 }
 
+// TestResolve is a unit test function in Go that tests the resolve function of a context object.
 func TestResolve(t *testing.T) {
 	Client = &MockHTTPClient{
 		t: t,
@@ -609,14 +650,22 @@ func TestResolve(t *testing.T) {
 
 }
 
-// TestResolve stop
-
-// TestResolveUnexpectedError start
+// The type MockHTTPClientUnexpectedError is a struct that extends the http.Client type and includes a
+// testing.T object for error reporting.
+// The code defines a struct named `MockHTTPClientUnexpectedError` which embeds the
+// `http.Client` struct. This means that `MockHTTPClientUnexpectedError` has access to all the fields and
+// methods of `http.Client`.
+//
+// Property:
+//   - t: is a pointer to a testing.T object, which is used for testing in Go. It provides methods for reporting test failures and logging test output.
 type MockHTTPClientUnexpectedError struct {
 	http.Client
 	t *testing.T
 }
 
+// Do is a mock HTTP client that returns an unexpected error response. It reads the request body, unmarshals it into a `resolveInputV1` struct, and checks if the
+// `Load` field matches an expected value. If it doesn't match, it raises an error. It then returns an
+// HTTP response with an error message in the body.
 func (m *MockHTTPClientUnexpectedError) Do(req *http.Request) (*http.Response, error) {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
@@ -646,6 +695,7 @@ func (m *MockHTTPClientUnexpectedError) Do(req *http.Request) (*http.Response, e
 	}, nil
 }
 
+// TestResolveUnexpectedError is a test function in Go that checks if a panic message is thrown correctly.
 func TestResolveUnexpectedError(t *testing.T) {
 	defer func() {
 		r := recover()
