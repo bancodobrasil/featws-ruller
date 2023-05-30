@@ -15,7 +15,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// RemoteLoaded ...
+// RemoteLoaded contains two string fields, Resolver and From.
+//
+// Property:
+//   - Resolver: is a string property that represents the URL or IP address of the remote server that is being used to resolve a particular resource or service. It is often used in distributed systems or client-server architectures where different components need to communicate with each other over a network.
+//   - From - The "From" property is a string that represents the source of the remote loaded resource. It could be a URL or a file path, for example.
 type RemoteLoaded struct {
 	Resolver string
 	From     string
@@ -31,35 +35,16 @@ type RemoteLoadeds map[string]RemoteLoaded
 // required parameters, resolvers, loaders, and configuration.
 //
 // Property:
-//   - RawContext - This is a property of type `context.Context` which is used to carry
 //
-// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
-// processes. It is a standard Go library package used for managing context in a program.
-//   - TypedMap: 1. `RawContext`: This is a context.Context object that is used to carry
-//
-// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
-// processes.
-// @property {RemoteLoadeds} RemoteLoadeds - RemoteLoadeds is a custom type defined in the codebase and
-// is a map of string keys to values of type `RemoteLoaded`. `RemoteLoaded` is another custom type that
-// represents a remote resource that has been loaded and cached in memory. The `RemoteLoadeds` map is
-// used to store
+//   - RawContext: This is a property of type `context.Context` which is used to carry deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes. It is a standard Go library package used for managing context in a program.
+//   - TypedMap: 1. `RawContext`: This is a context.Context object that is used to carry deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+//   - RemoteLoadeds: is a custom type defined in the codebase and is a map of string keys to values of type `RemoteLoaded`. `RemoteLoaded` is another custom type that represents a remote resource that has been loaded and cached in memory. The `RemoteLoadeds` map is used to store
 //   - RequiredParams: is a slice of strings that represents the required parameters for a function or method that uses this context. These parameters must be provided when calling the function or method, otherwise an error will be returned.
-//   - Resolver  - 1. `RawContext`: This is a context.Context object that is used to carry
-//
-// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
-// processes.
-// @property {Loader}  - 1. `RawContext`: This is a context.Context object that is used to carry
-// deadlines, cancellation signals, and other request-scoped values across API boundaries and between
-// processes.
-// @property {bool} RequiredConfigured - `RequiredConfigured` is a boolean property that indicates
-// whether all the required parameters and configurations have been set for the context. If it is set
-// to `true`, it means that all the necessary parameters and configurations have been provided and the
-// context is ready to be used. If it is set to `
+//   - Resolver  - 1. `RawContext`: This is a context.Context object that is used to carry deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+//   - Loader  - 1. `RawContext`: This is a context.Context object that is used to carry deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes.
+//   - RequiredConfigured: is a boolean property that indicates whether all the required parameters and configurations have been set for the context. If it is set to `true`, it means that all the necessary parameters and configurations have been provided and the context is ready to be used. `
 type Context struct {
 	RawContext context.Context
-	// The above code is not complete and does not provide enough context to determine its purpose.
-	// However, based on the name "TypedMap", it is possible that it is defining a data structure that
-	// maps keys to values, where the types of the keys and values are specified or enforced.
 	TypedMap
 	RemoteLoadeds  RemoteLoadeds
 	RequiredParams []string
