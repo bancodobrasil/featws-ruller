@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//Router ...
+// Router ...
 func Router(router *gin.RouterGroup) {
 	v1.Router(router.Group("/v1"))
 }

@@ -25,7 +25,7 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
-//LoadLocalGRL ...
+// LoadLocalGRL ...
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
@@ -37,7 +37,7 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
-//LoadRemoteGRL ...
+// LoadRemoteGRL ...
 func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -108,7 +108,7 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-//Eval ...
+// Eval ...
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()

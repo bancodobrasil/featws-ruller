@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-//Config ...
+// Config ...
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
@@ -34,7 +34,7 @@ var config = &Config{}
 
 var loaded = false
 
-//LoadConfig ...
+// LoadConfig ...
 func LoadConfig() (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
@@ -85,7 +85,7 @@ func LoadConfig() (err error) {
 	return
 }
 
-//GetConfig ...
+// GetConfig ...
 func GetConfig() *Config {
 	if !loaded {
 		err := LoadConfig()
