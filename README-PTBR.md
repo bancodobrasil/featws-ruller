@@ -1,8 +1,9 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/abu-lang/goabu.svg)](https://pkg.go.dev/github.com/bancodobrasil/featws-ruller)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/bancodobrasil/featws-ruller/blob/develop/LICENSE)
 
+
 # Featws Ruller [![About_en](https://github.com/yammadev/flag-icons/blob/master/png/US.png?raw=true)](https://github.com/bancodobrasil/featws-ruller/blob/develop/README.md)
-- O projeto featws-ruller é uma implementação do [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), usado para aveliar planilhas de regaras (.grl).
+- O projeto featws-ruller é uma implementação do [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), usado para avaliar planilhas de regras (.grl).
 
 ## Software Necessário
 - Será necessário ter instalado em sua máquina a **Linguagem de Programação Go** para rodar o projeto. Você pode fazer o download na pádina oficial [aqui](https://go.dev/doc/install).
