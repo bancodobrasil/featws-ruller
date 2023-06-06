@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// TestNewProcessor checks if a new instance of a Processor is created correctly.
 func TestNewProcessor(t *testing.T) {
 	got := NewProcessor()
 
@@ -16,6 +17,7 @@ func TestNewProcessor(t *testing.T) {
 	}
 }
 
+// TestBooleanFalse checks if a boolean value is correctly converted to a string.
 func TestBooleanFalse(t *testing.T) {
 	got := (NewProcessor().Boolean(false))
 
@@ -27,6 +29,7 @@ func TestBooleanFalse(t *testing.T) {
 
 }
 
+// TestBooleanTrue checks if a boolean value is correctly converted to a string.
 func TestBooleanTrue(t *testing.T) {
 	got := (NewProcessor().Boolean(true))
 
@@ -38,6 +41,7 @@ func TestBooleanTrue(t *testing.T) {
 
 }
 
+// TestContainsTrue checks if a value is present in a slice using a custom processor.
 func TestContainsTrue(t *testing.T) {
 	testArray := []interface{}{1, 2, 3, 4}
 	value := 4
@@ -49,6 +53,8 @@ func TestContainsTrue(t *testing.T) {
 	}
 
 }
+
+// TestContainsFalse checks if a value is not present in a given array.
 func TestContainsFalse(t *testing.T) {
 	testArray := []interface{}{1, 2, 3, 4}
 	value := 5

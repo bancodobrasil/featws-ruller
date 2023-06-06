@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// This function tests the creation of a new Result object and checks if it has the expected type.
 func TestNewResult(t *testing.T) {
 	got := NewResult()
 
@@ -17,6 +18,7 @@ func TestNewResult(t *testing.T) {
 	}
 }
 
+// This is a test checks if a list of features can be retrieved correctly from a result object.
 func TestGetFeatures(t *testing.T) {
 	result := NewResult()
 	result.Put("myint", 10)

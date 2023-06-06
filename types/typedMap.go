@@ -8,11 +8,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Getter ...
+// Getter requires a method to retrieve an entry based on a given parameter.
+//
+// Property:
+//   - GetEntry: this takes a string parameter and returns an interface{} type. The purpose of this method is to retrieve an entry from some data structure based on the provided parameter.
 type Getter interface {
 	GetEntry(param string) interface{}
 }
 
+// interfaceMap is a map with string keys and interface{} values.
 type interfaceMap map[string]interface{}
 
 // TypedMap its a map with method to gets entries with specific types
@@ -49,7 +53,10 @@ func (c *TypedMap) Has(param string) bool {
 	return exists
 }
 
-// GetEntry ...
+// GetEntry is a method of the `TypedMap` struct that implements the `Getter` interface. It retrieves an
+// entry from the `interfaceMap` field of the `TypedMap` struct based on the provided `param` string. If
+// the entry exists, it returns the value of the entry as an `interface{}` type. If the entry does not exist,
+// it returns `nil`. This method is used to retrieve a generic entry from the map.
 func (c *TypedMap) GetEntry(param string) interface{} {
 	value, ok := c.interfaceMap[param]
 	if !ok {

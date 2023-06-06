@@ -64,17 +64,19 @@ _By default the port will be :8000_
   }
   ```
 
+## GoDoc
 
+To access the GoDoc documentation, first install GoDoc on your machine. Open a terminal and type:
 
+````
+go get golang.org/x/tools/cmd/godoc
+````
+    
+Then run the following command in the repository terminal:
+    
+````
+godoc -http=:6060
+````
 
-
-      
-
-
-
-
-
-
-
-
+GoDoc will run on `localhost:6060`. To access the GoDoc documentation, just [click here](http://localhost:6060/pkg/).
 
