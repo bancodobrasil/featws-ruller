@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 
 	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
@@ -12,9 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
-
-// LoadMutex ...
-var loadMutex sync.Mutex
 
 // EvalHandler godoc
 // @Summary 		Evaluate the rulesheet
@@ -35,6 +31,7 @@ var loadMutex sync.Mutex
 // @Router 			/eval [post]
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		knowledgeBaseName := c.Param("knowledgeBase")
 		if knowledgeBaseName == "" {
 			knowledgeBaseName = services.DefaultKnowledgeBaseName
@@ -47,38 +44,14 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		cacheData := getCache(knowledgeBaseName, version)
-
-		if !isValid(&cacheData) {
-			cacheData.KnowledgeBase = nil
-			cacheData = getCache(knowledgeBaseName, version)
+		knowledgeBase, err := services.EvalService.GetKnowledgeBase(knowledgeBaseName, version)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
 		}
-
-		loadMutex.Lock()
-
-		if !(len(cacheData.KnowledgeBase.RuleEntries) > 0) {
-
-			err := services.EvalService.LoadRemoteGRL(knowledgeBaseName, version)
-			if err != nil {
-				log.Errorf("Erro on load: %v", err)
-				c.String(http.StatusInternalServerError, "Error on load knowledgeBase and/or version")
-				loadMutex.Unlock()
-				return
-			}
-
-			if !(len(cacheData.KnowledgeBase.RuleEntries) > 0) {
-				c.Status(http.StatusNotFound)
-				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
-				loadMutex.Unlock()
-				return
-			}
-		}
-
-		loadMutex.Unlock()
 
 		decoder := json.NewDecoder(c.Request.Body)
 		var t payloads.Eval
-		err := decoder.Decode(&t)
+		err = decoder.Decode(&t)
 		if err != nil {
 			log.Errorf("Erro on json decode: %v", err)
 			c.Status(http.StatusInternalServerError)
@@ -90,7 +63,7 @@ func EvalHandler() gin.HandlerFunc {
 		ctx := types.NewContextFromMap(t)
 		ctx.RawContext = c.Request.Context()
 
-		result, err := services.EvalService.Eval(ctx, cacheData.KnowledgeBase)
+		result, err := services.EvalService.Eval(ctx, knowledgeBase)
 		if err != nil {
 
 			log.Errorf("Error on eval: %v", err)

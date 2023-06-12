@@ -2,10 +2,12 @@ package services
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -35,6 +37,11 @@ func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version str
 type knowledgeBaseInfo struct {
 	KnowledgeBaseName string
 	Version           string
+}
+
+type knowledgeBaseCache struct {
+	KnowledgeBase  *ast.KnowledgeBase
+	ExpirationDate time.Time
 }
 
 // LoadRemoteGRL ...
@@ -78,23 +85,28 @@ var evalMutex sync.Mutex
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
+	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, error)
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
 	LoadRemoteGRL(knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
+
+var loadMutex sync.Mutex
 
 // EvalService ...
 var EvalService IEval = NewEval()
 
 // Eval ... struct
 type Eval struct {
-	knowledgeLibrary *ast.KnowledgeLibrary
+	knowledgeLibrary   *ast.KnowledgeLibrary
+	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
 }
 
 // NewEval ...
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary: ast.NewKnowledgeLibrary(),
+		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
 	}
 }
 
@@ -105,7 +117,50 @@ func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 
 // GetDefaultKnowledgeBase ...
 func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
+
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
+}
+
+// GetKnowledgeBase ...
+func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, error) {
+	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
+	existing := s.knowledgeBaseCache[info]
+
+	if existing == nil {
+
+		existing = &knowledgeBaseCache{
+			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
+			ExpirationDate: time.Now().Add(time.Minute * 5),
+		}
+		s.knowledgeBaseCache[info] = existing
+
+	}
+
+	if existing.ExpirationDate.After(time.Now()) || !(len(existing.KnowledgeBase.RuleEntries) > 0) {
+		//invalidateCache
+		loadMutex.Lock()
+
+		err := s.LoadRemoteGRL(knowledgeBaseName, version)
+		if err != nil {
+			log.Errorf("Erro on load: %v", err)
+			loadMutex.Unlock()
+			return nil, errors.New("error on load knowledgebase and/or version")
+		}
+
+		if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
+
+			loadMutex.Unlock()
+			return nil, errors.New("knowledgebase or version not found")
+		}
+
+		loadMutex.Unlock()
+
+		existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+		existing.ExpirationDate = time.Now().Add(time.Minute * 5)
+
+	}
+	return existing.KnowledgeBase, nil
+
 }
 
 // Eval ...
