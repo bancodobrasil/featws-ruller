@@ -1,6 +1,6 @@
 package errors
 
-//RequestError ...
+// RequestError ...
 // The following code defines a custom error type called RequestError with a status code and message.
 // @property {int} StatusCode - StatusCode is an integer property that represents the HTTP status code
 // of a request. It is typically a three-digit number that indicates the status of the request, such as
