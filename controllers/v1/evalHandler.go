@@ -44,14 +44,15 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		knowledgeBase, err := services.EvalService.GetKnowledgeBase(knowledgeBaseName, version)
-		if err != nil {
-			c.String(http.StatusInternalServerError, err.Error())
+		knowledgeBase, requestError := services.EvalService.GetKnowledgeBase(knowledgeBaseName, version)
+		if requestError != nil {
+			c.String(requestError.StatusCode, requestError.Message)
+			return
 		}
 
 		decoder := json.NewDecoder(c.Request.Body)
 		var t payloads.Eval
-		err = decoder.Decode(&t)
+		err := decoder.Decode(&t)
 		if err != nil {
 			log.Errorf("Erro on json decode: %v", err)
 			c.Status(http.StatusInternalServerError)

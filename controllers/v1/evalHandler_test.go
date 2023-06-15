@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bancodobrasil/featws-ruller/common/errors"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
@@ -47,7 +48,9 @@ func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) LoadRemoteGRL(
 func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return ast.NewKnowledgeLibrary()
 }
-
+func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
+}
 func TestEvalHandlerWithoutKnowledgeBaseAndVersion(t *testing.T) {
 
 	services.EvalService = EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion{
@@ -64,7 +67,7 @@ func TestEvalHandlerWithoutKnowledgeBaseAndVersion(t *testing.T) {
 	}
 
 	gotBody := r.Body.String()
-	expectedBody := "KnowledgeBase or version not founded!"
+	expectedBody := "KnowledgeBase or version not found"
 
 	if gotBody != expectedBody {
 		t.Error("got error on request evalHandler func")
@@ -82,6 +85,9 @@ func (s EvalServiceTestEvalHandlerLoadError) LoadRemoteGRL(knowledgeBaseName str
 
 func (s EvalServiceTestEvalHandlerLoadError) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return ast.NewKnowledgeLibrary()
+}
+func (s EvalServiceTestEvalHandlerLoadError) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	return nil, &errors.RequestError{Message: "Error on load knowledgeBase and/or version", StatusCode: 500}
 }
 
 func TestEvalHandlerLoadError(t *testing.T) {
@@ -124,7 +130,9 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) GetKnowledgeLibrary(
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	return types.NewResult(), nil
 }
-
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
+}
 func TestEvalHandlerWithDefaultKnowledgeBase(t *testing.T) {
 
 	services.EvalService = EvalServiceTestEvalHandlerWithDefaultKnowledgeBase{
@@ -183,7 +191,9 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowl
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	return types.NewResult(), nil
 }
-
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
+}
 func TestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON(t *testing.T) {
 
 	services.EvalService = EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON{
@@ -242,7 +252,9 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) GetKnowledg
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	return nil, fmt.Errorf("mock error")
 }
-
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
+}
 func TestEvalHandlerWithDefaultKnowledgeBaseEvalError(t *testing.T) {
 
 	services.EvalService = EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError{
