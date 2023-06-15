@@ -2,7 +2,6 @@ package services
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -16,6 +15,7 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
+	"github.com/bancodobrasil/featws-ruller/common/errors"
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
@@ -85,7 +85,7 @@ var evalMutex sync.Mutex
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
-	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, error)
+	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
 	LoadRemoteGRL(knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
@@ -122,7 +122,7 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 }
 
 // GetKnowledgeBase ...
-func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, error) {
+func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
 	existing := s.knowledgeBaseCache[info]
 
@@ -144,13 +144,13 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		if err != nil {
 			log.Errorf("Erro on load: %v", err)
 			loadMutex.Unlock()
-			return nil, errors.New("error on load knowledgebase and/or version")
+			return nil, &errors.RequestError{Message: "Error on load KnowledgeBase and/or version", StatusCode: 500}
 		}
 
 		if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
 
 			loadMutex.Unlock()
-			return nil, errors.New("knowledgebase or version not found")
+			return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 		}
 
 		loadMutex.Unlock()
