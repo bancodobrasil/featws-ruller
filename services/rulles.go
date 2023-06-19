@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
+	"github.com/bancodobrasil/featws-ruller/common/errors"
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
@@ -25,10 +27,14 @@ const DefaultKnowledgeBaseName = "default"
 // DefaultKnowledgeBaseVersion its default version of Knowledge Base
 const DefaultKnowledgeBaseVersion = "latest"
 
+<<<<<<< HEAD
 // LoadLocalGRL loads a GRL (Grule Rule Language) file from a local path and builds a rule from it
 // using the `builder.NewRuleBuilder` function. It takes in the path of the GRL file, the name of the
 // knowledge base, and the version of the knowledge base as parameters. It returns an error if there is
 // any issue building the rule from the resource.
+=======
+// LoadLocalGRL ...
+>>>>>>> cache-ruller
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
@@ -45,9 +51,18 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
+<<<<<<< HEAD
 // LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
 // and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
 // knowledge base version as parameters.
+=======
+type knowledgeBaseCache struct {
+	KnowledgeBase  *ast.KnowledgeBase
+	ExpirationDate time.Time
+}
+
+// LoadRemoteGRL ...
+>>>>>>> cache-ruller
 func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -97,13 +112,20 @@ var evalMutex sync.Mutex
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
+	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
 	LoadRemoteGRL(knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
 
+<<<<<<< HEAD
 // EvalService is a variable type of `IEval` and initializing it with a new instance of the `Eval` struct created by calling the `NewEval()`
 // function. This variable can be used to access the methods defined in the `IEval` interface.
+=======
+var loadMutex sync.Mutex
+
+// EvalService ...
+>>>>>>> cache-ruller
 var EvalService IEval = NewEval()
 
 // Eval type contains a reference to a knowledge library in Go's abstract syntax tree.
@@ -111,13 +133,15 @@ var EvalService IEval = NewEval()
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary *ast.KnowledgeLibrary
+	knowledgeLibrary   *ast.KnowledgeLibrary
+	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary: ast.NewKnowledgeLibrary(),
+		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
 	}
 }
 
@@ -135,13 +159,60 @@ func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 // facts that are used to make inferences and deductions. The default knowledge base is the one that is
 // used if no specific knowledge base is provided during evaluation.
 func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
+
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
+<<<<<<< HEAD
 // Eval function is responsible for evaluating a knowledge base (a collection of rules and facts)
 // based on a given context. It takes in two parameters: `ctx`, which is a pointer to a `types.Context`
 // object that contains the context for the evaluation, and `knowledgeBase`, which is a pointer to an
 // `ast.KnowledgeBase` object that represents the knowledge base to be evaluated.
+=======
+// GetKnowledgeBase ...
+func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
+	existing := s.knowledgeBaseCache[info]
+
+	if existing == nil {
+
+		existing = &knowledgeBaseCache{
+			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
+			ExpirationDate: time.Now().Add(time.Minute * 5),
+		}
+		s.knowledgeBaseCache[info] = existing
+
+	}
+
+	if existing.ExpirationDate.After(time.Now()) || !(len(existing.KnowledgeBase.RuleEntries) > 0) {
+		//invalidateCache
+		loadMutex.Lock()
+
+		err := s.LoadRemoteGRL(knowledgeBaseName, version)
+		if err != nil {
+			log.Errorf("Erro on load: %v", err)
+			loadMutex.Unlock()
+			return nil, &errors.RequestError{Message: "Error on load KnowledgeBase and/or version", StatusCode: 500}
+		}
+
+		if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
+
+			loadMutex.Unlock()
+			return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
+		}
+
+		loadMutex.Unlock()
+
+		existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+		existing.ExpirationDate = time.Now().Add(time.Minute * 5)
+
+	}
+	return existing.KnowledgeBase, nil
+
+}
+
+// Eval ...
+>>>>>>> cache-ruller
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()

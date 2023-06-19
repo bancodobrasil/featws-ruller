@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 
 	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
@@ -13,12 +12,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+<<<<<<< HEAD
 // LoadMutex is used to synchronize access to the knowledge base during the evaluation process. The
 // `sync.Mutex` type provides a mutual exclusion lock, which can be used to protect shared resources
 // from concurrent access. In this case, the `loadMutex` variable is used to ensure that only one
 // goroutine at a time can load a knowledge base from a remote source.
 var loadMutex sync.Mutex
 
+=======
+>>>>>>> cache-ruller
 // EvalHandler godoc
 // @Summary 		Evaluate the rulesheet / Avaliação da folha de Regra
 // @Description     Para a realiza os testes basta clicar em *Try it out*, complete a folha de regra com os dados desejados e os demais campos caso necessário, em seguida, clique em *Execute*.
@@ -127,6 +129,7 @@ var loadMutex sync.Mutex
 // This function handles requests to evaluate a knowledge base and returns the result as a JSON object.
 func EvalHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		knowledgeBaseName := c.Param("knowledgeBase")
 		if knowledgeBaseName == "" {
 			knowledgeBaseName = services.DefaultKnowledgeBaseName
@@ -139,31 +142,11 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		loadMutex.Lock()
-
-		knowledgeBase := services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-
-		if !(len(knowledgeBase.RuleEntries) > 0) {
-
-			err := services.EvalService.LoadRemoteGRL(knowledgeBaseName, version)
-			if err != nil {
-				log.Errorf("Erro on load: %v", err)
-				c.String(http.StatusInternalServerError, "Error on load knowledgeBase and/or version")
-				loadMutex.Unlock()
-				return
-			}
-
-			knowledgeBase = services.EvalService.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-
-			if !(len(knowledgeBase.RuleEntries) > 0) {
-				c.Status(http.StatusNotFound)
-				fmt.Fprint(c.Writer, "KnowledgeBase or version not founded!")
-				loadMutex.Unlock()
-				return
-			}
+		knowledgeBase, requestError := services.EvalService.GetKnowledgeBase(knowledgeBaseName, version)
+		if requestError != nil {
+			c.String(requestError.StatusCode, requestError.Message)
+			return
 		}
-
-		loadMutex.Unlock()
 
 		decoder := json.NewDecoder(c.Request.Body)
 		var t payloads.Eval

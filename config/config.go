@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+<<<<<<< HEAD
 // Config type contains various configuration options for a program, including resource loader
 // settings, port, default rules, SSL verification, resolver bridge settings, external host, and API
 // key.
@@ -27,6 +28,9 @@ import (
 //   - ResolverBridgeHeadersStr: This property is a string representation of the HTTP headers that will be sent to the resolver bridge. It is used in conjunction with the ResolverBridgeHeaders property to set the headers for requests made to the resolver bridge. The headers can be specified as a JSON object in string format.
 //   - ExternalHost: This property represents the external host name or IP address of the server where the application is running. It is used to construct URLs for external resources and APIs.
 //   - AuthAPIKey: This property is used to store the API key for authentication purposes. It is used to authenticate requests made to the Ruller API.
+=======
+// Config ...
+>>>>>>> cache-ruller
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
@@ -50,7 +54,11 @@ var config = &Config{}
 
 var loaded = false
 
+<<<<<<< HEAD
 // LoadConfig loads configuration settings from a file and sets default values for missing settings.
+=======
+// LoadConfig ...
+>>>>>>> cache-ruller
 func LoadConfig() (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
@@ -101,7 +109,11 @@ func LoadConfig() (err error) {
 	return
 }
 
+<<<<<<< HEAD
 // GetConfig returns the loaded configuration or panics if there was an error loading it.
+=======
+// GetConfig ...
+>>>>>>> cache-ruller
 func GetConfig() *Config {
 	if !loaded {
 		err := LoadConfig()
