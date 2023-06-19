@@ -65,11 +65,11 @@ func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) LoadRemoteGRL(
 func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 	return ast.NewKnowledgeLibrary()
 }
-<<<<<<< HEAD
+//<<<<<<< HEAD
 
 // This is a test function for the EvalHandler, which checks if the function returns a
 // 404 error and a specific error message when called without a knowledge base or version.
-=======
+//=======
 func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 }
