@@ -31,7 +31,6 @@ const DefaultKnowledgeBaseVersion = "latest"
 // using the `builder.NewRuleBuilder` function. It takes in the path of the GRL file, the name of the
 // knowledge base, and the version of the knowledge base as parameters. It returns an error if there is
 // any issue building the rule from the resource.
-
 func (s Eval) LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error {
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 	fileRes := pkg.NewFileResource(grlPath)
@@ -48,15 +47,22 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
-// LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
-// and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
-// knowledge base version as parameters.
-
+// The type `knowledgeBaseCache` contains a knowledge base and its expiration date.
+// @property KnowledgeBase - KnowledgeBase is a pointer to an ast.KnowledgeBase struct, which likely
+// contains information or data related to a specific domain or topic. This struct may include rules,
+// facts, and other information that can be used for reasoning or decision-making in a particular
+// context.
+// @property ExpirationDate - ExpirationDate is a property of the knowledgeBaseCache struct that
+// represents the date and time when the cached knowledge base will expire and need to be refreshed.
+// This is useful for ensuring that the cached data is not used indefinitely and remains up-to-date.
 type knowledgeBaseCache struct {
 	KnowledgeBase  *ast.KnowledgeBase
 	ExpirationDate time.Time
 }
 
+// LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
+// and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
+// knowledge base version as parameters.
 func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
@@ -154,11 +160,12 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-// Eval function is responsible for evaluating a knowledge base (a collection of rules and facts)
-// based on a given context. It takes in two parameters: `ctx`, which is a pointer to a `types.Context`
-// object that contains the context for the evaluation, and `knowledgeBase`, which is a pointer to an
-// `ast.KnowledgeBase` object that represents the knowledge base to be evaluated.
-// GetKnowledgeBase ...
+// GetKnowledgeBase is a method in the `Eval` struct that retrieves a knowledge base from a cache or
+// loads it from a remote source if it is not found in the cache. It takes in the name and version of
+// the knowledge base as parameters and returns a pointer to the `ast.KnowledgeBase` struct and a
+// `*errors.RequestError` if there is an error. The method first checks if the knowledge base exists in
+// the cache and returns it if it does. If it does not exist or has expired, it loads the knowledge
+// base from a remote source using the `LoadRemoteGRL
 func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
 	existing := s.knowledgeBaseCache[info]
