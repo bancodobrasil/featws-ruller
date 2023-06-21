@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/bancodobrasil/featws-ruller/common/errors"
-
+	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 	"github.com/hyperjumptech/grule-rule-engine/ast"
