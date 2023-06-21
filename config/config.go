@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
 // Config type contains various configuration options for a program, including resource loader
 // settings, port, default rules, SSL verification, resolver bridge settings, external host, and API
 // key.
