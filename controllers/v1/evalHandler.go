@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bancodobrasil/featws-ruller/payloads/v1"
-	"github.com/bancodobrasil/featws-ruller/services"
+	"./payloads/v1"
+	"./services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
