@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	payloads "github.com/bancodobrasil/featws-ruller/payloads/v1"
+	"github.com/bancodobrasil/featws-ruller/payloads/v1"
 	"github.com/bancodobrasil/featws-ruller/services"
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
