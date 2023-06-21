@@ -26,7 +26,6 @@ import (
 //   - ResolverBridgeHeadersStr: This property is a string representation of the HTTP headers that will be sent to the resolver bridge. It is used in conjunction with the ResolverBridgeHeaders property to set the headers for requests made to the resolver bridge. The headers can be specified as a JSON object in string format.
 //   - ExternalHost: This property represents the external host name or IP address of the server where the application is running. It is used to construct URLs for external resources and APIs.
 //   - AuthAPIKey: This property is used to store the API key for authentication purposes. It is used to authenticate requests made to the Ruller API.
-
 type Config struct {
 	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
 	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
