@@ -54,11 +54,7 @@ var config = &Config{}
 
 var loaded = false
 
-<<<<<<< HEAD
 // LoadConfig loads configuration settings from a file and sets default values for missing settings.
-=======
-// LoadConfig ...
->>>>>>> cache-ruller
 func LoadConfig() (err error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
@@ -109,11 +105,7 @@ func LoadConfig() (err error) {
 	return
 }
 
-<<<<<<< HEAD
 // GetConfig returns the loaded configuration or panics if there was an error loading it.
-=======
-// GetConfig ...
->>>>>>> cache-ruller
 func GetConfig() *Config {
 	if !loaded {
 		err := LoadConfig()
