@@ -12,15 +12,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-<<<<<<< HEAD
-// LoadMutex is used to synchronize access to the knowledge base during the evaluation process. The
-// `sync.Mutex` type provides a mutual exclusion lock, which can be used to protect shared resources
-// from concurrent access. In this case, the `loadMutex` variable is used to ensure that only one
-// goroutine at a time can load a knowledge base from a remote source.
-var loadMutex sync.Mutex
-
-=======
->>>>>>> cache-ruller
 // EvalHandler godoc
 // @Summary 		Evaluate the rulesheet / Avaliação da folha de Regra
 // @Description     Para a realiza os testes basta clicar em *Try it out*, complete a folha de regra com os dados desejados e os demais campos caso necessário, em seguida, clique em *Execute*.
