@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	
+	"github.com/bancodobrasil/featws-ruller/services"
+	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
-
 
 // EvalHandler godoc
 // @Summary 		Evaluate the rulesheet / Avaliação da folha de Regra

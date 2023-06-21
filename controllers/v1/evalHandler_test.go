@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/bancodobrasil/featws-ruller/common/errors"
-	"github.com/bancodobrasil/featws-ruller/services"
+
 	"github.com/bancodobrasil/featws-ruller/types"
 	"github.com/gin-gonic/gin"
 	"github.com/hyperjumptech/grule-rule-engine/ast"
@@ -186,7 +186,6 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) Eval(ctx *types.Cont
 	return types.NewResult(), nil
 }
 
-
 // Thiss a test function for the EvalHandler function with a default knowledge base.
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
@@ -264,7 +263,6 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowl
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error) {
 	return types.NewResult(), nil
 }
-
 
 // This is a test that tests the EvalHandler function with a default knowledge base and wrong JSON input.
 func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
