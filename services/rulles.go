@@ -180,10 +180,14 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 	}
 
+	if existing.ExpirationDate.Before(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
+		return existing.KnowledgeBase, nil
+	}
+
 	if existing.ExpirationDate.After(time.Now()) || !(len(existing.KnowledgeBase.RuleEntries) > 0) {
 		//invalidateCache
 		loadMutex.Lock()
-
+		s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
 		err := s.LoadRemoteGRL(knowledgeBaseName, version)
 		if err != nil {
 			log.Errorf("Erro on load: %v", err)
