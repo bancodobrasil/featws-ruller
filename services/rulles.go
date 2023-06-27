@@ -180,33 +180,30 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 	}
 
-	if existing.ExpirationDate.Before(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
+	if existing.ExpirationDate.After(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
 		return existing.KnowledgeBase, nil
 	}
+	//invalidateCache
+	loadMutex.Lock()
+	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
+	err := s.LoadRemoteGRL(knowledgeBaseName, version)
+	if err != nil {
+		log.Errorf("Erro on load: %v", err)
+		loadMutex.Unlock()
+		return nil, &errors.RequestError{Message: "Error on load KnowledgeBase and/or version", StatusCode: 500}
+	}
 
-	if existing.ExpirationDate.After(time.Now()) || !(len(existing.KnowledgeBase.RuleEntries) > 0) {
-		//invalidateCache
-		loadMutex.Lock()
-		s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
-		err := s.LoadRemoteGRL(knowledgeBaseName, version)
-		if err != nil {
-			log.Errorf("Erro on load: %v", err)
-			loadMutex.Unlock()
-			return nil, &errors.RequestError{Message: "Error on load KnowledgeBase and/or version", StatusCode: 500}
-		}
-
-		if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
-
-			loadMutex.Unlock()
-			return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
-		}
+	if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
 
 		loadMutex.Unlock()
-
-		existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-		existing.ExpirationDate = time.Now().Add(time.Minute * 5)
-
+		return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 	}
+
+	loadMutex.Unlock()
+
+	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
+
 	return existing.KnowledgeBase, nil
 
 }
