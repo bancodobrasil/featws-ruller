@@ -3,6 +3,8 @@ package services
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -179,11 +181,14 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		s.knowledgeBaseCache[info] = existing
 
 	}
+	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
+		return existing.KnowledgeBase, nil
+	}
 
 	if existing.ExpirationDate.After(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
 		return existing.KnowledgeBase, nil
 	}
-	//invalidateCache
+
 	loadMutex.Lock()
 	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
 	err := s.LoadRemoteGRL(knowledgeBaseName, version)
@@ -194,7 +199,6 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	}
 
 	if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
-
 		loadMutex.Unlock()
 		return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 	}
@@ -202,7 +206,20 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	loadMutex.Unlock()
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
+	expirationType := os.Getenv("KNOWLEDGE_BASE_EXPIRATION_TYPE")
+	expirationMultiplier, err := strconv.Atoi(os.Getenv("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER"))
+	if err != nil {
+		panic(err)
+	}
+
+	switch expirationType {
+	case "seconds":
+		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Second)
+	case "minutes":
+		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Minute)
+	case "hours":
+		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Hour)
+	}
 
 	return existing.KnowledgeBase, nil
 
