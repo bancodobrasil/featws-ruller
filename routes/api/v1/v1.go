@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Router ...
+// Router sets up a router with authentication middleware and a sub-router for evaluating code.
 func Router(router *gin.RouterGroup) {
 	router.Use(goauthgin.Authenticate())
 	evalRouter(router.Group("/eval"))

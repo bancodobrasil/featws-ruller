@@ -1,6 +1,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/abu-lang/goabu.svg)](https://pkg.go.dev/github.com/bancodobrasil/featws-ruller)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/bancodobrasil/featws-ruller/blob/develop/LICENSE)
-# Featws Ruller [![About_de](https://github.com/yammadev/flag-icons/blob/master/png/BR.png?raw=true)](https://github.com/bancodobrasil/featws-ruller/blob/develop/README-PTBR.md)
+
+# **Featws Ruller** [![About_en](https://github.com/yammadev/flag-icons/blob/master/png/US.png?raw=true)](https://github.com/bancodobrasil/featws-transpiler/blob/develop/README.md)
+
 - The featws-ruller project is an implmentation of the [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), used to evalute rulesheets(.grl) 
 
 ## Required Software
@@ -62,17 +64,19 @@ _By default the port will be :8000_
   }
   ```
 
+## GoDoc
 
+To access the GoDoc documentation, first install GoDoc on your machine. Open a terminal and type:
 
+````
+go get golang.org/x/tools/cmd/godoc
+````
+    
+Then run the following command in the repository terminal:
+    
+````
+godoc -http=:6060
+````
 
-
-      
-
-
-
-
-
-
-
-
+GoDoc will run on `localhost:6060`. To access the GoDoc documentation, just [click here](http://localhost:6060/pkg/).
 

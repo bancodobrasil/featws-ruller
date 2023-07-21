@@ -28,7 +28,19 @@ func setupLog() {
 
 // @version 1.0
 
-// @description Ruler Project provide the rules of the FeatWS operations
+// @Description O projeto Ruler é uma implementação do motor de regras [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), que é utilizado para avaliar regras no formato .grl . O Ruler permite que as regras definidas em arquivos .grl sejam avaliadas de maneira automática e eficiente, ajudando a automatizar as decisões tomadas pelo FeatWS. Isso possibilita que o sistema possa analisar e classificar grandes quantidades de informações de maneira rápida e precisa.
+// @Description
+// @Description Ao utilizar as regras fornecidas pelo projeto Ruler, o FeatWS é capaz de realizar análises de regras em larga escala e fornecer resultados precisos e relevantes para seus usuários. Isso é especialmente importante em áreas como análise de sentimentos em mídias sociais, detecção de fraudes financeiras e análise de dados em geral.
+// @Description
+// @Description Antes de realizar os testes no Swagger, é necessário autorizar o acesso clicando no botão **Authorize**, ao lado, e inserindo a senha correspondente. Após inserir o campo **value** e clicar no botão **Authorize**, o Swagger estará disponível para ser utilizado.
+// @Description
+// @Description A seguir é explicado com mais detalhes sobre os endpoints:
+// @Description  	- **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
+// @Description  	- **/Eval/{knowledgeBase}**: Nesse endpoint, é necessário informar o parâmetro com o nome da folha de regra desejada e, como resultado, será retornado a última versão da folha de regra correspondente.
+// @Description  	- **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parâmetro do nome da folha de regra como também o número da versão da folha de regra que você deseja testar a regra.
+// @Description
+// @Description		**Parameters / Parâmetros**
+// @Description		No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**, é possível enviar os parametros que você deseja testar na folha de regra.
 
 // @termsOfService http://swagger.io/terms/
 
@@ -52,6 +64,8 @@ func setupLog() {
 
 // @x-extension-openapi {"example": "value on a json format"}
 
+// This function sets up a server using the Gin framework and loads default rules if specified in the
+// configuration.
 func main() {
 
 	setupLog()

@@ -1,8 +1,9 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/abu-lang/goabu.svg)](https://pkg.go.dev/github.com/bancodobrasil/featws-ruller)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/bancodobrasil/featws-ruller/blob/develop/LICENSE)
 
+
 # Featws Ruller [![About_en](https://github.com/yammadev/flag-icons/blob/master/png/US.png?raw=true)](https://github.com/bancodobrasil/featws-ruller/blob/develop/README.md)
-- O projeto featws-ruller é uma implementação do [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), usado para aveliar planilhas de regaras (.grl).
+- O projeto featws-ruller é uma implementação do [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), usado para avaliar planilhas de regras (.grl).
 
 ## Software Necessário
 - Será necessário ter instalado em sua máquina a **Linguagem de Programação Go** para rodar o projeto. Você pode fazer o download na pádina oficial [aqui](https://go.dev/doc/install).
@@ -56,3 +57,19 @@ _Por padrão a porta utilizada será a :8000_
     "resource-loader": "OK"
     }
     ```
+
+## GoDoc
+
+Para acessar a documentação do GoDoc, primeiro instale o GoDoc na sua máquina. Abra um terminal e digite:
+
+````
+go get golang.org/x/tools/cmd/godoc
+````
+
+Em seguida rode no terminal do repositório o comando a seguir:
+
+````
+godoc -http=:6060
+````
+
+O GoDoc será executado em `localhost:6060`. Para acessar a documentação do GoDoc, basta [clicar aqui](http://localhost:6060/pkg/).

@@ -20,15 +20,19 @@ type HealthController struct {
 	health healthcheck.Handler
 }
 
-// NewHealthController ...
+// NewHealthController returns a new instance of the HealthController struct with a newHandler.
 func NewHealthController() *HealthController {
 	return &HealthController{
 		health: newHandler(),
 	}
 }
 
+// This instance will be used to register liveness and readiness checks for the application's
+// health endpoints.
 var health = healthcheck.NewHandler()
 
+// newHandler creates a new healthcheck handler and adds liveness and readiness checks based on the
+// configuration.
 func newHandler() healthcheck.Handler {
 	cfg := config.GetConfig()
 	health.AddLivenessCheck("goroutine-threshold", goroutine.Count(100))
@@ -56,7 +60,8 @@ func newHandler() healthcheck.Handler {
 	return health
 }
 
-// Get ...
+// Get returns a check function that performs an HTTP GET request to a specified URL with a
+// timeout and returns an error if the response status code isn't 200.
 func Get(url string, timeout time.Duration) checks.Check {
 	client := http.Client{
 		Timeout: timeout,
@@ -78,12 +83,17 @@ func Get(url string, timeout time.Duration) checks.Check {
 	}
 }
 
-// HealthLiveHandler ...
+// HealthLiveHandler is a Gin HTTP handler function that wraps the LiveEndpoint
+// method of the health instance of the HealthController struct. The LiveEndpoint
+// method is a handler function that returns a 200 status code if the application is live.
 func (c *HealthController) HealthLiveHandler() gin.HandlerFunc {
 	return gin.WrapH(http.HandlerFunc(c.health.LiveEndpoint))
 }
 
-// HealthReadyHandler ...
+// HealthReadyHandler returns a Gin HTTP handler function that wraps the ReadyEndpoint method
+// of the health instance in the HealthController struct. The ReadyEndpoint method is a handler
+// function that returns a 200 status code if the application is ready to receive traffic. The gin.WrapH
+// function is used to convert the http.HandlerFunc returned by the ReadyEndpoint method into a gin.HandlerFunc
 func (c *HealthController) HealthReadyHandler() gin.HandlerFunc {
 	return gin.WrapH(http.HandlerFunc(c.health.ReadyEndpoint))
 }

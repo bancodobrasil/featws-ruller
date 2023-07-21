@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// evalRouter sets up routes for evaluating rules in a knowledge base using the Gin framework and
+// checks if there are any default rules to add additional routes.
 func evalRouter(router *gin.RouterGroup) {
 	router.POST("/:knowledgeBase/:version", v1.EvalHandler())
 	router.POST("/:knowledgeBase/:version/", v1.EvalHandler())
