@@ -9,7 +9,6 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -131,15 +130,19 @@ var EvalService IEval = NewEval()
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary   *ast.KnowledgeLibrary
-	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
+	knowledgeLibrary     *ast.KnowledgeLibrary
+	knowledgeBaseCache   map[knowledgeBaseInfo]*knowledgeBaseCache
+	expirationType       string
+	expirationMultiplier int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
-		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		knowledgeLibrary:     ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache:   map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		expirationType:       config.GetConfig().KnowledgeBaseExpirationTimeUnit,
+		expirationMultiplier: config.GetConfig().KnowledgeBaseExpirationMultiplier,
 	}
 }
 
@@ -206,16 +209,13 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-	expirationType := viper.GetString("KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT")
-	expirationMultiplier := viper.GetInt("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER")
-
-	switch expirationType {
+	switch s.expirationType {
 	case "seconds":
-		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Second)
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
 	case "minutes":
-		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Minute)
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
 	case "hours":
-		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Hour)
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
 	}
 
 	existing.ExpirationDate = time.Now().Add(time.Minute * 5)

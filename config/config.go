@@ -44,6 +44,9 @@ type Config struct {
 	ExternalHost string `mapstructure:"EXTERNAL_HOST"`
 
 	AuthAPIKey string `mapstructure:"FEATWS_RULLER_API_KEY"`
+
+	KnowledgeBaseExpirationMultiplier int64  `mapstructure:"KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER"`
+	KnowledgeBaseExpirationTimeUnit   string `mapstructure:"KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT"`
 }
 
 var config = &Config{}
