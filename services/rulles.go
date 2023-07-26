@@ -208,7 +208,6 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	loadMutex.Unlock()
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-
 	switch s.expirationType {
 	case "seconds":
 		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
