@@ -3,14 +3,13 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"text/template"
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -206,11 +205,9 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	loadMutex.Unlock()
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-	expirationType := os.Getenv("KNOWLEDGE_BASE_EXPIRATION_TYPE")
-	expirationMultiplier, err := strconv.Atoi(os.Getenv("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER"))
-	if err != nil {
-		panic(err)
-	}
+
+	expirationType := viper.GetString("KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT")
+	expirationMultiplier := viper.GetInt("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER")
 
 	switch expirationType {
 	case "seconds":
@@ -221,6 +218,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		existing.ExpirationDate = time.Now().Add(time.Duration(expirationMultiplier) * time.Hour)
 	}
 
+	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
 	return existing.KnowledgeBase, nil
 
 }
