@@ -44,6 +44,9 @@ type Config struct {
 	ExternalHost string `mapstructure:"EXTERNAL_HOST"`
 
 	AuthAPIKey string `mapstructure:"FEATWS_RULLER_API_KEY"`
+
+	KnowledgeBaseExpirationMultiplier int64  `mapstructure:"KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER"`
+	KnowledgeBaseExpirationTimeUnit   string `mapstructure:"KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT"`
 }
 
 var config = &Config{}
@@ -68,6 +71,8 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
 	viper.SetDefault("EXTERNAL_HOST", "localhost:8000")
 	viper.SetDefault("FEATWS_RULLER_API_KEY", "")
+	viper.SetDefault("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER", "5")
+	viper.SetDefault("KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT", "minutes")
 
 	err = viper.ReadInConfig()
 	if err != nil {

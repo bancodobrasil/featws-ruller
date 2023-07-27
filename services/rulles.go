@@ -130,15 +130,19 @@ var EvalService IEval = NewEval()
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary   *ast.KnowledgeLibrary
-	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
+	knowledgeLibrary     *ast.KnowledgeLibrary
+	knowledgeBaseCache   map[knowledgeBaseInfo]*knowledgeBaseCache
+	expirationType       string
+	expirationMultiplier int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
-		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		knowledgeLibrary:     ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache:   map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		expirationType:       config.GetConfig().KnowledgeBaseExpirationTimeUnit,
+		expirationMultiplier: config.GetConfig().KnowledgeBaseExpirationMultiplier,
 	}
 }
 
@@ -179,11 +183,14 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		s.knowledgeBaseCache[info] = existing
 
 	}
+	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
+		return existing.KnowledgeBase, nil
+	}
 
 	if existing.ExpirationDate.After(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
 		return existing.KnowledgeBase, nil
 	}
-	//invalidateCache
+
 	loadMutex.Lock()
 	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
 	err := s.LoadRemoteGRL(knowledgeBaseName, version)
@@ -194,7 +201,6 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	}
 
 	if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
-
 		loadMutex.Unlock()
 		return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 	}
@@ -202,7 +208,14 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	loadMutex.Unlock()
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
+	switch s.expirationType {
+	case "seconds":
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
+	case "minutes":
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
+	case "hours":
+		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
+	}
 
 	return existing.KnowledgeBase, nil
 
