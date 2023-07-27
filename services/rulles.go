@@ -217,7 +217,6 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
 	}
 
-	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
 	return existing.KnowledgeBase, nil
 
 }
