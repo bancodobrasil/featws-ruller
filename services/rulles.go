@@ -202,9 +202,8 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 	loadMutex.Lock()
 
-	for key, element := range existing.KnowledgeBase.RuleEntries {
+	for key := range existing.KnowledgeBase.RuleEntries {
 
-		log.Printf("Removing rule %v %v", key, element)
 		s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
 	}
 
@@ -221,9 +220,6 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	}
 
 	loadMutex.Unlock()
-	log.Printf("KnowledgeBase loaded, updating cache, please wait...")
-	log.Printf("expirationType: %v", s.expirationType)
-	log.Printf("expirationMultiplier: %v", s.expirationMultiplier)
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 	switch s.expirationType {
