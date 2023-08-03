@@ -193,7 +193,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 			ExpirationDate: ExpirationDate,
 		}
 		s.knowledgeBaseCache[info] = existing
-
+		return existing.KnowledgeBase, nil
 	}
 	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
 		log.Printf("KnowledgeBase found. Version not set as latest.KnoledgeBase is not empty. Returning...")
@@ -206,8 +206,16 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		return existing.KnowledgeBase, nil
 	}
 
+	log.Printf("KnowledgeBase found but expired.")
+
 	loadMutex.Lock()
-	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
+
+	for key, element := range existing.KnowledgeBase.RuleEntries {
+
+		log.Printf("Removing rule %v %v", key, element)
+		s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
+	}
+
 	err := s.LoadRemoteGRL(knowledgeBaseName, version)
 	if err != nil {
 		log.Errorf("Erro on load: %v", err)
@@ -224,6 +232,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	log.Printf("KnowledgeBase loaded, updating cache, please wait...")
 	log.Printf("expirationType: %v", s.expirationType)
 	log.Printf("expirationMultiplier: %v", s.expirationMultiplier)
+
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 	switch s.expirationType {
 	case "seconds":
