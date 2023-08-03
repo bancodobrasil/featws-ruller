@@ -7,4 +7,3 @@ example.json
 *.env
 *.out
 vendor
-api.http

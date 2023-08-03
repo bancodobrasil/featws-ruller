@@ -175,13 +175,22 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	existing := s.knowledgeBaseCache[info]
 
 	if existing == nil {
+		var ExpirationDate time.Time
 
+		switch s.expirationType {
+		case "seconds":
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
+		case "minutes":
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
+		case "hours":
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
+		}
 		existing = &knowledgeBaseCache{
 			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
-			ExpirationDate: time.Now().Add(time.Minute * 5),
+			ExpirationDate: ExpirationDate,
 		}
 		s.knowledgeBaseCache[info] = existing
-
+		return existing.KnowledgeBase, nil
 	}
 	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
 		return existing.KnowledgeBase, nil
@@ -192,7 +201,12 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	}
 
 	loadMutex.Lock()
-	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
+
+	for key := range existing.KnowledgeBase.RuleEntries {
+
+		s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
+	}
+
 	err := s.LoadRemoteGRL(knowledgeBaseName, version)
 	if err != nil {
 		log.Errorf("Erro on load: %v", err)
