@@ -175,19 +175,34 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	existing := s.knowledgeBaseCache[info]
 
 	if existing == nil {
+		var ExpirationDate time.Time
 
+		switch s.expirationType {
+		case "seconds":
+			log.Printf("setting expiration time to %v seconds...", s.expirationMultiplier)
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
+		case "minutes":
+			log.Printf("setting expiration time to %v minutes...", s.expirationMultiplier)
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
+		case "hours":
+			log.Printf("setting expiration time to %v hours...", s.expirationMultiplier)
+			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
+		}
 		existing = &knowledgeBaseCache{
 			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
-			ExpirationDate: time.Now().Add(time.Minute * 5),
+			ExpirationDate: ExpirationDate,
 		}
 		s.knowledgeBaseCache[info] = existing
 
 	}
 	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
+		log.Printf("KnowledgeBase found. Version not set as latest.KnoledgeBase is not empty. Returning...")
+		log.Printf("Version: %v", existing.KnowledgeBase.Version)
 		return existing.KnowledgeBase, nil
 	}
 
 	if existing.ExpirationDate.After(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
+		log.Printf("KnowledgeBase found. Expiration date not reached.KnoledgeBase not empty. Returning...")
 		return existing.KnowledgeBase, nil
 	}
 
@@ -206,14 +221,19 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	}
 
 	loadMutex.Unlock()
-
+	log.Printf("KnowledgeBase loaded, updating cache, please wait...")
+	log.Printf("expirationType: %v", s.expirationType)
+	log.Printf("expirationMultiplier: %v", s.expirationMultiplier)
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 	switch s.expirationType {
 	case "seconds":
+		log.Printf("setting expiration time to %v seconds...", s.expirationMultiplier)
 		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
 	case "minutes":
+		log.Printf("setting expiration time to %v minutes...", s.expirationMultiplier)
 		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
 	case "hours":
+		log.Printf("setting expiration time to %v hours...", s.expirationMultiplier)
 		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
 	}
 

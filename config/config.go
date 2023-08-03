@@ -79,6 +79,7 @@ func LoadConfig() (err error) {
 		if err2, ok := err.(*os.PathError); !ok {
 			err = err2
 			log.Errorf("Error on Load Config: %v", err)
+
 			return
 		}
 	}
@@ -102,7 +103,6 @@ func LoadConfig() (err error) {
 			config.ResolverBridgeHeaders.Set(entries[0], entries[1])
 		}
 	}
-
 	return
 }
 

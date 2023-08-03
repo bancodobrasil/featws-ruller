@@ -8,3 +8,4 @@ example.json
 *.out
 vendor
 api.http
+listChangedFilesPathFromGit.sh
