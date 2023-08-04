@@ -130,19 +130,17 @@ var EvalService IEval = NewEval()
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary     *ast.KnowledgeLibrary
-	knowledgeBaseCache   map[knowledgeBaseInfo]*knowledgeBaseCache
-	expirationType       string
-	expirationMultiplier int64
+	knowledgeLibrary   *ast.KnowledgeLibrary
+	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
+	versionTTL         int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary:     ast.NewKnowledgeLibrary(),
-		knowledgeBaseCache:   map[knowledgeBaseInfo]*knowledgeBaseCache{},
-		expirationType:       config.GetConfig().KnowledgeBaseExpirationTimeUnit,
-		expirationMultiplier: config.GetConfig().KnowledgeBaseExpirationMultiplier,
+		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		versionTTL:         config.GetConfig().KnowledgeBaseVersionTTL,
 	}
 }
 
@@ -175,21 +173,15 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	existing := s.knowledgeBaseCache[info]
 
 	if existing == nil {
-		var ExpirationDate time.Time
+		var ExpirationDate = time.Now().Add(time.Duration(s.versionTTL) * time.Second)
 
-		switch s.expirationType {
-		case "seconds":
-			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
-		case "minutes":
-			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
-		case "hours":
-			ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
-		}
 		existing = &knowledgeBaseCache{
 			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
 			ExpirationDate: ExpirationDate,
 		}
+
 		s.knowledgeBaseCache[info] = existing
+
 		return existing.KnowledgeBase, nil
 	}
 	if existing.KnowledgeBase.Version != "latest" && len(existing.KnowledgeBase.RuleEntries) > 0 {
@@ -222,14 +214,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	loadMutex.Unlock()
 
 	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-	switch s.expirationType {
-	case "seconds":
-		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Second)
-	case "minutes":
-		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Minute)
-	case "hours":
-		existing.ExpirationDate = time.Now().Add(time.Duration(s.expirationMultiplier) * time.Hour)
-	}
+	existing.ExpirationDate = time.Now().Add(time.Duration(s.versionTTL) * time.Second)
 
 	return existing.KnowledgeBase, nil
 
