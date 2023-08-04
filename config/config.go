@@ -45,7 +45,7 @@ type Config struct {
 
 	AuthAPIKey string `mapstructure:"FEATWS_RULLER_API_KEY"`
 
-	KnowledgeBaseVersionTTL int64  `mapstructure:"KNOWLEDGE_BASE_VERSION_TTL"`
+	KnowledgeBaseVersionTTL int64 `mapstructure:"KNOWLEDGE_BASE_VERSION_TTL"`
 }
 
 var config = &Config{}

@@ -130,17 +130,17 @@ var EvalService IEval = NewEval()
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary     *ast.KnowledgeLibrary
-	knowledgeBaseCache   map[knowledgeBaseInfo]*knowledgeBaseCache
-	versionTTL int64
+	knowledgeLibrary   *ast.KnowledgeLibrary
+	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
+	versionTTL         int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval() Eval {
 	return Eval{
-		knowledgeLibrary:     ast.NewKnowledgeLibrary(),
-		knowledgeBaseCache:   map[knowledgeBaseInfo]*knowledgeBaseCache{},
-		versionTTL: config.GetConfig().KnowledgeBaseVersionTTL,
+		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
+		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		versionTTL:         config.GetConfig().KnowledgeBaseVersionTTL,
 	}
 }
 
