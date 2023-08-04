@@ -70,8 +70,7 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
 	viper.SetDefault("EXTERNAL_HOST", "localhost:8000")
 	viper.SetDefault("FEATWS_RULLER_API_KEY", "")
-	viper.SetDefault("KNOWLEDGE_BASE_EXPIRATION_MULTIPLIER", "5")
-	viper.SetDefault("KNOWLEDGE_BASE_EXPIRATION_TIME_UNIT", "minutes")
+	viper.SetDefault("KNOWLEDGE_BASE_VERSION_TTL", "300")
 
 	err = viper.ReadInConfig()
 	if err != nil {
