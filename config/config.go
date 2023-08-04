@@ -45,7 +45,7 @@ type Config struct {
 
 	AuthAPIKey string `mapstructure:"FEATWS_RULLER_API_KEY"`
 
-	KnowledgeBaseVersionTTL int64 `mapstructure:"KNOWLEDGE_BASE_VERSION_TTL"`
+	KnowledgeBaseVersionTTL int64 `mapstructure:"FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL"`
 }
 
 var config = &Config{}
@@ -70,7 +70,7 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
 	viper.SetDefault("EXTERNAL_HOST", "localhost:8000")
 	viper.SetDefault("FEATWS_RULLER_API_KEY", "")
-	viper.SetDefault("KNOWLEDGE_BASE_VERSION_TTL", "300")
+	viper.SetDefault("FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL", "300")
 
 	err = viper.ReadInConfig()
 	if err != nil {
