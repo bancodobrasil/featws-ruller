@@ -149,12 +149,13 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-// GetKnowledgeBase is a method in the `Eval` struct that retrieves a knowledge base from a cache or
-// loads it from a remote source if it is not found in the cache. It takes in the name and version of
+// GetKnowledgeBase is a method in the `Eval` struct that retrieves a knowledge base handling a possible
+// expiration in the rulesheet if it reach the expiration date or loads it from a remote source if it is
+// not found in the cache. It takes in the name and version of
 // the knowledge base as parameters and returns a pointer to the `ast.KnowledgeBase` struct and a
-// `*errors.RequestError` if there is an error. The method first checks if the knowledge base exists in
-// the cache and returns it if it does. If it does not exist or has expired, it loads the knowledge
-// base from a remote source using the `LoadRemoteGRL
+// `*errors.RequestError` if there is an error. The method first checks if the knowledge base is expired.
+// If it does not exist or has expired, it loads the knowledge
+// base from a remote source using the `LoadRemoteGRL`
 func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 
 	getMutex.Lock()
