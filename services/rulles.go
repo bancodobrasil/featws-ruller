@@ -91,6 +91,10 @@ var evalMutex sync.Mutex
 
 var getMutex sync.Mutex
 
+var loadWg sync.WaitGroup
+
+var evalWg sync.WaitGroup
+
 // IEval interface defines methods for loading and evaluating knowledge bases in Go.
 //
 // Property
@@ -179,9 +183,15 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		return base, nil
 	}
 
+	loadWg.Add(1)
+	defer loadWg.Done()
+
+	log.Trace("Waiting: [evalWg]")
+	evalWg.Wait()
+	log.Trace("Pass: [evalWg]")
+
 	// If the version is expired, we must invalidate its rules
 	if expired {
-		log.Trace("GetKnowledgeBase: [expired]")
 		for key := range base.RuleEntries {
 			s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
 		}
@@ -210,9 +220,17 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 // Eval ...
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
+
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
 	defer evalMutex.Unlock()
+
+	log.Trace("Waiting: [loadWg]")
+	loadWg.Wait()
+	log.Trace("Pass: [loadWg]")
+
+	evalWg.Add(1)
+	defer evalWg.Done()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -259,8 +277,8 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result
 		result.Put("requiredParamErrors", ctx.GetMap("requiredParamErrors").GetEntries())
 	}
 
-	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
-	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
+	log.Trace("Context:\n\t", ctx.GetEntries(), "\n\n")
+	log.Trace("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	return
 }

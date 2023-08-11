@@ -148,7 +148,7 @@ func EvalHandler() gin.HandlerFunc {
 			fmt.Fprint(c.Writer, "Error on json decode")
 			return
 		}
-		log.Debugln(t)
+		log.Traceln(t)
 
 		ctx := types.NewContextFromMap(t)
 		ctx.RawContext = c.Request.Context()
@@ -162,8 +162,8 @@ func EvalHandler() gin.HandlerFunc {
 			return
 		}
 
-		log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
-		log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
+		log.Trace("Context:\n\t", ctx.GetEntries(), "\n\n")
+		log.Trace("Features:\n\t", result.GetFeatures(), "\n\n")
 
 		responseCode := http.StatusOK
 
