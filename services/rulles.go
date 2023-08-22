@@ -3,11 +3,8 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"strconv"
 	"strings"
-	"sync"
 	"text/template"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -85,16 +82,6 @@ func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
 	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 }
 
-// evalMutex is a variable of type sync.Mutex. This variable is used to synchronize access to the Eval method of the Eval struct, which is concurrently
-// called by multiple goroutines. By using a mutex, it ensures that only one goroutine can execute the Eval method at a time, preventing race conditions and ensuring proper execution of the method.
-var evalMutex sync.Mutex
-
-var getMutex sync.Mutex
-
-var loadWg sync.WaitGroup
-
-var evalWg sync.WaitGroup
-
 // IEval interface defines methods for loading and evaluating knowledge bases in Go.
 //
 // Property
@@ -116,22 +103,14 @@ type IEval interface {
 // function. This variable can be used to access the methods defined in the `IEval` interface.
 var EvalService IEval = NewEval(config.GetConfig())
 
-// Eval type contains a reference to a knowledge library in Go's abstract syntax tree.
-//
-// Property:
-//   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
 	knowledgeLibrary *ast.KnowledgeLibrary
-	expirationMap    map[knowledgeBaseInfo]time.Time
-	versionTTL       int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
 func NewEval(config *config.Config) Eval {
 	return Eval{
 		knowledgeLibrary: ast.NewKnowledgeLibrary(),
-		expirationMap:    map[knowledgeBaseInfo]time.Time{},
-		versionTTL:       config.KnowledgeBaseVersionTTL,
 	}
 }
 
@@ -149,7 +128,6 @@ func (s Eval) GetKnowledgeLibrary() *ast.KnowledgeLibrary {
 // facts that are used to make inferences and deductions. The default knowledge base is the one that is
 // used if no specific knowledge base is provided during evaluation.
 func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
-
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
@@ -162,39 +140,22 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 // base from a remote source using the `LoadRemoteGRL`
 func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 
-	getMutex.Lock()
-	defer getMutex.Unlock()
-
-	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
+	if version == DefaultKnowledgeBaseVersion {
+		log.Debugf("** Searching specific version for knowledbase '%s' version '%s' **", knowledgeBaseName, version)
+		//latestVersion, err := s.searchLatestVersionKnowlegeBase(knowledgeBaseName, version)
+		latestVersion, err := VersionRulesService.GetLatestVersionFromRulesheet(knowledgeBaseName)
+		if err != nil {
+			log.Errorf("Error on searching version '%s' from knowledbase '%s': %s", DefaultKnowledgeBaseVersion, knowledgeBaseName, err)
+			return nil, &errors.RequestError{Message: "Error when trying to recover the latest version", StatusCode: 404}
+		}
+		log.Debugf("Specific version '%s' binded (->) to '%s' for knowledgebase '%s'", latestVersion, DefaultKnowledgeBaseVersion, knowledgeBaseName)
+		version = latestVersion
+	}
 
 	base := s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-	expirable := true
-
-	// If the version is a number, it isn't expirable
-	if _, err := strconv.Atoi(version); err == nil {
-		expirable = false
-	}
-
-	expired := expirable && s.isKnowledgeBaseVersionExpired(info)
-
-	// If the version isn't expired and there are rules, we must retrieve the version
-	if !expired && len(base.RuleEntries) > 0 {
+	if len(base.RuleEntries) > 0 {
 		return base, nil
-	}
-
-	loadWg.Add(1)
-	defer loadWg.Done()
-
-	log.Trace("Waiting: [evalWg]")
-	evalWg.Wait()
-	log.Trace("Pass: [evalWg]")
-
-	// If the version is expired, we must invalidate its rules
-	if expired {
-		for key := range base.RuleEntries {
-			s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
-		}
 	}
 
 	err := s.LoadRemoteGRL(knowledgeBaseName, version)
@@ -210,27 +171,12 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 	}
 
-	if expirable {
-		s.expirationMap[info] = time.Now().Add(time.Duration(s.versionTTL) * time.Second)
-	}
-
 	return base, nil
 
 }
 
 // Eval ...
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
-
-	// FIXME Remove synchronization on eval
-	evalMutex.Lock()
-	defer evalMutex.Unlock()
-
-	log.Trace("Waiting: [loadWg]")
-	loadWg.Wait()
-	log.Trace("Pass: [loadWg]")
-
-	evalWg.Add(1)
-	defer evalWg.Done()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -281,19 +227,4 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result
 	log.Trace("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	return
-}
-
-func (s Eval) isKnowledgeBaseVersionExpired(info knowledgeBaseInfo) bool {
-
-	expireDate, ok := s.expirationMap[info]
-
-	if !ok {
-		return false
-	}
-
-	if expireDate.After(time.Now()) {
-		return false
-	}
-
-	return true
 }

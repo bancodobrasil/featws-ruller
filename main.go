@@ -72,20 +72,20 @@ func main() {
 
 	err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
+		log.Fatalf("Unable to load configurations: %s\n", err)
 	}
 
 	cfg := config.GetConfig()
 
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules
-		log.Debugf("Carregando '%s' como folha de regras default!", defaultGRL)
+		log.Debugf("Loading '%s' as defult rule sheet!", defaultGRL)
 		err := services.EvalService.LoadLocalGRL(defaultGRL, services.DefaultKnowledgeBaseName, services.DefaultKnowledgeBaseVersion)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		log.Warnln("Não foram carregadas regras default!")
+		log.Warnln("Default rule sheet not loaded!")
 	}
 
 	monitor, err := ginMonitor.New("v0.3.2-rc1", ginMonitor.DefaultErrorMessageKey, ginMonitor.DefaultBuckets)

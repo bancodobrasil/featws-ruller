@@ -143,7 +143,7 @@ func EvalHandler() gin.HandlerFunc {
 		var t payloads.Eval
 		err := decoder.Decode(&t)
 		if err != nil {
-			log.Errorf("Erro on json decode: %v", err)
+			log.Errorf("Error on json decode: %v", err)
 			c.Status(http.StatusInternalServerError)
 			fmt.Fprint(c.Writer, "Error on json decode")
 			return
