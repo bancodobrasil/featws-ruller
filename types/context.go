@@ -320,13 +320,13 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	resp, err := Client.Do(req)
 	if err != nil {
-		log.Panic("error on execute request")
+		log.Panicf("error on execute request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Panic("error on read the body")
+		log.Panicf("error on read the body: %v", err)
 	}
 
 	log.Debugf("Resolving with '%s': %v > %s", url, input, string(data))

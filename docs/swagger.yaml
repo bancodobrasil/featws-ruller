@@ -9,7 +9,7 @@ info:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: |
+  description: |-
     O projeto Ruler é uma implementação do motor de regras [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine), que é utilizado para avaliar regras no formato .grl . O Ruler permite que as regras definidas em arquivos .grl sejam avaliadas de maneira automática e eficiente, ajudando a automatizar as decisões tomadas pelo FeatWS. Isso possibilita que o sistema possa analisar e classificar grandes quantidades de informações de maneira rápida e precisa.
 
     Ao utilizar as regras fornecidas pelo projeto Ruler, o FeatWS é capaz de realizar análises de regras em larga escala e fornecer resultados precisos e relevantes para seus usuários. Isso é especialmente importante em áreas como análise de sentimentos em mídias sociais, detecção de fraudes financeiras e análise de dados em geral.
@@ -20,6 +20,9 @@ info:
     - **/Eval**: Esse endpoint é utilizado apenas para aplicações que possuem uma única folha de regra padrão.
     - **/Eval/{knowledgeBase}**: Nesse endpoint, é necessário informar o parâmetro com o nome da folha de regra desejada e, como resultado, será retornado a última versão da folha de regra correspondente.
     - **/Eval/{knowledgeBase}/{version}**: Nesse endpoint é necessário colocar o parâmetro do nome da folha de regra como também o número da versão da folha de regra que você deseja testar a regra.
+
+    **Parameters / Parâmetros**
+    No **knowledgeBase**, você pode especificar o nome da folha de regras que deseja utilizar. Já o **version** você coloca a versão que você deseja avaliar. Em **Paramenter**, é possível enviar os parametros que você deseja testar na folha de regra.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -121,14 +124,6 @@ paths:
         }
         ```
       parameters:
-      - description: knowledgeBase
-        in: path
-        name: knowledgeBase
-        type: string
-      - description: version
-        in: path
-        name: version
-        type: string
       - description: Parameters
         in: body
         name: parameters
@@ -260,10 +255,6 @@ paths:
       - description: knowledgeBase
         in: path
         name: knowledgeBase
-        type: string
-      - description: version
-        in: path
-        name: version
         type: string
       - description: Parameters
         in: body

@@ -210,6 +210,9 @@ func (c *TypedMap) AddItem(param string, item interface{}) []interface{} {
 // AddItems methos insert some items into a slice of map
 func (c *TypedMap) AddItems(param string, items ...interface{}) []interface{} {
 	for _, item := range items {
+		if item == nil {
+			continue
+		}
 		v := reflect.ValueOf(item)
 		_, isString := item.(string)
 		if isString || !v.IsNil() {
