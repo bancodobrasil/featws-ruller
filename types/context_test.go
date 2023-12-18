@@ -342,7 +342,7 @@ func (m *MockHTTPClientExecutePanic) Do(req *http.Request) (*http.Response, erro
 func TestRequestExecutePanic(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r.(*logrus.Entry).Message != "error on execute request" {
+		if r.(*logrus.Entry).Message != "error on execute request: mock do error" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
@@ -487,7 +487,7 @@ func (m *MockHTTPClientReadBodyPanic) Do(req *http.Request) (*http.Response, err
 func TestPanicOnReadBody(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r.(*logrus.Entry).Message != "error on read the body" {
+		if r.(*logrus.Entry).Message != "error on read the body: everything is broken /o\\" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
