@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	"github.com/bancodobrasil/featws-ruller/config"
@@ -9,6 +10,7 @@ import (
 	"github.com/bancodobrasil/featws-ruller/services"
 	ginMonitor "github.com/bancodobrasil/gin-monitor"
 	"github.com/bancodobrasil/goauth"
+	logAuth "github.com/bancodobrasil/goauth/log"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
@@ -98,7 +100,11 @@ func main() {
 
 	router := gin.New()
 
-	goauth.BootstrapMiddleware()
+	logger := logAuth.NewDefaultLogger(logAuth.Panic)
+	logAuth.SetLogger(logger)
+
+	ctx := context.Background()
+	goauth.BootstrapMiddleware(ctx)
 
 	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
 	router.Use(monitor.Prometheus())
