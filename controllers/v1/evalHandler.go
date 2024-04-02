@@ -133,7 +133,7 @@ func EvalHandler() gin.HandlerFunc {
 
 		log.Debugf("Eval with %s %s\n", knowledgeBaseName, version)
 
-		knowledgeBase, requestError := services.EvalService.GetKnowledgeBase(knowledgeBaseName, version)
+		knowledgeBase, requestError := services.EvalService.GetKnowledgeBase(c, knowledgeBaseName, version)
 		if requestError != nil {
 			c.String(requestError.StatusCode, requestError.Message)
 			return

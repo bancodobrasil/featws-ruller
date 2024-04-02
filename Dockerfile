@@ -1,4 +1,4 @@
-FROM golang:1.19-alpine AS BUILD
+FROM golang:1.22-alpine AS BUILD
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . /app
 
 RUN go build -o ruller
 
-FROM alpine:3.15
+FROM alpine:3.19
 
 COPY --from=BUILD /app/ruller /bin/
 

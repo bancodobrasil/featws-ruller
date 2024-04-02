@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,6 +21,9 @@ import (
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 // DefaultKnowledgeBaseName its default name of Knowledge Base
@@ -51,38 +55,91 @@ type knowledgeBaseInfo struct {
 // LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
 // and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
 // knowledge base version as parameters.
-func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s Eval) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 
-	url := cfg.ResourceLoaderURL
-	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
-	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
+	if cfg.ResourceLoader.Type == "http" {
+		urlGRL := cfg.ResourceLoader.HTTP.URL
+		urlGRL = strings.Replace(urlGRL, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
+		urlGRL = strings.Replace(urlGRL, "{version}", "{{.Version}}", -1)
 
-	info := knowledgeBaseInfo{
-		KnowledgeBaseName: knowledgeBaseName,
-		Version:           version,
+		info := knowledgeBaseInfo{
+			KnowledgeBaseName: knowledgeBaseName,
+			Version:           version,
+		}
+
+		urlTemplate := template.New("UrlTemplate")
+
+		// "Parse" parses a string into a template
+		urlTemplate, _ = urlTemplate.Parse(urlGRL)
+
+		var doc bytes.Buffer
+		// standard output to print merged data
+		err := urlTemplate.Execute(&doc, info)
+		if err != nil {
+			log.Error("error on load Remote GRL: %w", err)
+			return err
+		}
+
+		urlGRL = doc.String()
+		hearders := cfg.ResourceLoader.HTTP.Headers
+
+		fileRes := pkg.NewURLResourceWithHeaders(urlGRL, hearders)
+		return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 	}
 
-	urlTemplate := template.New("UrlTemplate")
+	if cfg.ResourceLoader.Type == "minio" {
 
-	// "Parse" parses a string into a template
-	urlTemplate, _ = urlTemplate.Parse(url)
+		minioClient, err := minio.New(cfg.ResourceLoader.Minio.Endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(cfg.ResourceLoader.Minio.AccessKey, cfg.ResourceLoader.Minio.SecretKey, ""),
+			Secure: cfg.ResourceLoader.Minio.UseSSL,
+		})
+		if err != nil {
+			log.Error("error on create minio client: %w", err)
+			return err
+		}
 
-	var doc bytes.Buffer
-	// standard output to print merged data
-	err := urlTemplate.Execute(&doc, info)
-	if err != nil {
-		log.Error("error on load Remote GRL: %w", err)
-		return err
+		path := cfg.ResourceLoader.Minio.PathTemplate
+
+		path = strings.Replace(path, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
+		path = strings.Replace(path, "{version}", "{{.Version}}", -1)
+
+		info := knowledgeBaseInfo{
+			KnowledgeBaseName: knowledgeBaseName,
+			Version:           version,
+		}
+
+		pathTemplate := template.New("PathTemplate")
+
+		// "Parse" parses a string into a template
+		pathTemplate, _ = pathTemplate.Parse(path)
+
+		var doc bytes.Buffer
+		// standard output to print merged data
+		err = pathTemplate.Execute(&doc, info)
+		if err != nil {
+			log.Error("error on load Remote GRL: %w", err)
+			return err
+		}
+
+		path = doc.String()
+
+		opts := minio.GetObjectOptions{}
+
+		obj, err := minioClient.GetObject(ctx, cfg.ResourceLoader.Minio.Bucket, path, opts)
+		if err != nil {
+			log.Error("error on prepare a presigned url: %w", err)
+			return err
+		}
+
+		res := pkg.NewReaderResource(obj)
+		return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, res)
 	}
 
-	url = doc.String()
-
-	log.Debug("LoadRemoteGRL: ", url)
-
-	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
-	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
+	err := fmt.Errorf("error on resolve couldn't load!")
+	log.Error(err)
+	return err
 }
 
 // evalMutex is a variable of type sync.Mutex. This variable is used to synchronize access to the Eval method of the Eval struct, which is concurrently
@@ -106,9 +163,9 @@ var evalWg sync.WaitGroup
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
-	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
+	GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
-	LoadRemoteGRL(knowledgeBaseName string, version string) error
+	LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
 
@@ -160,7 +217,7 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 // `*errors.RequestError` if there is an error. The method first checks if the knowledge base is expired.
 // If it does not exist or has expired, it loads the knowledge
 // base from a remote source using the `LoadRemoteGRL`
-func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s Eval) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 
 	getMutex.Lock()
 	defer getMutex.Unlock()
@@ -197,7 +254,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 		}
 	}
 
-	err := s.LoadRemoteGRL(knowledgeBaseName, version)
+	err := s.LoadRemoteGRL(ctx, knowledgeBaseName, version)
 
 	if err != nil {
 		log.Errorf("Erro on load: %v", err)
