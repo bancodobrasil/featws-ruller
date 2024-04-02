@@ -137,7 +137,7 @@ func (s Eval) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, versi
 		return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, res)
 	}
 
-	err := fmt.Errorf("error on resolve couldn't load!")
+	err := fmt.Errorf("error on resolve couldn't load")
 	log.Error(err)
 	return err
 }

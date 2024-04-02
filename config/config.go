@@ -43,25 +43,28 @@ type Config struct {
 	KnowledgeBaseVersionTTL int64 `mapstructure:"FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL"`
 }
 
+// ResourceLoader represents a generic resource loader that can be either HTTP or Minio type.
 type ResourceLoader struct {
-	Type  string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
-	HTTP  *ResourceLoaderHTTP
-	Minio *ResourceLoaderMinio
+	Type  string               `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"` // Type of resource loader.
+	HTTP  *ResourceLoaderHTTP  // Specific configurations for HTTP resource loader.
+	Minio *ResourceLoaderMinio // Specific configurations for Minio resource loader.
 }
 
+// ResourceLoaderHTTP represents specific configurations for an HTTP resource loader.
 type ResourceLoaderHTTP struct {
-	URL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_URL"`
-	Headers    http.Header
-	HeadersStr string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_HEADERS"`
+	URL        string      `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_URL"` // URL of the HTTP resource loader.
+	Headers    http.Header // HTTP Headers to be sent in the requests.
+	HeadersStr string      `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_HEADERS"` // String representation of the HTTP headers.
 }
 
+// ResourceLoaderMinio represents specific configurations for a Minio resource loader.
 type ResourceLoaderMinio struct {
-	Bucket       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_BUCKET"`
-	Endpoint     string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ENDPOINT"`
-	AccessKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ACCESS_KEY"`
-	SecretKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_SECRET_KEY"`
-	UseSSL       bool   `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_USE_SSL"`
-	PathTemplate string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_PATH_TEMPLATE"`
+	Bucket       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_BUCKET"`        // Minio Bucket for loading resources.
+	Endpoint     string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ENDPOINT"`      // Minio server Endpoint.
+	AccessKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ACCESS_KEY"`    // Minio Access Key.
+	SecretKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_SECRET_KEY"`    // Minio Secret Key.
+	UseSSL       bool   `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_USE_SSL"`       // Indicates whether SSL should be used in the connection.
+	PathTemplate string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_PATH_TEMPLATE"` // Path template for resources in Minio.
 }
 
 var config = &Config{
