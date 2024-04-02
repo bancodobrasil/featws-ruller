@@ -129,7 +129,7 @@ func (s Eval) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, versi
 
 		obj, err := minioClient.GetObject(ctx, cfg.ResourceLoader.Minio.Bucket, path, opts)
 		if err != nil {
-			log.Error("error on prepare a presigned url: %w", err)
+			log.Error("error on get object: %w", err)
 			return err
 		}
 
