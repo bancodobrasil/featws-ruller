@@ -1,3 +1,5 @@
+include .env
+export
 
 lint:
 	go install golang.org/x/lint/golint@latest
