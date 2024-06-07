@@ -8,3 +8,5 @@ example.json
 *.out
 vendor
 test.json
+__debug_bin*
+.vscode/

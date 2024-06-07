@@ -28,10 +28,7 @@ import (
 //   - ExternalHost: This property represents the external host name or IP address of the server where the application is running. It is used to construct URLs for external resources and APIs.
 //   - KnowledgeBaseVersionTTL: This property is used to define the TTL of a KnowledgeBase Version when it's used a tag name version.
 type Config struct {
-	ResourceLoaderType       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"`
-	ResourceLoaderURL        string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_URL"`
-	ResourceLoaderHeaders    http.Header
-	ResourceLoaderHeadersStr string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HEADERS"`
+	ResourceLoader *ResourceLoader
 
 	LogLevel string `mapstructure:"FEATWS_RULLER_LOG_LEVEL"`
 
@@ -48,7 +45,36 @@ type Config struct {
 	KnowledgeBaseVersionTTL int64 `mapstructure:"FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL"`
 }
 
-var config = &Config{}
+// ResourceLoader represents a generic resource loader that can be either HTTP or Minio type.
+type ResourceLoader struct {
+	Type  string               `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_TYPE"` // Type of resource loader.
+	HTTP  *ResourceLoaderHTTP  // Specific configurations for HTTP resource loader.
+	Minio *ResourceLoaderMinio // Specific configurations for Minio resource loader.
+}
+
+// ResourceLoaderHTTP represents specific configurations for an HTTP resource loader.
+type ResourceLoaderHTTP struct {
+	URL        string      `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_URL"` // URL of the HTTP resource loader.
+	Headers    http.Header // HTTP Headers to be sent in the requests.
+	HeadersStr string      `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_HTTP_HEADERS"` // String representation of the HTTP headers.
+}
+
+// ResourceLoaderMinio represents specific configurations for a Minio resource loader.
+type ResourceLoaderMinio struct {
+	Bucket       string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_BUCKET"`        // Minio Bucket for loading resources.
+	Endpoint     string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ENDPOINT"`      // Minio server Endpoint.
+	AccessKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_ACCESS_KEY"`    // Minio Access Key.
+	SecretKey    string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_SECRET_KEY"`    // Minio Secret Key.
+	UseSSL       bool   `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_USE_SSL"`       // Indicates whether SSL should be used in the connection.
+	PathTemplate string `mapstructure:"FEATWS_RULLER_RESOURCE_LOADER_MINIO_PATH_TEMPLATE"` // Path template for resources in Minio.
+}
+
+var config = &Config{
+	ResourceLoader: &ResourceLoader{
+		HTTP:  &ResourceLoaderHTTP{},
+		Minio: &ResourceLoaderMinio{},
+	},
+}
 
 var loaded = false
 
@@ -63,6 +89,12 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_RULLER_LOG_LEVEL", "INFO")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_TYPE", "http")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_BUCKET", "")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_ENDPOINT", "")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_ACCESS_KEY", "")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_SECRET_KEY", "")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_USE_SSL", "true")
+	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_PATH_TEMPLATE", "{knowledgeBase}/{version}.grl")
 	viper.SetDefault("FEATWS_RULLER_RESOLVER_BRIDGE_URL", "")
 	viper.SetDefault("FEATWS_RULLER_RESOLVER_BRIDGE_HEADERS", "")
 	viper.SetDefault("FEATWS_RULLER_DEFAULT_RULES", "")
@@ -82,13 +114,31 @@ func LoadConfig() (err error) {
 	}
 
 	err = viper.Unmarshal(config)
+	if err != nil {
+		panic(fmt.Sprintf("load config error: %s", err))
+	}
 
-	config.ResourceLoaderHeaders = make(http.Header)
-	resourceLoaderHeaders := strings.Split(config.ResourceLoaderHeadersStr, ",")
+	err = viper.Unmarshal(config.ResourceLoader)
+	if err != nil {
+		panic(fmt.Sprintf("load config http error: %s", err))
+	}
+
+	err = viper.Unmarshal(config.ResourceLoader.HTTP)
+	if err != nil {
+		panic(fmt.Sprintf("load config http error: %s", err))
+	}
+
+	err = viper.Unmarshal(config.ResourceLoader.Minio)
+	if err != nil {
+		panic(fmt.Sprintf("load config minio error: %s", err))
+	}
+
+	config.ResourceLoader.HTTP.Headers = make(http.Header)
+	resourceLoaderHeaders := strings.Split(config.ResourceLoader.HTTP.HeadersStr, ",")
 	for _, value := range resourceLoaderHeaders {
 		entries := strings.Split(value, ":")
 		if len(entries) == 2 {
-			config.ResourceLoaderHeaders.Set(entries[0], entries[1])
+			config.ResourceLoader.HTTP.Headers.Set(entries[0], entries[1])
 		}
 	}
 
