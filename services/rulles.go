@@ -237,11 +237,11 @@ func (s Eval) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, ve
 
 	// If the version isn't expired and there are rules, we must retrieve the version
 	if !expired && len(base.RuleEntries) > 0 {
-		log.Trace("Eval with cached Knowledge")
+		log.Debug("Eval with cached Knowledge")
 		return base, nil
 	}
 
-	log.Trace("Start load Knowledge")
+	log.Debug("Start load Knowledge")
 
 	loadWg.Add(1)
 	defer loadWg.Done()
