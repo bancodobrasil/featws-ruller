@@ -122,7 +122,7 @@ var EvalService IEval = NewEval(config.GetConfig())
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
 	knowledgeLibrary *ast.KnowledgeLibrary
-	expirationMap    map[knowledgeBaseInfo]time.Time
+	expirationMap    map[string]time.Time
 	versionTTL       int64
 }
 
@@ -130,7 +130,7 @@ type Eval struct {
 func NewEval(config *config.Config) Eval {
 	return Eval{
 		knowledgeLibrary: ast.NewKnowledgeLibrary(),
-		expirationMap:    map[knowledgeBaseInfo]time.Time{},
+		expirationMap:    map[string]time.Time{},
 		versionTTL:       config.KnowledgeBaseVersionTTL,
 	}
 }
@@ -165,7 +165,7 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 	getMutex.Lock()
 	defer getMutex.Unlock()
 
-	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
+	info := fmt.Sprintf("%s-%s", knowledgeBaseName, version)
 
 	base := s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
@@ -180,8 +180,11 @@ func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.K
 
 	// If the version isn't expired and there are rules, we must retrieve the version
 	if !expired && len(base.RuleEntries) > 0 {
+		log.Trace("Eval with cached Knowledge")
 		return base, nil
 	}
+
+	log.Trace("Start load Knowledge")
 
 	loadWg.Add(1)
 	defer loadWg.Done()
@@ -283,7 +286,7 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result
 	return
 }
 
-func (s Eval) isKnowledgeBaseVersionExpired(info knowledgeBaseInfo) bool {
+func (s Eval) isKnowledgeBaseVersionExpired(info string) bool {
 
 	expireDate, ok := s.expirationMap[info]
 
