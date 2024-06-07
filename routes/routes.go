@@ -7,8 +7,8 @@ import (
 	"github.com/bancodobrasil/featws-ruller/routes/health"
 	telemetry "github.com/bancodobrasil/gin-telemetry"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // SetupRoutes sets up routes for a Gin router, including a home route, a health route, and a Swagger
@@ -19,7 +19,7 @@ func SetupRoutes(router *gin.Engine) {
 	homeRouter(router.Group("/"))
 	health.Router(router.Group("/health"))
 	// setup swagger docs
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 
 // APIRoutes define all api routes
