@@ -288,7 +288,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 		Load:    []string{param},
 	}
 
-	log.Debugf("Resolving with '%s': %v", url, input)
+	log.Tracef("Resolving with '%s': %v", url, input)
 
 	var buf bytes.Buffer
 
@@ -297,7 +297,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 		log.Panic("error on encode input")
 	}
 
-	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
+	log.Tracef("Resolving with '%s' decoded: %v", url, buf.String())
 
 	ctx := c.RawContext
 	var req *http.Request
@@ -329,7 +329,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 		log.Panic("error on read the body")
 	}
 
-	log.Debugf("Resolving with '%s': %v > %s", url, input, string(data))
+	log.Tracef("Resolving with '%s': %v > %s", url, input, string(data))
 
 	output := resolveOutputV1{}
 	err = json.Unmarshal(data, &output)

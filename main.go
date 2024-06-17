@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/bancodobrasil/featws-ruller/config"
 	_ "github.com/bancodobrasil/featws-ruller/docs"
@@ -17,13 +16,16 @@ import (
 	ginlogrus "github.com/toorop/gin-logrus"
 )
 
-func setupLog() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
-	// log.SetFormatter(&log.JSONFormatter{})
-
-	log.SetOutput(os.Stdout)
-
-	log.SetLevel(log.DebugLevel)
+func setupLog(config *config.Config) {
+	level := log.InfoLevel
+	if len(config.LogLevel) > 0 {
+		log.Infof("Configuring log level: %s", config.LogLevel)
+		parsedLevel, err := log.ParseLevel(config.LogLevel)
+		if err == nil {
+			level = parsedLevel
+		}
+	}
+	log.SetLevel(level)
 }
 
 // @title FeatWS Ruler
@@ -70,14 +72,14 @@ func setupLog() {
 // configuration.
 func main() {
 
-	setupLog()
-
 	err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
 	}
 
 	cfg := config.GetConfig()
+
+	setupLog(cfg)
 
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules

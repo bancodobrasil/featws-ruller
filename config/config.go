@@ -30,6 +30,8 @@ import (
 type Config struct {
 	ResourceLoader *ResourceLoader
 
+	LogLevel string `mapstructure:"FEATWS_RULLER_LOG_LEVEL"`
+
 	Port             string `mapstructure:"PORT"`
 	DefaultRules     string `mapstructure:"FEATWS_RULLER_DEFAULT_RULES"`
 	DisableSSLVerify bool   `mapstructure:"FEATWS_DISABLE_SSL_VERIFY"`
@@ -84,8 +86,8 @@ func LoadConfig() (err error) {
 
 	viper.AutomaticEnv()
 
+	viper.SetDefault("FEATWS_RULLER_LOG_LEVEL", "INFO")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_TYPE", "http")
-	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_URL", "")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_HEADERS", "")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_BUCKET", "")
 	viper.SetDefault("FEATWS_RULLER_RESOURCE_LOADER_MINIO_ENDPOINT", "")
