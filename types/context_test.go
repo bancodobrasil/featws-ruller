@@ -699,7 +699,7 @@ func (m *MockHTTPClientUnexpectedError) Do(req *http.Request) (*http.Response, e
 func TestResolveUnexpectedError(t *testing.T) {
 	defer func() {
 		r := recover()
-		if r != "error message" {
+		if (r.(*logrus.Entry)).Message != "error message" {
 			t.Error("The panic message it's not throwed")
 		}
 	}()
