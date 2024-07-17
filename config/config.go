@@ -43,6 +43,8 @@ type Config struct {
 	ExternalHost string `mapstructure:"EXTERNAL_HOST"`
 
 	KnowledgeBaseVersionTTL int64 `mapstructure:"FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL"`
+
+	GoroutineThreshold int64 `mapstructure:"FEATWS_RULLER_GOROUTINE_THRESHOLD"`
 }
 
 // ResourceLoader represents a generic resource loader that can be either HTTP or Minio type.
@@ -102,6 +104,7 @@ func LoadConfig() (err error) {
 	viper.SetDefault("FEATWS_DISABLE_SSL_VERIFY", false)
 	viper.SetDefault("EXTERNAL_HOST", "localhost:8000")
 	viper.SetDefault("FEATWS_RULLER_KNOWLEDGE_BASE_VERSION_TTL", "300")
+	viper.SetDefault("FEATWS_RULLER_GOROUTINE_THRESHOLD", "200")
 
 	err = viper.ReadInConfig()
 	if err != nil {
