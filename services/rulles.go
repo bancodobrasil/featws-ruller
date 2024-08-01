@@ -2,7 +2,9 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -19,6 +21,9 @@ import (
 	"github.com/bancodobrasil/featws-ruller/config"
 	"github.com/bancodobrasil/featws-ruller/processor"
 	"github.com/bancodobrasil/featws-ruller/types"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 // DefaultKnowledgeBaseName its default name of Knowledge Base
@@ -47,59 +52,105 @@ type knowledgeBaseInfo struct {
 	Version           string
 }
 
-// The type `knowledgeBaseCache` contains a knowledge base and its expiration date.
-// @property KnowledgeBase - KnowledgeBase is a pointer to an ast.KnowledgeBase struct, which likely
-// contains information or data related to a specific domain or topic. This struct may include rules,
-// facts, and other information that can be used for reasoning or decision-making in a particular
-// context.
-// @property ExpirationDate - ExpirationDate is a property of the knowledgeBaseCache struct that
-// represents the date and time when the cached knowledge base will expire and need to be refreshed.
-// This is useful for ensuring that the cached data is not used indefinitely and remains up-to-date.
-type knowledgeBaseCache struct {
-	KnowledgeBase  *ast.KnowledgeBase
-	ExpirationDate time.Time
-}
-
 // LoadRemoteGRL function is responsible for loading GRL (Grule Rule Language) rules from a remote location, such as a GitLab repository,
 // and constructing a rule from them using the builder.NewRuleBuilder function. It takes the knowledge base name (rulesheet) and the
 // knowledge base version as parameters.
-func (s Eval) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s Eval) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	cfg := config.GetConfig()
 	ruleBuilder := builder.NewRuleBuilder(s.knowledgeLibrary)
 
-	url := cfg.ResourceLoaderURL
-	url = strings.Replace(url, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
-	url = strings.Replace(url, "{version}", "{{.Version}}", -1)
+	if cfg.ResourceLoader.Type == "http" {
+		urlGRL := cfg.ResourceLoader.HTTP.URL
+		urlGRL = strings.Replace(urlGRL, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
+		urlGRL = strings.Replace(urlGRL, "{version}", "{{.Version}}", -1)
 
-	info := knowledgeBaseInfo{
-		KnowledgeBaseName: knowledgeBaseName,
-		Version:           version,
+		info := knowledgeBaseInfo{
+			KnowledgeBaseName: knowledgeBaseName,
+			Version:           version,
+		}
+
+		urlTemplate := template.New("UrlTemplate")
+
+		// "Parse" parses a string into a template
+		urlTemplate, _ = urlTemplate.Parse(urlGRL)
+
+		var doc bytes.Buffer
+		// standard output to print merged data
+		err := urlTemplate.Execute(&doc, info)
+		if err != nil {
+			log.Error("error on load Remote GRL: %w", err)
+			return err
+		}
+
+		urlGRL = doc.String()
+		hearders := cfg.ResourceLoader.HTTP.Headers
+
+		fileRes := pkg.NewURLResourceWithHeaders(urlGRL, hearders)
+		return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
 	}
 
-	urlTemplate := template.New("UrlTemplate")
+	if cfg.ResourceLoader.Type == "minio" {
 
-	// "Parse" parses a string into a template
-	urlTemplate, _ = urlTemplate.Parse(url)
+		minioClient, err := minio.New(cfg.ResourceLoader.Minio.Endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(cfg.ResourceLoader.Minio.AccessKey, cfg.ResourceLoader.Minio.SecretKey, ""),
+			Secure: cfg.ResourceLoader.Minio.UseSSL,
+		})
+		if err != nil {
+			log.Error("error on create minio client: %w", err)
+			return err
+		}
 
-	var doc bytes.Buffer
-	// standard output to print merged data
-	err := urlTemplate.Execute(&doc, info)
-	if err != nil {
-		log.Error("error on load Remote GRL: %w", err)
-		return err
+		path := cfg.ResourceLoader.Minio.PathTemplate
+
+		path = strings.Replace(path, "{knowledgeBase}", "{{.KnowledgeBaseName}}", -1)
+		path = strings.Replace(path, "{version}", "{{.Version}}", -1)
+
+		info := knowledgeBaseInfo{
+			KnowledgeBaseName: knowledgeBaseName,
+			Version:           version,
+		}
+
+		pathTemplate := template.New("PathTemplate")
+
+		// "Parse" parses a string into a template
+		pathTemplate, _ = pathTemplate.Parse(path)
+
+		var doc bytes.Buffer
+		// standard output to print merged data
+		err = pathTemplate.Execute(&doc, info)
+		if err != nil {
+			log.Error("error on load Remote GRL: %w", err)
+			return err
+		}
+
+		path = doc.String()
+
+		opts := minio.GetObjectOptions{}
+
+		obj, err := minioClient.GetObject(ctx, cfg.ResourceLoader.Minio.Bucket, path, opts)
+		if err != nil {
+			log.Error("error on get object: %w", err)
+			return err
+		}
+
+		res := pkg.NewReaderResource(obj)
+		return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, res)
 	}
 
-	url = doc.String()
-
-	log.Debug("LoadRemoteGRL: ", url)
-
-	fileRes := pkg.NewURLResourceWithHeaders(url, cfg.ResourceLoaderHeaders)
-	return ruleBuilder.BuildRuleFromResource(knowledgeBaseName, version, fileRes)
+	err := fmt.Errorf("error on resolve couldn't load")
+	log.Error(err)
+	return err
 }
 
 // evalMutex is a variable of type sync.Mutex. This variable is used to synchronize access to the Eval method of the Eval struct, which is concurrently
 // called by multiple goroutines. By using a mutex, it ensures that only one goroutine can execute the Eval method at a time, preventing race conditions and ensuring proper execution of the method.
 var evalMutex sync.Mutex
+
+var getMutex sync.Mutex
+
+var loadWg sync.WaitGroup
+
+var evalWg sync.WaitGroup
 
 // IEval interface defines methods for loading and evaluating knowledge bases in Go.
 //
@@ -112,33 +163,32 @@ var evalMutex sync.Mutex
 type IEval interface {
 	GetKnowledgeLibrary() *ast.KnowledgeLibrary
 	GetDefaultKnowledgeBase() *ast.KnowledgeBase
-	GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
+	GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError)
 	LoadLocalGRL(grlPath string, knowledgeBaseName string, version string) error
-	LoadRemoteGRL(knowledgeBaseName string, version string) error
+	LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error
 	Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (*types.Result, error)
 }
 
 // EvalService is a variable type of `IEval` and initializing it with a new instance of the `Eval` struct created by calling the `NewEval()`
 // function. This variable can be used to access the methods defined in the `IEval` interface.
-var loadMutex sync.Mutex
-
-// EvalService ...
-var EvalService IEval = NewEval()
+var EvalService IEval = NewEval(config.GetConfig())
 
 // Eval type contains a reference to a knowledge library in Go's abstract syntax tree.
 //
 // Property:
 //   - knowledgeLibrary - `knowledgeLibrary` is a pointer to an `ast.KnowledgeLibrary` object. Itis a property of the `Eval` struct.
 type Eval struct {
-	knowledgeLibrary   *ast.KnowledgeLibrary
-	knowledgeBaseCache map[knowledgeBaseInfo]*knowledgeBaseCache
+	knowledgeLibrary *ast.KnowledgeLibrary
+	expirationMap    map[string]time.Time
+	versionTTL       int64
 }
 
 // NewEval  creates a new instance of the Eval struct with an empty knowledge library.
-func NewEval() Eval {
+func NewEval(config *config.Config) Eval {
 	return Eval{
-		knowledgeLibrary:   ast.NewKnowledgeLibrary(),
-		knowledgeBaseCache: map[knowledgeBaseInfo]*knowledgeBaseCache{},
+		knowledgeLibrary: ast.NewKnowledgeLibrary(),
+		expirationMap:    map[string]time.Time{},
+		versionTTL:       config.KnowledgeBaseVersionTTL,
 	}
 }
 
@@ -160,59 +210,87 @@ func (s Eval) GetDefaultKnowledgeBase() *ast.KnowledgeBase {
 	return s.GetKnowledgeLibrary().GetKnowledgeBase(DefaultKnowledgeBaseName, DefaultKnowledgeBaseVersion)
 }
 
-// GetKnowledgeBase is a method in the `Eval` struct that retrieves a knowledge base from a cache or
-// loads it from a remote source if it is not found in the cache. It takes in the name and version of
+// GetKnowledgeBase is a method in the `Eval` struct that retrieves a knowledge base handling a possible
+// expiration in the rulesheet if it reach the expiration date or loads it from a remote source if it is
+// not found in the cache. It takes in the name and version of
 // the knowledge base as parameters and returns a pointer to the `ast.KnowledgeBase` struct and a
-// `*errors.RequestError` if there is an error. The method first checks if the knowledge base exists in
-// the cache and returns it if it does. If it does not exist or has expired, it loads the knowledge
-// base from a remote source using the `LoadRemoteGRL
-func (s Eval) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
-	info := knowledgeBaseInfo{KnowledgeBaseName: knowledgeBaseName, Version: version}
-	existing := s.knowledgeBaseCache[info]
+// `*errors.RequestError` if there is an error. The method first checks if the knowledge base is expired.
+// If it does not exist or has expired, it loads the knowledge
+// base from a remote source using the `LoadRemoteGRL`
+func (s Eval) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 
-	if existing == nil {
+	getMutex.Lock()
+	defer getMutex.Unlock()
 
-		existing = &knowledgeBaseCache{
-			KnowledgeBase:  s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version),
-			ExpirationDate: time.Now().Add(time.Minute * 5),
+	info := fmt.Sprintf("%s-%s", knowledgeBaseName, version)
+
+	base := s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
+
+	expirable := true
+
+	// If the version is a number, it isn't expirable
+	if _, err := strconv.Atoi(version); err == nil {
+		expirable = false
+	}
+
+	expired := expirable && s.isKnowledgeBaseVersionExpired(info)
+
+	// If the version isn't expired and there are rules, we must retrieve the version
+	if !expired && len(base.RuleEntries) > 0 {
+		log.Debug("Eval with cached Knowledge")
+		return base, nil
+	}
+
+	log.Debug("Start load Knowledge")
+
+	loadWg.Add(1)
+	defer loadWg.Done()
+
+	log.Trace("Waiting: [evalWg]")
+	evalWg.Wait()
+	log.Trace("Pass: [evalWg]")
+
+	// If the version is expired, we must invalidate its rules
+	if expired {
+		for key := range base.RuleEntries {
+			s.knowledgeLibrary.RemoveRuleEntry(key, knowledgeBaseName, version)
 		}
-		s.knowledgeBaseCache[info] = existing
-
 	}
 
-	if existing.ExpirationDate.After(time.Now()) && len(existing.KnowledgeBase.RuleEntries) > 0 {
-		return existing.KnowledgeBase, nil
-	}
-	//invalidateCache
-	loadMutex.Lock()
-	s.knowledgeLibrary.RemoveRuleEntry(existing.KnowledgeBase.Name, knowledgeBaseName, version)
-	err := s.LoadRemoteGRL(knowledgeBaseName, version)
+	err := s.LoadRemoteGRL(ctx, knowledgeBaseName, version)
+
 	if err != nil {
 		log.Errorf("Erro on load: %v", err)
-		loadMutex.Unlock()
 		return nil, &errors.RequestError{Message: "Error on load KnowledgeBase and/or version", StatusCode: 500}
 	}
 
-	if !(len(existing.KnowledgeBase.RuleEntries) > 0) {
+	base = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
 
-		loadMutex.Unlock()
+	if len(base.RuleEntries) == 0 {
 		return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 	}
 
-	loadMutex.Unlock()
+	if expirable {
+		s.expirationMap[info] = time.Now().Add(time.Duration(s.versionTTL) * time.Second)
+	}
 
-	existing.KnowledgeBase = s.GetKnowledgeLibrary().GetKnowledgeBase(knowledgeBaseName, version)
-	existing.ExpirationDate = time.Now().Add(time.Minute * 5)
-
-	return existing.KnowledgeBase, nil
+	return base, nil
 
 }
 
 // Eval ...
 func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result *types.Result, err error) {
+
 	// FIXME Remove synchronization on eval
 	evalMutex.Lock()
 	defer evalMutex.Unlock()
+
+	log.Trace("Waiting: [loadWg]")
+	loadWg.Wait()
+	log.Trace("Pass: [loadWg]")
+
+	evalWg.Add(1)
+	defer evalWg.Done()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -259,8 +337,23 @@ func (s Eval) Eval(ctx *types.Context, knowledgeBase *ast.KnowledgeBase) (result
 		result.Put("requiredParamErrors", ctx.GetMap("requiredParamErrors").GetEntries())
 	}
 
-	log.Debug("Context:\n\t", ctx.GetEntries(), "\n\n")
-	log.Debug("Features:\n\t", result.GetFeatures(), "\n\n")
+	log.Trace("Context:\n\t", ctx.GetEntries(), "\n\n")
+	log.Trace("Features:\n\t", result.GetFeatures(), "\n\n")
 
 	return
+}
+
+func (s Eval) isKnowledgeBaseVersionExpired(info string) bool {
+
+	expireDate, ok := s.expirationMap[info]
+
+	if !ok {
+		return false
+	}
+
+	if expireDate.After(time.Now()) {
+		return false
+	}
+
+	return true
 }

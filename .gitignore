@@ -7,4 +7,6 @@ example.json
 *.env
 *.out
 vendor
-api.http
+test.json
+__debug_bin*
+.vscode/

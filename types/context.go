@@ -288,16 +288,16 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 		Load:    []string{param},
 	}
 
-	log.Debugf("Resolving with '%s': %v", url, input)
+	log.Tracef("Resolving with '%s': %v", url, input)
 
 	var buf bytes.Buffer
 
 	err := json.NewEncoder(&buf).Encode(input)
 	if err != nil {
-		log.Panic("error on encode input")
+		log.WithError(err).Panic("error on encode input")
 	}
 
-	log.Debugf("Resolving with '%s' decoded: %v", url, buf.String())
+	log.Tracef("Resolving with '%s' decoded: %v", url, buf.String())
 
 	ctx := c.RawContext
 	var req *http.Request
@@ -309,7 +309,7 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 	}
 
 	if err != nil {
-		log.Panic("error on create Request")
+		log.WithError(err).Panic("error on create Request")
 	}
 
 	req.Header = config.ResolverBridgeHeaders
@@ -320,29 +320,29 @@ func (c *Context) resolveImpl(resolver string, param string) interface{} {
 
 	resp, err := Client.Do(req)
 	if err != nil {
-		log.Panic("error on execute request")
+		log.WithError(err).Panic("error on execute request")
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Panic("error on read the body")
+		log.WithError(err).Panic("error on read the body")
 	}
 
-	log.Debugf("Resolving with '%s': %v > %s", url, input, string(data))
+	log.Tracef("Resolving with '%s': %v > %s", url, input, string(data))
 
 	output := resolveOutputV1{}
 	err = json.Unmarshal(data, &output)
 	if err != nil {
-		log.Panic("error on response decoding")
+		log.WithError(err).Panic("error on response decoding")
 	}
 
 	if len(output.Errors) > 0 {
-		log.Panic(fmt.Sprintf("%s", output.Errors))
+		log.WithField("errors", output.Errors).Panic(fmt.Sprintf("%s", output.Errors))
 	}
 
 	if output.Error != "" {
-		panic(output.Error)
+		log.WithField("error", output.Error).Panic(output.Error)
 	}
 
 	return output.Context[param]

@@ -1,3 +1,5 @@
+include .env
+export
 
 lint:
 	go install golang.org/x/lint/golint@latest
@@ -17,8 +19,8 @@ run-on-our-code-directories:
 	@make our-code-directories | xargs -n 1 $(ARGS)
 our-code-directories:
 	@go list ./... | grep -v /docs
-verify:test
-	make lint
+
+verify:test lint
 
 generate-swagger:
 #   Install swag on https://github.com/swaggo/swag

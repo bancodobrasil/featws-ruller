@@ -35,10 +35,10 @@ var health = healthcheck.NewHandler()
 // configuration.
 func newHandler() healthcheck.Handler {
 	cfg := config.GetConfig()
-	health.AddLivenessCheck("goroutine-threshold", goroutine.Count(100))
+	health.AddLivenessCheck("goroutine-threshold", goroutine.Count(int(cfg.GoroutineThreshold)))
 
-	if cfg.ResourceLoaderURL != "" {
-		rawResourceLoaderURL := cfg.ResourceLoaderURL
+	if cfg.ResourceLoader.Type == "http" && cfg.ResourceLoader.HTTP.URL != "" {
+		rawResourceLoaderURL := cfg.ResourceLoader.HTTP.URL
 		resourceLoader, _ := url.Parse(rawResourceLoaderURL)
 
 		if resourceLoader.Scheme == "" {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"os"
+	"context"
 
 	"github.com/bancodobrasil/featws-ruller/config"
 	_ "github.com/bancodobrasil/featws-ruller/docs"
@@ -9,19 +9,23 @@ import (
 	"github.com/bancodobrasil/featws-ruller/services"
 	ginMonitor "github.com/bancodobrasil/gin-monitor"
 	"github.com/bancodobrasil/goauth"
+	logAuth "github.com/bancodobrasil/goauth/log"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	ginlogrus "github.com/toorop/gin-logrus"
 )
 
-func setupLog() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
-	// log.SetFormatter(&log.JSONFormatter{})
-
-	log.SetOutput(os.Stdout)
-
-	log.SetLevel(log.DebugLevel)
+func setupLog(config *config.Config) {
+	level := log.InfoLevel
+	if len(config.LogLevel) > 0 {
+		log.Infof("Configuring log level: %s", config.LogLevel)
+		parsedLevel, err := log.ParseLevel(config.LogLevel)
+		if err == nil {
+			level = parsedLevel
+		}
+	}
+	log.SetLevel(level)
 }
 
 // @title FeatWS Ruler
@@ -68,14 +72,14 @@ func setupLog() {
 // configuration.
 func main() {
 
-	setupLog()
-
 	err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Não foi possível carregar as configurações: %s\n", err)
 	}
 
 	cfg := config.GetConfig()
+
+	setupLog(cfg)
 
 	if cfg.DefaultRules != "" {
 		defaultGRL := cfg.DefaultRules
@@ -98,7 +102,11 @@ func main() {
 
 	router := gin.New()
 
-	goauth.BootstrapMiddleware()
+	logger := logAuth.NewDefaultLogger(logAuth.Panic)
+	logAuth.SetLogger(logger)
+
+	ctx := context.Background()
+	goauth.BootstrapMiddleware(ctx)
 
 	router.Use(ginlogrus.Logger(log.StandardLogger()), gin.Recovery())
 	router.Use(monitor.Prometheus())

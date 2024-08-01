@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -49,7 +50,7 @@ type EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion struct {
 // testing purposes. It checks if the `knowledgeBaseName` and `version` parameters passed to the method
 // are equal to the default values defined in the `services` package. If they are not equal, it logs an
 // error using the `testing.T` object and returns `nil`. If they are equal, it simply returns `nil`.
-func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	if knowledgeBaseName != services.DefaultKnowledgeBaseName || version != services.DefaultKnowledgeBaseVersion {
 		s.t.Error("Did not load the default")
 	}
@@ -66,7 +67,7 @@ func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeLi
 	return ast.NewKnowledgeLibrary()
 }
 
-func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s EvalServiceTestEvalHandlerWithoutKnowledgeBaseAndVersion) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return nil, &errors.RequestError{Message: "KnowledgeBase or version not found", StatusCode: 404}
 }
 
@@ -111,7 +112,7 @@ type EvalServiceTestEvalHandlerLoadError struct {
 // that might occur when loading a knowledge base or version. This function is used in the test case
 // `TestEvalHandlerLoadError` to create a mock implementation of the `services.IEval` interface that
 // returns an error when the `EvalHandler` function is called.
-func (s EvalServiceTestEvalHandlerLoadError) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s EvalServiceTestEvalHandlerLoadError) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	return fmt.Errorf("mock load error")
 }
 
@@ -124,7 +125,7 @@ func (s EvalServiceTestEvalHandlerLoadError) GetKnowledgeLibrary() *ast.Knowledg
 	return ast.NewKnowledgeLibrary()
 }
 
-func (s EvalServiceTestEvalHandlerLoadError) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s EvalServiceTestEvalHandlerLoadError) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return nil, &errors.RequestError{Message: "Error on load knowledgeBase and/or version", StatusCode: 500}
 }
 
@@ -168,7 +169,7 @@ type EvalServiceTestEvalHandlerWithDefaultKnowledgeBase struct {
 
 // This method takes two parameters, `knowledgeBaseName` and `version`, but it does not perform any action and
 // always returns `nil`.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	return nil
 }
 
@@ -187,7 +188,7 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) Eval(ctx *types.Cont
 }
 
 // Thiss a test function for the EvalHandler function with a default knowledge base.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBase) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
 }
 
@@ -249,7 +250,7 @@ type EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON struct {
 // This method takes in two parameters `knowledgeBaseName` and `version` of type string and returns an
 // error. In this implementation, the method does not perform any action and simply returns a nil
 // error.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	return nil
 }
 
@@ -265,7 +266,7 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) Eval(ctx
 }
 
 // This is a test that tests the EvalHandler function with a default knowledge base and wrong JSON input.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseAndWrongJSON) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
 }
 
@@ -327,7 +328,7 @@ type EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError struct {
 // method takes in two parameters `knowledgeBaseName` and `version` of type string and returns an
 // error. In this implementation, the method always returns `nil`, indicating that there was no error
 // in loading the remote knowledge base.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) LoadRemoteGRL(knowledgeBaseName string, version string) error {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) LoadRemoteGRL(ctx context.Context, knowledgeBaseName string, version string) error {
 	return nil
 }
 
@@ -349,7 +350,7 @@ func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) Eval(ctx *t
 
 // This is a test that tests the EvalHandler function with a default knowledge base and
 // an evaluation error.
-func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) GetKnowledgeBase(knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
+func (s EvalServiceTestEvalHandlerWithDefaultKnowledgeBaseEvalError) GetKnowledgeBase(ctx context.Context, knowledgeBaseName string, version string) (*ast.KnowledgeBase, *errors.RequestError) {
 	return s.kl.GetKnowledgeBase(knowledgeBaseName, version), nil
 }
 func TestEvalHandlerWithDefaultKnowledgeBaseEvalError(t *testing.T) {

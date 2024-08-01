@@ -38,18 +38,6 @@
                 "summary": "Evaluate the rulesheet / Avaliação da folha de Regra",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "knowledgeBase",
-                        "name": "knowledgeBase",
-                        "in": "path"
-                    },
-                    {
-                        "type": "string",
-                        "description": "version",
-                        "name": "version",
-                        "in": "path"
-                    },
-                    {
                         "description": "Parameters",
                         "name": "parameters",
                         "in": "body",
@@ -116,12 +104,6 @@
                         "type": "string",
                         "description": "knowledgeBase",
                         "name": "knowledgeBase",
-                        "in": "path"
-                    },
-                    {
-                        "type": "string",
-                        "description": "version",
-                        "name": "version",
                         "in": "path"
                     },
                     {

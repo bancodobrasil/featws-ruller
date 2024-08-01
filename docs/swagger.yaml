@@ -124,14 +124,6 @@ paths:
         }
         ```
       parameters:
-      - description: knowledgeBase
-        in: path
-        name: knowledgeBase
-        type: string
-      - description: version
-        in: path
-        name: version
-        type: string
       - description: Parameters
         in: body
         name: parameters
@@ -263,10 +255,6 @@ paths:
       - description: knowledgeBase
         in: path
         name: knowledgeBase
-        type: string
-      - description: version
-        in: path
-        name: version
         type: string
       - description: Parameters
         in: body
